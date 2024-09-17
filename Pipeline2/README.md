@@ -4,15 +4,17 @@ Once you have executed the initial analysis with your gene expression counts and
 
 ### Setting Up Paths
 # Create a new conda environment
+```bash
 conda create -n alphafold_env python=3.9
 conda activate alphafold_env
-
+```
 
 # Install canu, if it is not installed:
+```bash
 wget https://github.com/marbl/canu/releases/download/v2.2/canu-2.2.Linux-amd64.tar.bz2
 tar -xvjf canu-2.2.Linux-amd64.tar.bz2
 export PATH=$PATH:path/to/your/canu-2.2/bin
-
+```
 # Step A: Extracting potential hits into a new folder
 
 #Edit file path in the script:
