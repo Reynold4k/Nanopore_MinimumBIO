@@ -25,7 +25,7 @@ Ensure your system meets the following requirements before running the pipeline:
 **Software requirements**:
 ## Software List
 
-1. **Porechop**   (1_porechoptrim_fastqc.sh)
+1. **Porechop**   (1_porechoptrim_fastqc.pbs)
    - Tool for trimming Oxford Nanopore reads.
    - Module command: `module load porechop`
 
@@ -33,28 +33,28 @@ Ensure your system meets the following requirements before running the pipeline:
    - Tool for trimming Oxford Nanopore reads.
    - Module command: `module load cutadapt`
 
-3. **Dorado**     (dorado_preprocessing.sh)
+3. **Dorado**     (dorado_preprocessing.pbs)
    - Tool for trimming Oxford Nanopore reads.
    - Module command: `module load dorado`
 
-4. **NanoPlot**   (1_porechoptrim_fastqc.sh)
+4. **NanoPlot**   (1_porechoptrim_fastqc.pbs)
    - Tool for quality control of nanopore reads.
    - Module command: `module load nanoplot`
 
-5. **BWA**        (2_sam_bam.sh)
+5. **BWA**        (2_sam_bam.pbs)
    - Aligns sequence reads to a reference genome.
    - Module command: `module load bwa`
 
-6. **Samtools**   (2_sam_bam.sh, 3_sort_markdup.sh)
+6. **Samtools**   (2_sam_bam.pbs, 3_sort_markdup.pbs)
    - Utilities for manipulating alignments in the SAM format, including sorting and indexing.
    - Module command: `module load samtools`
 
-7. **featureCounts**    (4_gene_counts.sh)
+7. **featureCounts**    (4_gene_counts.pbs)
    - Part of the Subread package for counting reads to genomic features.
    - Module command: `module load subread`
 
-For the script <porechop_preprocessing.sh>, please load 1,4,5,6,7
-For the script <dorado_preprocessing.sh>, please load 3,4,5,6,7
+For the script <porechop_preprocessing.pbs>, please load 1,4,5,6,7
+For the script <dorado_preprocessing.pbs>, please load 3,4,5,6,7
 
 
 ## Rclone Example
@@ -120,7 +120,7 @@ sudo apt-get install porechop bwa samtools
 ## Setup Instructions
 
 1. Clone the repository or copy the script into your working directory.
-2. Ensure that the script and any additional scripts (`logo.sh`) are in the same directory.
+2. Ensure that the script and any additional scripts (`logo.pbs`) are in the same directory.
 3. Download hg38 reference and annotation files via:
 
 ```bash
@@ -148,11 +148,11 @@ https://docs.restech.unsw.edu.au/
 
 Set the input and reference data paths in the script:
 
-Step1 Modify the preprocessing script(e.g. porechop_preprocessing.sh)
+Step1 Modify the preprocessing script(e.g. porechop_preprocessing.pbs)
 
-For fastq files: porechop_preprocessing.sh
-For Pod5 files: pod5_preprocessing.sh (Without gene counts)
-For Pod5 files: pod5_preprocessing_with_genecounts.sh (With gene counts)
+For fastq files: porechop_preprocessing.pbs
+For Pod5 files: pod5_preprocessing.pbs (Without gene counts)
+For Pod5 files: pod5_preprocessing_with_genecounts.pbs (With gene counts)
 
 - **Modify the `FOLDER` variable**: Set it to the directory containing your sequencing files.
 
@@ -189,7 +189,7 @@ For example, for nanopore fastq data, run command:
 
 ```bash 
 
-./porechop_preprocessing.sh
+bash ./porechop_preprocessing.pbs
 
 ```
 
@@ -197,13 +197,13 @@ For example, for nanopore fastq data, run command:
 
 If encounter errors or no responses when running the scripts, please run split scripts step by step.
 
-The porechop_preprocessing.sh is consisted of 4 split scripts:
+The porechop_preprocessing.pbs is consisted of 4 split scripts:
 
-1_porechoptrim_fastqc.sh
-2_sam_bam.sh
-3_sort_markdup.sh
-4_gene_counts.sh
-clear_intermediate.sh
+1_porechoptrim_fastqc.pbs
+2_sam_bam.pbs
+3_sort_markdup.pbs
+4_gene_counts.pbs
+clear_intermediate.pbs
 
 
 ### Clean Step: Edit the Cleaning Script and Execute
@@ -218,7 +218,7 @@ FOLDER="/mnt/d/Small_Molecule/Biotin/T7MB-2/240421"
 After edited the folder path in the script, excute via:
 ```bash
 
-./clear_intermediate.sh
+bash ./clear_intermediate.pbs
 
 ```
 
@@ -244,10 +244,10 @@ After edited the folder path in the script, excute via:
    - If any expected output is missing, the script informs you and skips the deletion process to ensure no important data is lost.
 
 #### Execution:
-1. Save the script as `clear_intermediate.sh`.
+1. Save the script as `clear_intermediate.pbs`.
 2. Ensure the script has execution permissions by running:
    ```bash
-   chmod +x clear_intermediate.sh
+   chmod +x clear_intermediate.pbs
 
    ```
 
@@ -284,7 +284,7 @@ The pipeline produces the following outputs:
 
 ## Analysis of generated gene counts matrix: Updating 3 Paths in R and Bash Scripts
 
-In your R script, make sure that `exp_base_path` and `control_base_path` paths match the `FOLDER` path specified in the `porechop_preprocessing.sh` script. Below is an example of how you can configure these: 
+In your R script, make sure that `exp_base_path` and `control_base_path` paths match the `FOLDER` path specified in the `porechop_preprocessing.pbs` script. Below is an example of how you can configure these: 
 
 ```r
 # Example Path configuration in the R script
