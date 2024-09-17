@@ -257,44 +257,18 @@ After edited the folder path in the script, excute via:
 The script expects input files to be in the specified `FOLDER` directory and also looks for `.fastq` or `.fastq.gz` files for trimming and alignment.
 
 Input folder path example and its supposed structure:
-/mnt/d/Small_Molecule/Biotin/T7MB-2/240421
-  ├── R0
-  ├── R1
-  └── ...
-       ├── sample1.fastq.gz
-       ├── sample2.fastq.gz
-       └── ...
+![image](https://github.com/user-attachments/assets/0ddc2ab1-f1d6-4107-b4a4-31ef215c7f46)
+
 
 Output folder structure should be similar as below:
 
-/mnt/d/Small_Molecule/Biotin/T7MB-2/240421
-  ├── R0
-  ├── R1
-  └── ...
-       ├── sample.fastq.gz
-       ├── sample_trimmed.fastq.gz
-       ├── sample_trimmed.bam
-       ├── **FAY71653_pass_barcode20_8be234fc_b19da987_8_trimmed_nanoplot**
-       ├── sample_trimmed_sorted_marked.bam
-       ├── sample_trimmed_sorted_marked.bam.bai
-       ├── sample_expression_counts.txt
-       ├── sample_expression_counts.txt.summary
-       └── ...
+![image](https://github.com/user-attachments/assets/afaf4eea-3c75-4b38-833f-628589d3cf0d)
+
 
 Output for Pod5 data:
 
-Path/to/your/pod5/output
-├── fastq_fail
-    └── barcode....
-├── fastq_pass
-│   └── barcode....
-├── quality_control
-├── step1
-├── step2
-├── step3
-├── step4
-├── step5
-└── step6
+![image](https://github.com/user-attachments/assets/21ec813f-8b55-49e0-ab1d-39fa0656c933)
+
 
 ## Output
 
