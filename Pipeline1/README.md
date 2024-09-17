@@ -198,9 +198,14 @@ For example, for nanopore fastq data, run command:
 
 ```bash 
 
-./porechop_preprocessing.sh
+bash ./porechop_preprocessing.sh
 
 ```
+
+If run successfully, you'll see:
+![image](https://github.com/user-attachments/assets/ce83699c-815d-441c-88ca-6c264536e61d)
+
+Each of the step is corresponding to each script below.
 
 ## Trouble Shooting
 
@@ -328,6 +333,10 @@ Then run through the whole R scripts and check the result plots.
 
 Rscript script.R
 ```
+
+If running successfully, you'll see:
+
+![image](https://github.com/user-attachments/assets/f19b438f-63be-456b-b67c-76ca02b3641a)
 
 
 
