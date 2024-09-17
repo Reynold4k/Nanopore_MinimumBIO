@@ -1,4 +1,4 @@
-# Comprehensive Pipeline for Nanopore Biopanning data including Trimming, Quality Control, Alignment, and Analysis
+ Comprehensive Pipeline for Nanopore Biopanning data including Trimming, Quality Control, Alignment, and Analysis
 
 **Author**: Chen Zhu  
 **Email**: [z3546698@ad.unsw.edu.au]
