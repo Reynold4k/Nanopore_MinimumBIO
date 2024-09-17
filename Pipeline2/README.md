@@ -32,6 +32,11 @@ bash ./a_extract_reads.pbs
 
 ```
 
+If running without error, you will see:
+
+![image](https://github.com/user-attachments/assets/6114dda2-d07d-456c-9ac2-c96fe67e32f4)
+
+
 # Step B: Error Correction, trimming, unitigging, Assembly
 
 #Edit file path in the script:
@@ -40,11 +45,31 @@ OUTPUT_DIR="/path/to/your/experiments/potential_hit"
 
 ```bash
 
-bash ./b_extract_reads.pbs
+bash ./b_Correction_Assembly.pbs
 
 ```
 
 It won't take a long time, but you need to wait till the contigs files are created!!!
+
+You must wait until seeing the contigs file:
+![image](https://github.com/user-attachments/assets/9c6e2bd7-c371-4376-84dd-e84f345fe0f4)
+
+
+Then execute the translation script, but still need to change the path first:
+
+contig_fasta_file = "/path/to/your/corrected.contigs.fasta"
+output_protein_file = "/path/to/your/protein_sequences_long.fasta"
+
+```bash
+python3 translation.py
+```
+
+If succeed, you will see:
+![image](https://github.com/user-attachments/assets/e30b575e-6021-4724-9a16-80a87febc39c)
+
+Make a blast online to check whether it is still the potential hits that you extracted in the Step A via: 
+
+https://blast.ncbi.nlm.nih.gov/Blast.cgi?PROGRAM=blastn&BLAST_SPEC=GeoBlast&PAGE_TYPE=BlastSearch
 
 
 # Step C: AlphaFold
@@ -75,6 +100,24 @@ python3 run_alphafold.py \
     --bfd_database_path=/data/bio/alphafold/bfd/bfd_metaclust_clu_complete_id30_c90_final_seq.sorted_opt \
     --pdb70_database_path=/data/bio/alphafold/pdb70/pdb70
 
+```
+
+If you beat the final boss and win, you'll see:
+![image](https://github.com/user-attachments/assets/9b0579bd-2c10-4f23-885c-ffaf2e07e874)
+
+These pdb files are what you may want to check as the result of AlphaFold, you can view them via Linux:
+
+```bash
+conda install -c conda-forge pymol
+
+pymol your_protein.pdb
+
+```
+
+If you want to run it faster, please add GPU into calculation of AlphaFold:
+
+```bash
+pip install --upgrade "jax[cuda]" -f https://storage.googleapis.com/jax-releases/jax_cuda_releases.html
 ```
 
 ### when showing error:
