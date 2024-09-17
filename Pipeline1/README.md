@@ -68,8 +68,9 @@ To use a specific version of Rclone in your environment, you can list available 
 
 ## If you're using Katana UNSW, you can book an interactive CPU portal and then run the following command
 
+```bash
 qsub -I -l select=1:ncpus=16:mem=128gb -l walltime=04:00:00
-
+```
 
 ```bash
 # Display all Rclone versions available
@@ -120,8 +121,9 @@ conda activate bioenv
 ```
 
 # Installation with apt-get
+```bash
 sudo apt-get install porechop bwa samtools
-
+```
 ## Setup Instructions
 
 1. Clone the repository or copy the script into your working directory.
@@ -138,11 +140,13 @@ gunzip hg38.fa.gz
 ```
 
 # This step usually takes around an hour even on Katana
+```bash
+
 bwa index hg38.fa
 
 wget ftp://ftp.ensembl.org/pub/release-104/gtf/homo_sapiens/Homo_sapiens.GRCh38.112.gtf.gz 
 gunzip Homo_sapiens.GRCh38.112.gtf.gz
-
+```
 
 # For katana only
 4. Mount your OneDrive directories to your katana scratch, please refer to the official guidances:
@@ -162,15 +166,15 @@ For Pod5 files: pod5_preprocessing_with_genecounts.sh (With gene counts)
 - **Modify the `FOLDER` variable**: Set it to the directory containing your sequencing files.
 
 If you aren't sure about your location, you can print your location just by running:
-
+```bash
 pwd
-
-
+```
+```bash
 FOLDER="the outout of your pwd working directory having the same structure as below"
 
 For example,
 FOLDER="/mnt/d/Small_Molecule/Biotin/T7MB-2/240421"  # Path to input experiments folders
-
+```
 
 Step2 Update gene reference and annotation file path in the pre processing script
 
@@ -255,7 +259,10 @@ After edited the folder path in the script, excute via:
    chmod +x clear_intermediate.sh
 
    ```
-
+3. Execute the cleaning script via:
+   ```bash
+   ./clear_intermediate.sh
+   ```
 
 ## Example File Path Setup
 
