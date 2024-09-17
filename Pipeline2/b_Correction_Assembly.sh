@@ -1,0 +1,39 @@
+#!/bin/bash
+#PBS -l select=1:ncpus=16:mem=128gb       # Set the number of cores and memory
+#PBS -l walltime=6:00:00                 # Estimated execution time
+#PBS -j oe                                 # Join stderr and stdout
+
+
+module load samtools
+module load seqkit  # Ensure seqkit is available
+
+# Paths to directories and files
+OUTPUT_DIR="/srv/scratch/z3546698/true/Small_Molecule/JQ1/T7MB-1/231104/potential_hit"
+FASTQ_DIR="${OUTPUT_DIR}/FASTQ"
+ASSEMBLY_DIR="${OUTPUT_DIR}/FLYE_ASSEMBLY"
+COVERAGE_FILE="${OUTPUT_DIR}/coverage.txt"  # Path to output coverage file
+COVERAGE_THRESHOLD=1  # Set minimum coverage threshold
+
+# Create directories for output files
+mkdir -p "$FASTQ_DIR" "$ASSEMBLY_DIR"
+
+# Step 1: Convert original BAM files to FASTQ without filtering
+for bam_file in "${OUTPUT_DIR}/Hit_"*.bam; do
+    fastq_file="${FASTQ_DIR}/$(basename "${bam_file%.bam}").fastq"
+    echo "Converting $bam_file to $fastq_file..."
+    samtools fastq "$bam_file" > "$fastq_file"
+done
+
+# Step 2: Combine FASTQ files into one
+combined_fastq_file="${FASTQ_DIR}/combined_reads.fastq"
+echo "Combining all FASTQ files into $combined_fastq_file..."
+cat "${FASTQ_DIR}"/*.fastq > "$combined_fastq_file"
+
+# Step 3: Error Correction and assembly using Canu
+corrected_fasta_file="${FASTQ_DIR}/corrected_reads.fasta"
+echo "Correcting errors in FASTQ files using Canu..."
+canu \
+    -p corrected -d "${FASTQ_DIR}/canu_out" \
+    genomeSize=0.038m \
+    -nanopore-raw "$combined_fastq_file" \
+    corOutCoverage=100
