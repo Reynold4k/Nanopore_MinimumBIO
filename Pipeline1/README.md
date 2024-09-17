@@ -9,14 +9,7 @@
            "|_|  |_|_____|_| \_|_____|_|  |_|\____/|_|  |_|____/_____\____/ "
 ```
 
-
-# Comprehensive Pipeline for Trimming, Quality Control, Alignment, and Analysis
-
-**Author**: Chen Zhu  
-**Email**: [z3546698@ad.unsw.edu.au]
-**Date**: 04/Sep/2024
-
-## Pipeline1
+# Pipeline1
 
 This pipeline automates the process of trimming, quality control, alignment, sorting, marking duplicates (if applicable), and generating gene counts from sequencing data. It uses several bioinformatics tools to achieve efficient processing and analysis.
 
