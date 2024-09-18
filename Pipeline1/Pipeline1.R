@@ -40,9 +40,11 @@ library(ggplot2)
 library(dplyr)
 library(tidyr)
 
-#gtf_file <- "/srv/scratch/z3546698/true/reference/Homo_sapiens.GRCh38.110.gtf"  # Please replace with the actual path
+#Path to your newly generated Routput folder
+plot_base_dir <- "/srv/scratch/z3546698/true/Routput"
+
 # Read GTF file
-gtf_file <- "D:/hg38/Homo_sapiens.GRCh38.112.gtf"  # Please replace with the actual path
+gtf_file <- "/srv/scratch/z3546698/true/reference/Homo_sapiens.GRCh38.110.gtf"  # Please replace with the actual path
 gtf_data <- import(gtf_file, format="gtf")
 
 # Extract gene information
@@ -305,7 +307,7 @@ pca_plot <- ggplot(pca_data, aes(x = PC1, y = PC2, color = Group, shape = Timepo
        x = "Principal Component 1",
        y = "Principal Component 2")
 
-ggsave("/srv/scratch/z3546698/true/Routput/pca_plot.png", plot = pca_plot, width = 8, height = 6)
+ggsave(file.path(plot_base_dir, "pca_plot.png"), plot = line_plot, width = 8, height = 6)
 
 
 
@@ -318,12 +320,23 @@ colors <- c("#E41A1C", "#377EB8", "#4DAF4A", "#FF7F00", "#FFFF33",
             "#33A02C", "#FB9A99", "#A6CEE3", "#B2DF8A", "#FFEB3B")
 
 # Draw line plot and set colors with scale_color_manual
+
+# Compute the ordering metric (e.g., mean expression level) for each gene
+gene_order <- filtered_long_df %>%
+  group_by(GeneName) %>%
+  summarize(mean_expression = mean(Difference, na.rm = TRUE)) %>%
+  arrange(desc(mean_expression))
+
+# Reorder the GeneName factor levels based on the mean expression
+filtered_long_df$GeneName <- factor(filtered_long_df$GeneName, levels = gene_order$GeneName)
+
+# Create the plot with the reordered legend
 line_plot <- ggplot(filtered_long_df, aes(x = Timepoint, y = Difference, color = GeneName, group = GeneName)) +
   geom_line() +
   geom_point() +
   scale_color_manual(values = colors) +  # Use custom colors
   labs(
-    title = "Top Genes with the Largest Change Across Timepoints(exp)",
+    title = "Top Genes with the Largest Change Across Timepoints (exp)",
     x = "Timepoints",
     y = "Normalized Gene Counts",
     color = "Gene"
@@ -333,7 +346,8 @@ line_plot <- ggplot(filtered_long_df, aes(x = Timepoint, y = Difference, color =
     legend.position = "right"  # Or "bottom", "none", adjust as needed
   )
 
-ggsave("/srv/scratch/z3546698/true/Routput/line_plot.png", plot = line_plot, width = 8, height = 6)
+
+ggsave(file.path(plot_base_dir, "line_plot.png"), plot = line_plot, width = 8, height = 6)
 
 
 
@@ -383,20 +397,22 @@ differences_df_named$Growth_LR_FR <- differences_df_named[last_timepoint] - diff
 
 # Log transform the growth rate to manage outliers and improve distribution
 
+library(ggplot2)
+library(dplyr)
+                  
 epsilon <- 1e-6
 
-differences_df_named$Normalized_Growth_LR_FR <- log2(
-  differences_df_named$Growth_LR_FR + epsilon
+# Applying signed log transformation
+differences_df_named$Normalized_Growth_LR_FR <- ifelse(
+  differences_df_named$Growth_LR_FR > 0,
+  scale(log10(differences_df_named$Growth_LR_FR + 1)),
+  scale(-log10(-differences_df_named$Growth_LR_FR + 1))
 )
 
-differences_df_named$Normalized_Growth_LR_FR <- scale(differences_df_named$Growth_LR_FR)
 
 differences_df_named$log_pvalue <- -log10(differences_df_named$pvalue)
 
-library(ggplot2)
-library(dplyr)
 
-# 根据新的条件创建 color_group 变量
 differences_df_named$color_group <- ifelse(
   differences_df_named$pvalue < 0.05,
   ifelse(
@@ -411,19 +427,39 @@ differences_df_named$color_group <- ifelse(
   "Not Significant"
 )
 
-# 筛选出红色和蓝色的基因作为标记
+highlight_genes <- differences_df_named %>%
+  filter(color_group %in% c("Red", "Blue"))
+
+
+# Create the color_group variable under the new conditions.
+differences_df_named$color_group <- ifelse(
+  differences_df_named$pvalue < 0.05,
+  ifelse(
+    differences_df_named[[last_timepoint]] > 2 * differences_df_named[[first_timepoint]],
+    "Red",
+    ifelse(
+      differences_df_named[[last_timepoint]] < 0.5 * differences_df_named[[first_timepoint]], 
+      "Blue", 
+      "Not Significant"
+    )
+  ),
+  "Not Significant"
+)
+
+# Mark gene expression with red and blue colors
 highlight_genes <- differences_df_named %>%
   filter(color_group %in% c("Red", "Blue"))
 
 # Plot volcano plot with y-axis limits auto-adjusted or set manually
-volcano_plot <- ggplot(differences_df_named, aes(x = Normalized_Growth_LR_FR, y = log_pvalue)) +
+volcano_plot <- # Plot volcano plot with y-axis limits auto-adjusted or set manually
+ggplot(differences_df_named, aes(x = Normalized_Growth_LR_FR, y = log_pvalue)) +
   geom_point(aes(color = color_group, size = Normalized_Growth_LR_FR), alpha = 0.6) +
   scale_color_manual(values = c("Red" = "red", 
                                 "Blue" = "blue",
                                 "Not Significant" = "grey"),
-                     labels = c("Significantly Upregulated", 
+                     labels = c("Significantly Downregulated", 
                                 "Not Significant", 
-                                "Significantly Downregulated")) +
+                                "Significantly Upregulated")) +
   theme_minimal() +
   labs(
     x = "Growth Rate",
@@ -435,6 +471,7 @@ volcano_plot <- ggplot(differences_df_named, aes(x = Normalized_Growth_LR_FR, y 
   geom_text(data = highlight_genes, aes(label = GeneName),
             size = 4, vjust = -0.5, hjust = 0.5, check_overlap = TRUE) +
   scale_size_continuous(range = c(2, 6))
+                  
+ggsave(file.path(plot_base_dir, "volcano_plot.png"), plot = volcano_plot, width = 8, height = 6)
 
-ggsave("/srv/scratch/z3546698/true/Routput/volcano_plot.png", plot = volcano_plot, width = 8, height = 6)
 
