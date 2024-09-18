@@ -446,17 +446,29 @@ differences_df_named$color_group <- ifelse(
   "Not Significant"
 )
 
-# Mark gene expression with red and blue colors
 highlight_genes <- differences_df_named %>%
   filter(color_group %in% c("Red", "Blue"))
 
-# Plot volcano plot with y-axis limits auto-adjusted or set manually
-volcano_plot <- # Plot volcano plot with y-axis limits auto-adjusted or set manually
-ggplot(differences_df_named, aes(x = Normalized_Growth_LR_FR, y = log_pvalue)) +
-  geom_point(aes(color = color_group, size = Normalized_Growth_LR_FR), alpha = 0.6) +
+# Define a scaling function using a power transformation
+scale_size_adjust <- function(x) {
+  scale_min <- 0.1  # Small minimum size for near-zero values
+  scale_max <- 10   # Large maximum size for large values
+  power <- 2.5      # Power factor to intensify scaling
+  
+  # Normalize x between 0 and 1
+  norm_x <- (abs(x) - min(abs(x))) / (max(abs(x)) - min(abs(x)))
+  
+  # Use power transformation for scaling
+  scaled_size <- scale_min + (scale_max - scale_min) * (norm_x ^ power)
+  return(scaled_size)
+}
+
+# Apply the function and plot
+volcano_plot <- ggplot(differences_df_named, aes(x = Normalized_Growth_LR_FR, y = log_pvalue)) +
+  geom_point(aes(color = color_group, size = scale_size_adjust(Normalized_Growth_LR_FR)), alpha = 0.6) +
   scale_color_manual(values = c("Red" = "red", 
                                 "Blue" = "blue",
-                                "Not Significant" = "grey"),
+                                "Not Significant" = "darkgrey"),
                      labels = c("Significantly Downregulated", 
                                 "Not Significant", 
                                 "Significantly Upregulated")) +
@@ -466,11 +478,11 @@ ggplot(differences_df_named, aes(x = Normalized_Growth_LR_FR, y = log_pvalue)) +
     y = "-log10(p-value)",
     title = "Volcano Plot of Expression",
     color = "Gene Regulation",
-    size = "Log2 CPM"
+    size = "Scaled Size"
   ) +
   geom_text(data = highlight_genes, aes(label = GeneName),
-            size = 4, vjust = -0.5, hjust = 0.5, check_overlap = TRUE) +
-  scale_size_continuous(range = c(2, 6))
+            size = 4, vjust = -0.5, hjust = 0.5, check_overlap = TRUE)
+
                   
 ggsave(file.path(plot_base_dir, "volcano_plot.png"), plot = volcano_plot, width = 8, height = 6)
 
