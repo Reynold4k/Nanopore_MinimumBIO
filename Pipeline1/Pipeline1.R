@@ -80,11 +80,11 @@ list_dirs <- function(base_path) {
 }
 
 # Define paths
-exp_base_path <- "D:/Small_Molecule/JQ1/T7MB-1/231104"
+exp_base_path <- "/srv/scratch/z3546698/true/Small_Molecule/FK506/T7MB-2/231119"
 #exp_base_path <- "/srv/scratch/z3546698/true/Small_Molecule/JQ1/CoT/240302/"
 
 
-control_base_path <- "D:/Small_Molecule/Biotin/T7MB-1/240421"
+control_base_path <- "/srv/scratch/z3546698/true/Small_Molecule/Biotin/T7MB-2/240421"
 #control_base_path <- "/srv/scratch/z3546698/true/Small_Molecule/Biotin/CoT/240413"
 
 # Get list of directories for each path
@@ -100,7 +100,7 @@ generate_file_paths <- function(base_dir, common_dirs) {
   paths <- setNames(nm = common_dirs)
   for (dir in common_dirs) {
     # Construct the path to the step4 directory within each timepoint
-    step4_dir <- file.path(base_dir, dir, "step4")
+    step4_dir <- file.path(base_dir, dir, "step3")
     
     # Construct the full file path to the expression counts file
     file_path <- file.path(step4_dir, paste0(dir, "_combined_expression_counts.txt"))
@@ -453,7 +453,7 @@ highlight_genes <- differences_df_named %>%
 scale_size_adjust <- function(x) {
   scale_min <- 0.1  # Small minimum size for near-zero values
   scale_max <- 10   # Large maximum size for large values
-  power <- 4      # Power factor to intensify scaling
+  power <- 2.5      # Power factor to intensify scaling
   
   # Normalize x between 0 and 1
   norm_x <- (abs(x) - min(abs(x))) / (max(abs(x)) - min(abs(x)))
@@ -485,5 +485,4 @@ volcano_plot <- ggplot(differences_df_named, aes(x = Normalized_Growth_LR_FR, y 
 
                   
 ggsave(file.path(plot_base_dir, "volcano_plot.png"), plot = volcano_plot, width = 8, height = 6)
-
 
