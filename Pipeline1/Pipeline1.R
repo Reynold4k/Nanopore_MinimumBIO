@@ -307,7 +307,7 @@ pca_plot <- ggplot(pca_data, aes(x = PC1, y = PC2, color = Group, shape = Timepo
        x = "Principal Component 1",
        y = "Principal Component 2")
 
-ggsave(file.path(plot_base_dir, "pca_plot.png"), plot = line_plot, width = 8, height = 6)
+ggsave(file.path(plot_base_dir, "pca_plot.png"), plot = pca_plot, width = 8, height = 6)
 
 
 
