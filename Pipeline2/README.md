@@ -19,12 +19,15 @@ export PATH=$PATH:path/to/your/canu-2.2/bin
 
 #Edit file path in the script:
 
+```bash
+
 PARENT_DIR="/path/to/your/experiments/R3/step3"
 OUTPUT_DIR="/path/to/your/experiments/potential_hit"
 ANN_FILE="path/to/your/reference/Homo_sapiens.GRCh38.110.gtf"
 
 Hit_LOCATIONS=$(awk -v gene_name="your_interested potential hits name" '$3 == "exon" && $0 ~ gene_name {print "chr"$1":"$4"-"$5}' "$ANN_FILE")
 
+```
 
 ```bash
 
