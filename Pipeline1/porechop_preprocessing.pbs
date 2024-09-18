@@ -1,117 +1,128 @@
 #!/bin/bash
 
-# Function to display a spinning progress indicator
-spinner() {
-    local pid=$!
-    local delay=0.1
-    local spinstr='|/-\'
-    while [ "$(ps a | awk '{print $1}' | grep "$pid")" ]; do
-        local temp=${spinstr#?}
-        printf " [%c]  \b\b\b\b\b" "$spinstr"
-        local spinstr=$temp${spinstr%"$temp"}
-        sleep $delay
-    done
-    printf "    \b\b\b\b"
-}
 
-# Display the logo from logo.sh
-source ./logo.sh
+module load porechop/0.2.4
+module load nanoplot/1.43.0
+module load bwa/0.7.17
+module load samtools/1.20
+module load subread/2.0.2
 
-# Suppress function output using redirection
-run_command() {
-    ("$@") >/dev/null 2>&1 &
-    spinner
-}
+# Identify folder paths and reference path
+FOLDER="/srv/scratch/z3546698/true/Small_Molecule/JQ1/T7MB-2/231104"  # Main directory path
+REFERENCE="/srv/scratch/z3546698/true/reference/hg38.fa"
+ANNOTATION="/srv/scratch/z3546698/true/reference/Homo_sapiens.GRCh38.110.gtf"
 
-# Step 1: Trimming and Quality Control using Porechop and NanoPlot
-echo "Starting Step 1: Trimming and Quality Control..."
-FOLDER="/mnt/d/Small_Molecule/Biotin/T7MB-2/240421"  # Path to input experiments folders
 
-# Go to the working folder or print an error
-cd "$FOLDER" || { echo "Folder not found"; exit 1; }
-
-# Trimming fastq files using Porechop
+# Step 1: Trimming fastq files using Porechop
 echo "Trimming starts using Porechop......"
 
-# Use find to locate all .fastq and .fastq.gz files in the directory and subdirectories
-find . -type f \( -name "*.fastq" -o -name "*.fastq.gz" \) | while read -r file; do
-    if [ -f "$file" ]; then
-        # Generate output file name in the same directory
-        output_file="${file%.fastq*}_trimmed.fastq.gz"
-        # Run Porechop command
-        run_command porechop -i "$file" -o "$output_file"
-        echo "Trimmed: $file -> $output_file"
+# Find directories like R0, R1, etc., and process each independently
+find "$FOLDER" -type d -name "R*" | while IFS= read -r dir; do
+    echo "Processing directory: $dir"
+    
+    # Define the output merged file path within the current directory
+    merged_file="$dir/all_sequences.fastq.gz"
+    
+    # Initialize or clear the existing merged file
+    > "$merged_file"
+
+    # Find and merge all fastq files in the current directory
+    find "$dir" -type f \( -name "*.fastq" -o -name "*.fastq.gz" \) -print0 | while IFS= read -r -d '' file; do
+        echo "Merging file: $file"
+        if [[ "$file" == *.gz ]]; then
+            zcat "$file" >> "$merged_file"
+        else
+            cat "$file" >> "$merged_file"
+        fi
+    done
+
+    # Check if the merging was successful
+    if [ -s "$merged_file" ]; then
+        echo "Files have been successfully merged into $merged_file. Deleting original files..."
+        # Remove the original files in the current directory, excluding the merged file
+        find "$dir" -type f \( -name "*.fastq" -o -name "*.fastq.gz" \) ! -name "all_sequences.fastq.gz" -delete
+    else
+        echo "Merging failed for directory $dir, original files have not been deleted."
     fi
+
+    # Create step1 directory for Porechop output
+    step1_dir="$dir/step1"
+    mkdir -p "$step1_dir"
+    output_file="$step1_dir/all_trimmed.fastq.gz"
+    log_file="$step1_dir/porechop.log"
+    
+    # Run Porechop and redirect logs
+    porechop -i "$merged_file" -o "$output_file" > "$log_file" 2>&1
+    echo "Trimmed: $merged_file -> $output_file"
+    echo "Log saved to: $log_file"
 done
 
-# Conducting Quality Control via NanoPlot
+
+
+# Step 2: Quality Control via NanoPlot
 echo "Trimming finished......."
 echo "Quality Control in progress......."
-
-# Find and run NanoPlot on all trimmed files
-find . -type f -name "*_trimmed.fastq.gz" | while read -r trimmed_file; do
-    run_command NanoPlot --fastq "$trimmed_file" --outdir "${trimmed_file%.fastq.gz}_nanoplot"
+find "$FOLDER" -type f -path "*/step1/*_trimmed.fastq.gz" | while read -r trimmed_file; do
+    quality_control_dir="$(dirname "$trimmed_file")/../quality_control"
+    mkdir -p "$quality_control_dir"
+    NanoPlot --fastq "$trimmed_file" --outdir "$quality_control_dir/$(basename "${trimmed_file%.fastq.gz}_nanop")"
 done
 
-echo "Step1 completed. Please check the sequencing quality report!"
+echo "Quality Control finished........"
 
-
-# Step 2: Converting and Alignment
-echo "Starting Step 2: Converting and Alignment..."
-#!/bin/bash
-
-# Identify folder path and reference path
-REFERENCE="/mnt/d/hg38/hg38.fa"
-
-# Walk through each relevant FASTQ file for comparison and generate the BAM file
-find "$FOLDER" -type f -name "*_trimmed.fastq.gz" | while read -r trimmed_file; do
-    # trimmed file path
+# Step 3: Alignment and BAM file generation
+echo "Alignment and BAM file generation in progress......."
+find "$FOLDER" -type f -path "*/step1/*_trimmed.fastq.gz" | while read -r trimmed_file; do
     dir=$(dirname "$trimmed_file")
-    
-    # acquiring filenames prefix
+    step1_dir="${dir}/../step1"
+    mkdir -p "$step1_dir"
     basename=$(basename "$trimmed_file" .fastq.gz)
-
-    # output bam files path
-    output_bam="$dir/${basename}.bam"
-
-    # conduct alignment and generate
+    output_bam="$step1_dir/${basename}.bam"
     bwa mem "$REFERENCE" "$trimmed_file" | samtools view -Sb - > "$output_bam"
-
-    echo "BAM file generated: $output_bam"
+    echo "BAM file generated in step1 directory: $output_bam"
 done
 
-
-echo "Step 2 completed."
-
-
-# Step 3: Sorting and Marking Duplicates
-echo "Starting Step 3: Sorting and Marking Duplicates..."
-find "$FOLDER" -type f -name "*.bam" | while read -r bam_file; do
+# Step 4: Sort and mark duplicates in BAM files
+echo "Sorting and marking duplicates......."
+find "$FOLDER" -type f -path "*/step1/*.bam" | while read -r bam_file; do
     dir=$(dirname "$bam_file")
     basename=$(basename "$bam_file" .bam)
-    sorted_bam="$dir/${basename}_sorted.bam"
-    marked_bam="$dir/${basename}_sorted_marked.bam"
-    run_command samtools sort "$bam_file" -o "$sorted_bam"
-    run_command samtools markdup "$sorted_bam" "$marked_bam"
-    run_command samtools index "$marked_bam"
-    rm "$sorted_bam"
-    rm "$bam_file"
-done
-echo "Step 3 completed."
+    step2_dir="${dir}/../step2"
+    mkdir -p "$step2_dir"
+    sorted_bam="${step2_dir}/${basename}_sorted.bam"
+    marked_bam="${step2_dir}/${basename}_marked.bam"
+    metrics_file="${step2_dir}/${basename}_metrics.txt"
 
-# Step 4: Generating Gene Counts and Annotation
-echo "Starting Step 4: Gene Counts and Annotation..."
-annotation="/mnt/d/hg38/hg38.ensGene.gtf"
-find "$FOLDER" -mindepth 1 -maxdepth 1 -type d | while read -r subfolder; do
-    folder_name=$(basename "$subfolder")
-    bam_files=$(find "$subfolder" -type f -name "*_sorted_marked.bam" -printf "%p ")
-    if [ -n "$bam_files" ]; then
-        output_counts="$subfolder/${folder_name}_expression_counts.txt"
-        run_command featureCounts -a "$annotation" -o "$output_counts" -T 4 $bam_files
+    samtools sort -o "$sorted_bam" "$bam_file"
+    echo "Sorted BAM file: $sorted_bam"
+
+    # Use samtools markdup
+    samtools markdup "$sorted_bam" "$marked_bam"
+    echo "Marked duplicates in BAM file: $marked_bam"
+
+    # Optional cleanup if using Picard
+    # rm "$sorted_bam"
+done
+
+echo "Sorting and marking duplicates finished......."
+
+# Step 5: Feature Counting
+echo "Feature counting with featureCounts......."
+find "$FOLDER" -mindepth 1 -maxdepth 1 -type d | while read -r r_folder; do
+    r_group=$(basename "$r_folder")
+    step2_dir="${r_folder}/step2"
+    step3_dir="${r_folder}/step3"
+    mkdir -p "$step3_dir"
+    mapfile -t bam_files < <(find "$step2_dir" -type f -name "*.bam")
+
+    if [ ${#bam_files[@]} -eq 0 ]; then
+        echo "No BAM files found in $step2_dir, skipping."
+        continue
     fi
-done
-echo "Step 4 completed."
 
-# Notify user process is complete
-echo "All steps completed"
-source ./logo.sh
+    output_counts="${step3_dir}/${r_group}_combined_expression_counts.txt"
+    featureCounts -a "$ANNOTATION" -o "$output_counts" -T 4 "${bam_files[@]}"
+    echo "Combined feature counts for $r_group are in: $output_counts"
+done
+
+echo "All preprocessing done. Please check the sequencing quality and expression counts reports!"
