@@ -3,19 +3,19 @@
 Once you have executed the initial analysis with your gene expression counts and identified potential hits, it’s time to further investigate them using AlphaFold for protein structure prediction. Below are detailed instructions for running the script while ensuring the relevant paths are properly set.
 
 ### Setting Up Paths
-# Create a new conda environment
+## Create a new conda environment
 ```bash
 conda create -n alphafold_env python=3.9
 conda activate alphafold_env
 ```
 
-# Install canu, if it is not installed:
+## Install canu, if it is not installed:
 ```bash
 wget https://github.com/marbl/canu/releases/download/v2.2/canu-2.2.Linux-amd64.tar.bz2
 tar -xvjf canu-2.2.Linux-amd64.tar.bz2
 export PATH=$PATH:path/to/your/canu-2.2/bin
 ```
-# Step A: Extracting potential hits into a new folder
+## Step A: Extracting potential hits into a new folder
 
 #Edit file path in the script:
 
@@ -42,7 +42,7 @@ If running without error, you will see:
 ![image](https://github.com/user-attachments/assets/6114dda2-d07d-456c-9ac2-c96fe67e32f4)
 
 
-# Step B: Error Correction, trimming, unitigging, Assembly
+## Step B: Error Correction, trimming, unitigging, Assembly
 
 #Edit file path in the script:
 
@@ -77,7 +77,7 @@ Make a blast online to check whether it is still the potential hits that you ext
 https://blast.ncbi.nlm.nih.gov/Blast.cgi?PROGRAM=blastn&BLAST_SPEC=GeoBlast&PAGE_TYPE=BlastSearch
 
 
-# Step C: AlphaFold
+## Step C: AlphaFold
 
 It is not easy to run AlphaFold on Katana, please debug and solve every error comes with the execution of this command, I've listed several known errors below, good luck.
 
@@ -162,7 +162,7 @@ export LD_LIBRARY_PATH=$CONDA_PREFIX/lib:$LD_LIBRARY_PATH
 strings $CONDA_PREFIX/lib/libstdc++.so.6 | grep GLIBCXX
 ```
 
-# For Kalign, please refer:
+## For Kalign, please refer:
 https://github.com/TimoLassmann/kalign?tab=readme-ov-file
 
 ```bash
