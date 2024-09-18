@@ -8,9 +8,8 @@ module load samtools
 module load seqkit  # Ensure seqkit is available
 
 # Paths to directories and files
-OUTPUT_DIR="/srv/scratch/z3546698/true/Small_Molecule/JQ1/T7MB-1/231104/potential_hit"
+OUTPUT_DIR="/srv/scratch/z3546698/true/Small_Molecule/JQ1/Co/240217/potential_hit"
 FASTQ_DIR="${OUTPUT_DIR}/FASTQ"
-ASSEMBLY_DIR="${OUTPUT_DIR}/FLYE_ASSEMBLY"
 COVERAGE_FILE="${OUTPUT_DIR}/coverage.txt"  # Path to output coverage file
 COVERAGE_THRESHOLD=1  # Set minimum coverage threshold
 
@@ -29,7 +28,7 @@ combined_fastq_file="${FASTQ_DIR}/combined_reads.fastq"
 echo "Combining all FASTQ files into $combined_fastq_file..."
 cat "${FASTQ_DIR}"/*.fastq > "$combined_fastq_file"
 
-# Step 3: Error Correction and assembly using Canu
+# Step 3: Error Correction using Canu
 corrected_fasta_file="${FASTQ_DIR}/corrected_reads.fasta"
 echo "Correcting errors in FASTQ files using Canu..."
 canu \
