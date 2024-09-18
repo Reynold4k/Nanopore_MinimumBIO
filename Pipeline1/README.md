@@ -325,6 +325,8 @@ module load r/4.2.2
 
 #Then edit R scripts in the gtf path:
 ```r
+#Path to your newly generated Routput folder
+plot_base_dir <- "/srv/scratch/z3546698/true/Routput"
 
 gtf_file <- "/path/to/your/directory/Homo_sapiens.GRCh38.112.gtf.gz"
 # Note: You can download GTF files for other species from the Ensembl FTP server or UCSC Genome Browser.
