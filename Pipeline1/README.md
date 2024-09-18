@@ -319,12 +319,30 @@ To download the `Homo_sapiens.GRCh38.112.gtf` file on a Linux system, use the fo
 
 wget ftp://ftp.ensembl.org/pub/release-112/gtf/homo_sapiens/Homo_sapiens.GRCh38.112.gtf.gz -P /path/to/your/directory
 
+module load r/4.2.2
+
 ```
 
 #Then edit R scripts in the gtf path:
 ```r
 
 gtf_file <- "/path/to/your/directory/Homo_sapiens.GRCh38.112.gtf.gz"
+# Note: You can download GTF files for other species from the Ensembl FTP server or UCSC Genome Browser.
+# Below are examples of how to find the corresponding paths:
+
+# 1. Ensembl FTP Server:
+# Visit the Ensembl FTP site: ftp://ftp.ensembl.org/pub/release-110/gtf/
+# To download a GTF for Mus musculus (mouse), use:
+# ftp://ftp.ensembl.org/pub/release-110/gtf/mus_musculus/
+# Example path for Mus musculus: "/path/to/your/directory/Mus_musculus.GRCm39.110.gtf.gz"
+
+# 2. UCSC Genome Browser:
+# Visit the UCSC Genome Browser downloads section: http://hgdownload.soe.ucsc.edu/downloads.html
+# To find a GTF for Danio rerio (zebrafish), browse to:
+# http://hgdownload.soe.ucsc.edu/goldenPath/danRer11/bigZips/genes/
+# Example path for Danio rerio: "/path/to/your/directory/danRer11.refGene.gtf.gz"
+
+# Make sure to decompress (.gz) files if needed and adjust the path accordingly.
 ```
 
 
