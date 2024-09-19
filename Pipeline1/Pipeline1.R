@@ -87,6 +87,12 @@ exp_base_path <- "/srv/scratch/z3546698/true/Small_Molecule/FK506/T7MB-2/231119"
 control_base_path <- "/srv/scratch/z3546698/true/Small_Molecule/Biotin/T7MB-2/240421"
 #control_base_path <- "/srv/scratch/z3546698/true/Small_Molecule/Biotin/CoT/240413"
 
+# Split the path into components
+path_components <- strsplit(exp_base_path, "/")[[1]]
+
+# Extract the last three components
+exp_name <- paste(rev(path_components)[1:3], collapse = "_")
+                  
 # Get list of directories for each path
 exp_dirs <- list_dirs(exp_base_path)
 control_dirs <- list_dirs(control_base_path)
@@ -332,18 +338,23 @@ filtered_long_df$GeneName <- factor(filtered_long_df$GeneName, levels = gene_ord
 
 # Create the plot with the reordered legend
 line_plot <- ggplot(filtered_long_df, aes(x = Timepoint, y = Difference, color = GeneName, group = GeneName)) +
-  geom_line() +
-  geom_point() +
+  geom_line(size = 1.2) +  # Set line thickness
+  geom_point(size = 3) +  # Set point size
   scale_color_manual(values = colors) +  # Use custom colors
   labs(
-    title = "Top Genes with the Largest Change Across Timepoints (exp)",
+    title = paste("Largest Change Across Timepoints of", exp_name),
     x = "Timepoints",
     y = "Normalized Gene Counts",
     color = "Gene"
   ) +
   theme_minimal() +
   theme(
-    legend.position = "right"  # Or "bottom", "none", adjust as needed
+    plot.title = element_text(size = 14, face = "bold"), # Title size adjustment and bold
+    legend.position = "right",  # Adjust as needed
+    axis.title = element_text(size = 20),  # Axis title size
+    axis.text = element_text(size = 18),  # Axis text size
+    legend.title = element_text(size = 18),  # Legend title size
+    legend.text = element_text(size = 14)  # Legend text size
   )
 
 
@@ -485,6 +496,7 @@ volcano_plot <- ggplot(differences_df_named, aes(x = Normalized_Growth_LR_FR, y 
   geom_text(data = highlight_genes, aes(label = GeneName),
             size = 4, vjust = -0.5, hjust = 0.5, check_overlap = TRUE) +
   theme(
+    plot.title = element_text(size = 14, face = "bold"), # Title size adjustment and bold
     axis.title = element_text(size = 18),
     axis.text = element_text(size = 18),
     legend.title = element_text(size = 18),
