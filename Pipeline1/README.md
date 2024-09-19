@@ -331,7 +331,7 @@ To download the `Homo_sapiens.GRCh38.112.gtf` file on a Linux system, use the fo
 
 wget ftp://ftp.ensembl.org/pub/release-112/gtf/homo_sapiens/Homo_sapiens.GRCh38.112.gtf.gz -P /path/to/your/directory
 
-module load r/4.2.2
+module load r/4.4.0
 
 ```
 
