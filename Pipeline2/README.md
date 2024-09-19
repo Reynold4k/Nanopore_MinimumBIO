@@ -77,100 +77,12 @@ Make a blast online to check whether it is still the potential hits that you ext
 https://blast.ncbi.nlm.nih.gov/Blast.cgi?PROGRAM=blastn&BLAST_SPEC=GeoBlast&PAGE_TYPE=BlastSearch
 
 
-## Step C: AlphaFold
-
-It is not easy to run AlphaFold on Katana, please debug and solve every error comes with the execution of this command, I've listed several known errors below, good luck.
-
-```bash
-
-cd path/to/your/alphafold
-pip install -r requirements.txt
-
-```
-
-```bash
-
-python3 run_alphafold.py \
-    --fasta_paths=/srv/scratch/z3546698/true/Small_Molecule/JQ1/T7MB-1/231104/potential_hit/FASTQ/canu_out/protein_sequences_long.fasta \
-    --output_dir=/srv/scratch/z3546698/true/Small_Molecule/JQ1/T7MB-1/231104/potential_hit/alphafold_output \
-    --max_template_date=2024-09-16 \
-    --model_preset=monomer \
-    --data_dir=/data/bio/alphafold \
-    --uniref90_database_path=/data/bio/alphafold/uniref90/uniref90.fasta \
-    --uniref30_database_path=/data/bio/alphafold/uniref30/UniRef30_2021_03 \
-    --mgnify_database_path=/data/bio/alphafold/mgnify/mgy_clusters_2022_05.fa \
-    --template_mmcif_dir=/data/bio/alphafold/pdb_mmcif/mmcif_files \
-    --obsolete_pdbs_path=/data/bio/alphafold/pdb_mmcif/obsolete.dat \
-    --use_gpu_relax=True \
-    --bfd_database_path=/data/bio/alphafold/bfd/bfd_metaclust_clu_complete_id30_c90_final_seq.sorted_opt \
-    --pdb70_database_path=/data/bio/alphafold/pdb70/pdb70
-
-```
-
-If you beat the final boss and win, you'll see:
-![image](https://github.com/user-attachments/assets/9b0579bd-2c10-4f23-885c-ffaf2e07e874)
-
-These pdb files are what you may want to check as the result of AlphaFold, you can view them via Linux:
-
-```bash
-conda install -c conda-forge pymol
-
-pymol your_protein.pdb
-
-```
-
-If you want to run it faster, please add GPU into calculation of AlphaFold:
-
-```bash
-pip install --upgrade "jax[cuda]" -f https://storage.googleapis.com/jax-releases/jax_cuda_releases.html
-```
-
-### when showing error:
-
-ImportError: /lib64/libstdc++.so.6: version `GLIBCXX_3.4.26' not found (required by /srv/scratch/z3546698/true/ls/envs/alphafold_env/lib/python3.9/site-packages/scipy/linalg/_matfuncs_sqrtm_triu.cpython-39-x86_64-linux-gnu.so)
-
-```bash
-conda install -c conda-forge libgcc-ng
-
-ls $CONDA_PREFIX/lib | grep libstdc++.so
-
-export LD_LIBRARY_PATH=$CONDA_PREFIX/lib:$LD_LIBRARY_PATH
-
-strings $CONDA_PREFIX/lib/libstdc++.so.6 | grep GLIBCXX
-
-```
-
-Check the output for GLIBCXX_3.4.26, confirming that the symbol is part of the new library version.
+## Step C Finding overlapped region where could be indicated as the drug binding sites
 
 
 
 
 
-ImportError: /lib64/libstdc++.so.6: version `GLIBCXX_3.4.26' not found (required by /srv/scratch/z3546698/true/ls/envs/alphafold_env/lib/python3.9/site-packages/scipy/linalg/_matfuncs_sqrtm_triu.cpython-39-x86_64-linux-gnu.so)
 
-Solution:
-```bash
 
-cd $CONDA_PREFIX/lib
-ls -l | grep libstdc++
-ln -s libstdc++.so.6.0.33 libstdc++.so.6
-export LD_LIBRARY_PATH=$CONDA_PREFIX/lib:$LD_LIBRARY_PATH
 
-# Once the symlink has been successfully created, run the following command to verify that the GLIBCXX 
-# version is included:
-# This should list your support for all GLIBCXX versions of libstdc++.
-strings $CONDA_PREFIX/lib/libstdc++.so.6 | grep GLIBCXX
-```
-
-## For Kalign, please refer:
-https://github.com/TimoLassmann/kalign?tab=readme-ov-file
-
-```bash
-
-mkdir build
-cd /srv/scratch/z3546698/true/alphafold/kalign-3.4.0/build
-cmake .. -DCMAKE_INSTALL_PREFIX=$HOME/local/kalign
-make
-make install
-export PATH="$HOME/local/kalign/bin:$PATH"
-```
