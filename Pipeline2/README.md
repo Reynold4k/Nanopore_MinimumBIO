@@ -88,5 +88,31 @@ https://blast.ncbi.nlm.nih.gov/Blast.cgi?PROGRAM=blastn&BLAST_SPEC=GeoBlast&PAGE
 
 
 
+## Step D Mapping your extracted gene reads segments to alphafold library
+
+
+This will download the latest version (v4) of the human proteome subset. Be sure you have enough space (e.g. in the `scratch` directory in Katana):
+```bash
+wget -c https://ftp.ebi.ac.uk/pub/databases/alphafold/latest/UP000005640_9606_HUMAN_v4.tar
+```
+
+Then compress the file:
+
+```bash
+# Step 1: Navigate to the parent directory where you want to create the new folder
+cd path/to/your/UP000005640_9606_HUMAN_v4
+
+# Step 2: Create the new directory
+mkdir UP000005640_9606_HUMAN_v4
+
+# Step 3: Extract the .tar file into the new directory
+tar -xvf UP000005640_9606_HUMAN_v4.tar -C UP000005640_9606_HUMAN_v4
+
+```
+
+
+
+
+
 
 
