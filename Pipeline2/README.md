@@ -1,4 +1,4 @@
-# Pipeline 2
+## Pipeline 2
 
 Once you have executed the initial analysis with your gene expression counts and identified potential hits, it’s time to further investigate them using AlphaFold for protein structure prediction. Below are detailed instructions for running the script while ensuring the relevant paths are properly set.
 
@@ -61,9 +61,13 @@ You must wait until seeing the contigs file:
 
 
 Then execute the translation script, but still need to change the path first:
+```python
+#Specify where is the path to your fasta files
+contig_fasta_file = "/path/to/your/fasta files"
 
-contig_fasta_file = "/path/to/your/corrected.contigs.fasta"
+#Specify where you want to generate your translated protein sequences
 output_protein_file = "/path/to/your/protein_sequences_long.fasta"
+```
 
 ```bash
 python3 translation.py
