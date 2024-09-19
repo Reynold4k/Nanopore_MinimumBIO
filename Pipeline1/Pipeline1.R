@@ -306,10 +306,10 @@ pca_plot <- ggplot(pca_data, aes(x = PC1, y = PC2, color = Group, shape = Timepo
                level = 0.95, 
                alpha = 0.2,  # Set transparency
                geom = "polygon") +  # Fill ellipse with polygon
-  scale_color_manual(values = c("Control" = "red", "Experiment" = "blue")) +
-  scale_fill_manual(values = c("Control" = "red", "Experiment" = "blue")) +  # Set fill color
+  scale_color_manual(values = c("Control" = "blue", "Experiment" = "red")) +
+  scale_fill_manual(values = c("Control" = "blue", "Experiment" = "red")) +  # Set fill color
   theme_classic() +
-  labs(title = paste("Principal Component Analysis", exp_name),
+  labs(title = paste(exp_name),
        x = "Principal Component 1",
        y = "Principal Component 2")+
   theme(
@@ -351,7 +351,7 @@ line_plot <- ggplot(filtered_long_df, aes(x = Timepoint, y = Difference, color =
   geom_point(size = 3) +  # Set point size
   scale_color_manual(values = colors) +  # Use custom colors
   labs(
-    title = paste("Largest Change Across Timepoints of", exp_name),
+    title = paste(exp_name),
     x = "Timepoints",
     y = "Normalized Gene Counts",
     color = "Gene"
@@ -498,7 +498,7 @@ volcano_plot <- ggplot(differences_df_named, aes(x = Normalized_Growth_LR_FR, y 
   labs(
     x = "Growth Rate",
     y = "-log10(p-value)",
-    title = paste("Volcano Plot of", exp_name),
+    title = paste(exp_name),
     color = "Gene Regulation",
     size = "Scaled Size"
   ) +
