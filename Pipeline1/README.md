@@ -196,6 +196,18 @@ Step3 Save the edited script and execute script
 
 For example, for nanopore fastq data, run command:
 
+```bash
+#If you want to accelerate your porechop that you supposed to have a huge sequences, then you need to add threads:
+
+Porechop  -t THREADS, --threads THREADS
+                         Number of threads to use for adapter alignment
+                         (default: 16)
+
+porechop -t "number of the threads you'd like to use" -i "$merged_file" -o "$output_file" > "$log_file" 2>&1
+
+```
+
+
 ```bash 
 
 bash ./porechop_preprocessing.sh
