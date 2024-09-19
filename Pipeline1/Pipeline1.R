@@ -445,6 +445,8 @@ differences_df_named$color_group <- ifelse(
   ),
   "Not Significant"
 )
+                  
+differences_df_named <- differences_df_named[!is.na(differences_df_named$color_group), ]
 
 highlight_genes <- differences_df_named %>%
   filter(color_group %in% c("Red", "Blue"))
@@ -465,7 +467,7 @@ scale_size_adjust <- function(x) {
 
 # Apply the function and plot
 volcano_plot <- ggplot(differences_df_named, aes(x = Normalized_Growth_LR_FR, y = log_pvalue)) +
-  geom_point(aes(color = color_group, size = scale_size_adjust(Normalized_Growth_LR_FR)), alpha = 0.6) +
+  geom_point(aes(color = color_group, size = scale_size_adjust(Normalized_Growth_LR_FR)), alpha = 1) +
   scale_color_manual(values = c("Red" = "red", 
                                 "Blue" = "blue",
                                 "Not Significant" = "darkgrey"),
@@ -476,12 +478,18 @@ volcano_plot <- ggplot(differences_df_named, aes(x = Normalized_Growth_LR_FR, y 
   labs(
     x = "Growth Rate",
     y = "-log10(p-value)",
-    title = "Volcano Plot of Expression",
+    title = paste("Volcano Plot of", exp_name),
     color = "Gene Regulation",
     size = "Scaled Size"
   ) +
   geom_text(data = highlight_genes, aes(label = GeneName),
-            size = 4, vjust = -0.5, hjust = 0.5, check_overlap = TRUE)
+            size = 4, vjust = -0.5, hjust = 0.5, check_overlap = TRUE) +
+  theme(
+    axis.title = element_text(size = 18),
+    axis.text = element_text(size = 14),
+    legend.title = element_text(size = 14),
+    legend.text = element_text(size = 14)
+  )
 
                   
 ggsave(file.path(plot_base_dir, "volcano_plot.png"), plot = volcano_plot, width = 8, height = 6)
