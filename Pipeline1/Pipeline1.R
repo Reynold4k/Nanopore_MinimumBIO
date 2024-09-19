@@ -452,8 +452,8 @@ highlight_genes <- differences_df_named %>%
 # Define a scaling function using a power transformation
 scale_size_adjust <- function(x) {
   scale_min <- 0.1  # Small minimum size for near-zero values
-  scale_max <- 10   # Large maximum size for large values
-  power <- 2.5      # Power factor to intensify scaling
+  scale_max <- 6   # Large maximum size for large values
+  power <- 4      # Power factor to intensify scaling
   
   # Normalize x between 0 and 1
   norm_x <- (abs(x) - min(abs(x))) / (max(abs(x)) - min(abs(x)))
