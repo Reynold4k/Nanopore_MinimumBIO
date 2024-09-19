@@ -50,7 +50,7 @@ OUTPUT_DIR="/path/to/your/experiments/potential_hit"
 
 ```bash
 
-bash ./b_Correction_Assembly.pbs
+bash ./c_correction_canu.pbs
 
 ```
 
