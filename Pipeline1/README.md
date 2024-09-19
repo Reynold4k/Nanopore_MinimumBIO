@@ -139,7 +139,7 @@ gunzip hg38.fa.gz
 
 ```
 
-# This step usually takes around an hour even on Katana
+## Index your reference fasta files, this step must be conducted on your current portal to continue the next step
 ```bash
 
 bwa index hg38.fa
