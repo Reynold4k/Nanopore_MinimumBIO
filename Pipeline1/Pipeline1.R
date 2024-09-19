@@ -486,9 +486,9 @@ volcano_plot <- ggplot(differences_df_named, aes(x = Normalized_Growth_LR_FR, y 
             size = 4, vjust = -0.5, hjust = 0.5, check_overlap = TRUE) +
   theme(
     axis.title = element_text(size = 18),
-    axis.text = element_text(size = 14),
-    legend.title = element_text(size = 14),
-    legend.text = element_text(size = 14)
+    axis.text = element_text(size = 18),
+    legend.title = element_text(size = 18),
+    legend.text = element_text(size = 18)
   )
 
                   
