@@ -93,22 +93,28 @@ https://blast.ncbi.nlm.nih.gov/Blast.cgi?PROGRAM=blastn&BLAST_SPEC=GeoBlast&PAGE
 
 This will download the latest version (v4) of the human proteome subset. Be sure you have enough space (e.g. in the `scratch` directory in Katana):
 ```bash
+# Navigate to the target directory
+cd /srv/scratch/z3546698/true/alphafold/database/
+
+# Download the AlphaFold database tar file if not already downloaded
 wget -c https://ftp.ebi.ac.uk/pub/databases/alphafold/latest/UP000005640_9606_HUMAN_v4.tar
-```
 
-Then compress the file:
+# Extract the .tar file
+tar -xvf UP000005640_9606_HUMAN_v4.tar
 
-```bash
-# Step 1: Navigate to the parent directory where you want to create the new folder
-cd path/to/your/UP000005640_9606_HUMAN_v4
-
-# Step 2: Create the new directory
 mkdir UP000005640_9606_HUMAN_v4
 
-# Step 3: Extract the .tar file into the new directory
-tar -xvf UP000005640_9606_HUMAN_v4.tar -C UP000005640_9606_HUMAN_v4
+# Navigate into the extracted directory
+cd UP000005640_9606_HUMAN_v4
 
+# Remove .cif.gz files (if any exist)
+rm *.cif.gz
+
+# Unzip .pdb.gz files
+gunzip *.gz
 ```
+
+
 
 
 
