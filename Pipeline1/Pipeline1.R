@@ -488,17 +488,20 @@ scale_size_adjust <- function(x) {
 # Apply the function and plot
 volcano_plot <- ggplot(differences_df_named, aes(x = Normalized_Growth_LR_FR, y = log_pvalue)) +
   geom_point(aes(color = color_group, size = scale_size_adjust(Normalized_Growth_LR_FR)), alpha = 1) +
-  scale_color_manual(values = c("Red" = "red", 
-                                "Blue" = "blue",
-                                "Not Significant" = "darkgrey"),
-                     labels = c("Significantly Downregulated", 
-                                "Not Significant", 
-                                "Significantly Upregulated")) +
+  scale_color_manual(
+    values = c("Red" = "red", 
+               "Blue" = "blue",
+               "Not Significant" = "darkgrey"),
+    labels = c("Significantly Downregulated", 
+               "Not Significant", 
+               "Significantly Upregulated"),
+    guide = "none"  # 隐藏颜色图例
+  ) +
   theme_minimal() +
   labs(
     x = "Growth Rate",
     y = "-log10(p-value)",
-    title = paste(exp_name),
+    title = paste("Volcano Plot of", exp_name),
     color = "Gene Regulation",
     size = "Scaled Size"
   ) +
@@ -507,9 +510,9 @@ volcano_plot <- ggplot(differences_df_named, aes(x = Normalized_Growth_LR_FR, y 
   theme(
     plot.title = element_text(size = 14, face = "bold"), # Title size adjustment and bold
     axis.title = element_text(size = 18),
-    axis.text = element_text(size = 18),
-    legend.title = element_text(size = 18),
-    legend.text = element_text(size = 18)
+    axis.text = element_text(size = 16),
+    legend.title = element_text(size = 14),
+    legend.text = element_text(size = 12)
   )
 
                   
