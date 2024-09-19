@@ -80,11 +80,11 @@ list_dirs <- function(base_path) {
 }
 
 # Define paths
-exp_base_path <- "/srv/scratch/z3546698/true/Small_Molecule/FK506/T7MB-2/231119"
+exp_base_path <- "/srv/scratch/z3546698/true/Small_Molecule/JQ1/Co/240217"
 #exp_base_path <- "/srv/scratch/z3546698/true/Small_Molecule/JQ1/CoT/240302/"
 
 
-control_base_path <- "/srv/scratch/z3546698/true/Small_Molecule/Biotin/T7MB-2/240421"
+control_base_path <- "/srv/scratch/z3546698/true/Small_Molecule/Biotin/Co/240511"
 #control_base_path <- "/srv/scratch/z3546698/true/Small_Molecule/Biotin/CoT/240413"
 
 # Split the path into components
@@ -106,7 +106,7 @@ generate_file_paths <- function(base_dir, common_dirs) {
   paths <- setNames(nm = common_dirs)
   for (dir in common_dirs) {
     # Construct the path to the step4 directory within each timepoint
-    step4_dir <- file.path(base_dir, dir, "step3")
+    step4_dir <- file.path(base_dir, dir, "step4")
     
     # Construct the full file path to the expression counts file
     file_path <- file.path(step4_dir, paste0(dir, "_combined_expression_counts.txt"))
@@ -495,7 +495,7 @@ volcano_plot <- ggplot(differences_df_named, aes(x = Normalized_Growth_LR_FR, y 
     labels = c("Significantly Downregulated", 
                "Not Significant", 
                "Significantly Upregulated"),
-    guide = "none"  # 隐藏颜色图例
+    guide = "none"  
   ) +
   theme_minimal() +
   labs(
@@ -517,4 +517,3 @@ volcano_plot <- ggplot(differences_df_named, aes(x = Normalized_Growth_LR_FR, y 
 
                   
 ggsave(file.path(plot_base_dir, "volcano_plot.png"), plot = volcano_plot, width = 8, height = 6)
-
