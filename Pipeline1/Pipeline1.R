@@ -309,9 +309,18 @@ pca_plot <- ggplot(pca_data, aes(x = PC1, y = PC2, color = Group, shape = Timepo
   scale_color_manual(values = c("Control" = "red", "Experiment" = "blue")) +
   scale_fill_manual(values = c("Control" = "red", "Experiment" = "blue")) +  # Set fill color
   theme_classic() +
-  labs(title = "Principal Component Analysis",
+  labs(title = paste("Principal Component Analysis", exp_name),
        x = "Principal Component 1",
-       y = "Principal Component 2")
+       y = "Principal Component 2")+
+  theme(
+    plot.title = element_text(size = 14, face = "bold"), # Title size adjustment and bold
+    legend.position = "right",  # Adjust as needed
+    axis.title = element_text(size = 20),  # Axis title size
+    axis.text = element_text(size = 18),  # Axis text size
+    legend.title = element_text(size = 18),  # Legend title size
+    legend.text = element_text(size = 14)  # Legend text size
+  )
+
 
 ggsave(file.path(plot_base_dir, "pca_plot.png"), plot = pca_plot, width = 8, height = 6)
 
