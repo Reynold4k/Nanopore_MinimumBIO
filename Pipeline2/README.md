@@ -125,8 +125,20 @@ conda install -c conda-forge -c schrodinger pymol-bundle
 
 ```
 
+## Install JQ
+```bash
 
+wget https://github.com/jqlang/jq/releases/download/jq-1.7.1/jq-1.7.1.tar.gz
+tar -xzvf jq-1.7.1.tar.gz
+cd jq-1.7.1
+autoreconf -i
+./configure
+make
 
+#Test if it is available now, it will work even some parts go wrong during installation, just check it 
+jq --version
+
+```
 
 
 
