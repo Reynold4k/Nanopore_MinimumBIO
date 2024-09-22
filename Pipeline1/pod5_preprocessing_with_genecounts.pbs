@@ -1,0 +1,106 @@
+#!/bin/bash
+
+# Set the base directory and important paths
+BASE_DIR="/srv/scratch/z3546698/true/pod5/"
+REFERENCE="/srv/scratch/z3546698/true/reference/hg38.fa"
+ANNOTATION="/srv/scratch/z3546698/true/reference/Homo_sapiens.GRCh38.110.gtf"
+OUTPUT_DIR="$BASE_DIR/output"
+MODEL_DIR="/path/to/dorado/models" # Set the path to Dorado models
+
+# Create necessary directories
+mkdir -p "$OUTPUT_DIR/fastq_pass"
+mkdir -p "$OUTPUT_DIR/fastq_fail"
+mkdir -p "$OUTPUT_DIR/step1"
+mkdir -p "$OUTPUT_DIR/quality_control"
+mkdir -p "$OUTPUT_DIR/step2"
+mkdir -p "$OUTPUT_DIR/step3"
+mkdir -p "$OUTPUT_DIR/step4"
+
+# Step 1: Convert pod5 files to fastq using Dorado (process both pod5_pass and pod5_fail)
+echo "Converting .pod5 files to .fastq using Dorado from pod5_pass and pod5_fail..."
+for STATE in pod5_pass pod5_fail; do
+    find "$BASE_DIR/$STATE" -type f -name "*.pod5" | while read -r pod5_file; do
+        barcode_dir=$(basename "$(dirname "$pod5_file")")
+        dorado_out="$OUTPUT_DIR/fastq_${STATE#pod5_}/$barcode_dir"
+        mkdir -p "$dorado_out"
+        dorado basecaller --model "$MODEL_DIR/model_name.dor" --device "cuda" "$pod5_file" "$dorado_out"
+        # Replace `model_name.dor` with the actual model file name
+        echo "Converted: $pod5_file -> $dorado_out"
+    done
+done
+
+# Step 2: Trimming fastq files using Porechop from fastq_pass directory
+echo "Trimming started using Porechop..."
+for STATE in fastq_pass fastq_fail; do
+    find "$OUTPUT_DIR/$STATE" -type f -name "*.fastq.gz" | while read -r fastq_file; do
+        step1_dir="$OUTPUT_DIR/step1/$(basename "$(dirname "$fastq_file")")"
+        mkdir -p "$step1_dir"
+        output_file="$step1_dir/$(basename "${fastq_file%.fastq*}_trimmed.fastq.gz")"
+        porechop -i "$fastq_file" -o "$output_file"
+        echo "Trimmed: $fastq_file -> $output_file"
+    done
+done
+
+# Step 3: Quality Control via NanoPlot
+echo "Quality Control in progress..."
+find "$OUTPUT_DIR/step1" -type f -name "*_trimmed.fastq.gz" | while read -r trimmed_file; do
+    quality_control_dir="$OUTPUT_DIR/quality_control/$(basename "$(dirname "$trimmed_file")")"
+    mkdir -p "$quality_control_dir"
+    NanoPlot --fastq "$trimmed_file" --outdir "$quality_control_dir"
+done
+
+echo "Quality Control finished..."
+
+# Step 4: Alignment and BAM file generation
+echo "Alignment and BAM file generation in progress..."
+find "$OUTPUT_DIR/step1" -type f -name "*_trimmed.fastq.gz" | while read -r trimmed_file; do
+    dir="$OUTPUT_DIR/step2/$(basename "$(dirname "$trimmed_file")")"
+    mkdir -p "$dir"
+    basename=$(basename "$trimmed_file" .fastq.gz)
+    output_bam="$dir/${basename}.bam"
+    bwa mem "$REFERENCE" "$trimmed_file" | samtools view -Sb - > "$output_bam"
+    echo "BAM file generated: $output_bam"
+done
+
+# Step 5: Sort and mark duplicates in BAM files
+echo "Sorting and marking duplicates..."
+find "$OUTPUT_DIR/step2" -type f -name "*.bam" | while read -r bam_file; do
+    dir="$OUTPUT_DIR/step3/$(basename "$(dirname "$bam_file")")"
+    mkdir -p "$dir"
+    sorted_bam="$dir/$(basename "${bam_file%.bam}_sorted.bam")"
+    marked_bam="$dir/$(basename "${bam_file%.bam}_marked.bam")"
+    metrics_file="$dir/$(basename "${bam_file%.bam}_metrics.txt")"
+
+    samtools sort -o "$sorted_bam" "$bam_file"
+    echo "Sorted BAM file: $sorted_bam"
+
+    samtools markdup "$sorted_bam" "$marked_bam"
+    echo "Marked duplicates in BAM
+
+# Step 6: Generate alignment statistics and reports
+echo "Generating alignment statistics and reports..."
+find "$OUTPUT_DIR/step3" -type f -name "*_marked.bam" | while read -r marked_bam; do
+    dir="$OUTPUT_DIR/reports/$(basename "$(dirname "$marked_bam")")"
+    mkdir -p "$dir"
+
+    # Generate alignment statistics using samtools
+    samtools flagstat "$marked_bam" > "$dir/$(basename "${marked_bam%.bam}_flagstat.txt")"
+
+    # (Optional) Use a tool like Qualimap for additional BAM QC
+    # qualimap bamqc -bam "$marked_bam" -outdir "$dir/qualimap_report"
+
+    echo "Statistics and report generated for: $marked_bam"
+done
+
+# Step 7: Feature counting with featureCounts (for RNA-seq or similar data)
+echo "Feature counting with featureCounts..."
+find "$OUTPUT_DIR/step3" -type f -name "*_marked.bam" | while read -r marked_bam; do
+    dir="$OUTPUT_DIR/step4/$(basename "$(dirname "$marked_bam")")"
+    mkdir -p "$dir"
+    
+    output_counts="${dir}/$(basename "${marked_bam%.bam}_counts.txt")"
+    featureCounts -a "$ANNOTATION" -o "$output_counts" -T 4 "$marked_bam"
+    
+    echo "Feature counts generated in: $output_counts"
+done
+
