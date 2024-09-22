@@ -11,7 +11,9 @@
 
 # Pipeline1
 
-This pipeline automates the process of trimming, quality control, alignment, sorting, marking duplicates (if applicable), and generating gene counts from sequencing data. It uses several bioinformatics tools to achieve efficient processing and analysis.
+This document describes the Pipeline1 processing pipeline, which automates the analysis of sequencing data. It covers tasks like trimming, quality control, alignment, sorting, marking duplicates, and generating gene counts using various bioinformatics tools. The script is meant to be run on compatible systems, specifically on Linux environments or platforms like UNSW's Katana. This guide will help users customize the script as needed and understand where outputs are generated.
+
+Important!! When running the processing and analysis scripts, you're supposed to change the working directorys first, and follow the step-to-step instructions.
 
 ## Features
 
@@ -29,6 +31,9 @@ Ensure your system meets the following requirements before running the pipeline:
 
 **Software requirements**:
 ## Software List
+
+
+All modules have been written in the scripts at a executable version which has passed the tests on Katana, here's instruction of how to load them manually:
 
 1. **Porechop**   (1_porechoptrim_fastqc.sh)
    - Tool for trimming Oxford Nanopore reads.
@@ -199,14 +204,24 @@ For example, for nanopore fastq data, run command:
 ```bash
 #If you want to accelerate your porechop that you supposed to have a huge sequences, then you need to add threads:
 
-Porechop  -t THREADS, --threads THREADS
-                         Number of threads to use for adapter alignment
-                         (default: 16)
-
-porechop -t "number of the threads you'd like to use" -i "$merged_file" -o "$output_file" > "$log_file" 2>&1
+# change "-t 16" to the maximum number of CPU's you booked as this step can be slow
+porechop -t 16 -i "$merged_file" -o "$output_file" > "$log_file" 2>&1
 
 ```
+### Porechop Usage and Configurations
 
+While trimming adapters from sequencing reads using Porechop, you may want to optimize performance and handle any potential errors effectively. Below are guidelines and options specific to running Porechop:
+
+#### What If There Are Errors?
+
+- **Log Files**: During execution, standard messages are redirected to a log file, while errors are captured separately for easier troubleshooting. Review `porechop_error.log` for any error messages to understand and resolve issues.
+
+#### Configuration Options:
+
+- **Log and Error Files**: The output and any errors will be logged as follows:
+  ```bash
+  # Standard output and errors
+  --verbosity 1>> "$log_file" 2>> porechop_error.log
 
 ```bash 
 
@@ -215,38 +230,30 @@ bash ./porechop_preprocessing.sh
 ```
 
 If run successfully, you'll see:
-![image](https://github.com/user-attachments/assets/ce83699c-815d-441c-88ca-6c264536e61d)
-
-Each of the step is corresponding to each script below.
-
-## Trouble Shooting
-
-If encounter errors or no responses when running the scripts, please run split scripts step by step.
-
-The porechop_preprocessing.sh is consisted of 4 split scripts:
-
-1_porechoptrim_fastqc.sh
-2_sam_bam.sh
-3_sort_markdup.sh
-4_gene_counts.sh
-clear_intermediate.sh
+![image](https://github.com/user-attachments/assets/208572f3-bbff-4e30-acc2-107beacb8476)
 
 
 ### Clean Step: Edit the Cleaning Script and Execute
 
-This script is designed to detect all expected output files generated from previous processing steps and, if all are confirmed to be present, it clears intermediate folders (`step1` to `step4`) within the specified directory.
+This script is designed to detect all expected output files generated from previous processing steps and, if all are confirmed to be present, it clears intermediate folders.
+#### Execution:
 
-Please edit the folder path with the same stratefy above in the step1,
+1. Please edit the folder path with the same stratefy above in the step1,
 
 For example,
 FOLDER="/mnt/d/Small_Molecule/Biotin/T7MB-2/240421" 
 
-After edited the folder path in the script, excute via:
-```bash
+2. Save the script as `clear_intermediate.sh`.
+3. Ensure the script has execution permissions by running:
+   ```bash
+   chmod +x clear_intermediate.sh
 
-./clear_intermediate.sh
+   ```
+4. Execute the cleaning script via:
+   ```bash
+   ./clear_intermediate.sh
+   ```
 
-```
 
 #### Functionality of the Script:
 
@@ -268,35 +275,6 @@ After edited the folder path in the script, excute via:
 4. **Conditional Deletion**:
    - If all outputs are confirmed to exist, the script deletes all contents within the `step1` to `step4` directories, thereby clearing intermediate files and folders.
    - If any expected output is missing, the script informs you and skips the deletion process to ensure no important data is lost.
-
-#### Execution:
-1. Save the script as `clear_intermediate.sh`.
-2. Ensure the script has execution permissions by running:
-   ```bash
-   chmod +x clear_intermediate.sh
-
-   ```
-3. Execute the cleaning script via:
-   ```bash
-   ./clear_intermediate.sh
-   ```
-
-## Example File Path Setup
-
-The script expects input files to be in the specified `FOLDER` directory and also looks for `.fastq` or `.fastq.gz` files for trimming and alignment.
-
-Input folder path example and its supposed structure:
-
-![image](https://github.com/user-attachments/assets/5c9429c0-dede-4a00-840f-09ee9fc135e1)
-
-Output folder structure should be similar as below:
-
-![image](https://github.com/user-attachments/assets/75b8d442-12cd-4669-badd-77539ddab885)
-
-
-Output for Pod5 data:
-
-![image](https://github.com/user-attachments/assets/2ffe755a-ae30-4a84-9951-bcebfdb4fab7)
 
 
 ## Output
