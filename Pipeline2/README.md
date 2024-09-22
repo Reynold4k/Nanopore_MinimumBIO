@@ -114,8 +114,16 @@ rm *.cif.gz
 gunzip *.gz
 ```
 
+## Install Pymol
 
+```bash
 
+#Install Pymol if it is not available to load at your terminal:
+conda create -n pymol_env python=3.8
+conda activate pymol_env
+conda install -c conda-forge -c schrodinger pymol-bundle
+
+```
 
 
 
