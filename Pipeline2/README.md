@@ -39,8 +39,6 @@ bash ./a_extract_reads.pbs
 
 If running without error, you will see:
 
-![image](https://github.com/user-attachments/assets/6114dda2-d07d-456c-9ac2-c96fe67e32f4)
-
 
 ## Step B: Error Correction, trimming, unitigging, Assembly
 
@@ -73,8 +71,6 @@ output_protein_file = "/path/to/your/protein_sequences_long.fasta"
 python3 translation.py
 ```
 
-If succeed, you will see:
-![image](https://github.com/user-attachments/assets/e30b575e-6021-4724-9a16-80a87febc39c)
 
 Make a blast online to check whether it is still the potential hits that you extracted in the Step A via: 
 
