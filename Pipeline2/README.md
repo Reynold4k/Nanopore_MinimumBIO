@@ -122,7 +122,7 @@ https://www.uniprot.org/
 
 PDB_PATH="/srv/scratch/z3546698/true/alphafold/database/UP000005640_9606_HUMAN_v4/AF-${UNIPROT_ID}-F1-model_v4.pdb"
 
-bash ./c_align.pbs
+bash ./e_align.pbs
 
 ```
 
