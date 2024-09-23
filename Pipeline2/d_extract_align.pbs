@@ -1,0 +1,52 @@
+#!/bin/bash
+
+# Load required modules
+module load samtools/1.20
+module load bedtools2/2.30.0  
+
+# Define files and directories
+GENOME_FASTA="/srv/scratch/z3546698/true/reference/hg38.fa"  # Reference FASTA file
+BED_FILE="/srv/scratch/z3546698/true/exp/potential_hit/BEX4_Hit_all_trimmed_sorted_merged.bed"  # BED file
+
+# Extract directory path for the outputs
+BED_DIR=$(dirname "$BED_FILE")
+
+# Define output paths
+dna_sequences_output="$BED_DIR/high_coverage_sequences.fa"
+translated_proteins_output="$BED_DIR/translated_proteins.fa"
+
+# Extract DNA sequences using BEDTools
+bedtools getfasta -fi "$GENOME_FASTA" -bed "$BED_FILE" -fo "$dna_sequences_output"
+
+echo "DNA sequences extracted to $dna_sequences_output"
+
+# Translate DNA to protein using Python with Biopython
+python3 - <<EOF
+from Bio.Seq import Seq
+from Bio import SeqIO
+
+input_file = "$dna_sequences_output"
+output_file = "$translated_proteins_output"
+
+with open(output_file, "w") as f_out:
+    for record in SeqIO.parse(input_file, "fasta"):
+        dna_seq = Seq(str(record.seq))
+
+        # Print sequence length for debugging
+        print(f"Processing sequence {record.id} of length {len(dna_seq)}")
+
+        # Handling sequences not a multiple of three
+        if len(dna_seq) % 3 != 0:
+            # Pad with N's to make length a multiple of three
+            pad_length = (3 - len(dna_seq) % 3) % 3
+            dna_seq = dna_seq + 'N' * pad_length
+            print(f"Padding sequence {record.id} to a length of {len(dna_seq)}")
+
+      
+        protein_seq = dna_seq.translate(to_stop=False)
+
+        # Write the translated protein sequence to output
+        f_out.write(f">{record.id}\n{str(protein_seq)}\n")
+
+print(f"Protein sequences saved to {output_file}")
+EOF
