@@ -58,7 +58,7 @@ PDB_PATH="/srv/scratch/z3546698/true/alphafold/database/UP000005640_9606_HUMAN_v
 ```
 
 
-## Manually run the scripts step by step, you don't need step A-C scripts for now, if you're keen on how it works, please contact me at my email.
+## Below are the instructions for manually running the scripts step by step, you don't need step A-C scripts for now, if you're keen on how it works, please contact me at my email.
 
 
 ## Step A: Extracting potential hits into a new folder
