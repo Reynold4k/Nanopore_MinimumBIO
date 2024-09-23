@@ -38,7 +38,7 @@ VISUAL_DIR="path to your potential_hit/visualization"  # Directory for visualiza
 bash ./pipeline2-A.pbs
 ```
 
-Then some operations are also required for part B:
+Then some operations are also required for part B (pipeline2-B.pbs):
 
 ```bash
 GENOME_FASTA="Path to reference/hg38.fa"  # Reference FASTA file
@@ -54,6 +54,8 @@ UNIPROT_ID="Q5VVH2"
 #Path to your prepared alphafold database library in Step D!!:
 
 PDB_PATH="/srv/scratch/z3546698/true/alphafold/database/UP000005640_9606_HUMAN_v4/AF-${UNIPROT_ID}-F1-model_v4.pdb"
+
+bash ./pipeline2-B.pbs
 
 ```
 
