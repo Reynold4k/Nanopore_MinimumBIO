@@ -11,6 +11,11 @@ VISUAL_DIR="/srv/scratch/z3546698/true/exp/potential_hit/visualization"  # Direc
 GENOME_FASTA="/srv/scratch/z3546698/true/reference/hg38.fa"
 
 BED_FILE="/srv/scratch/z3546698/true/exp/potential_hit/BEX4_Hit_all_trimmed_sorted_merged.bed"  # BED file
+
+FILENAME=$(basename "$BED_FILE")
+
+GENE_NAME=${FILENAME%%_*}
+
 BED_DIR=$(dirname "$BED_FILE")
 dna_sequences_output="$BED_DIR/high_coverage_sequences.fa"
 translated_proteins_output="$BED_DIR/translated_proteins.fa"
@@ -124,7 +129,7 @@ if [[ -n $chain_id && -n $start_index && -n $end_index ]]; then
     color gray, structure
     color red, highlight_region
     save $VISUAL_DIR/highlighted_structure.pse, format=pse
-    png $VISUAL_DIR/highlighted_structure.png, width=800, height=600, dpi=300, ray=1
+    png $VISUAL_DIR/${GENE_NAME}_highlighted_structure.png, width=800, height=600, dpi=300, ray=1
     quit
 EOF
     )
