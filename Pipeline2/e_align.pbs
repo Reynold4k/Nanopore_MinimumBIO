@@ -1,0 +1,134 @@
+#!/bin/bash
+
+# Load necessary modules
+module load blast-plus/2.12.0 
+
+# Define the output directory
+VISUAL_DIR="/srv/scratch/z3546698/true/exp/potential_hit/visualization"  # Directory for visualizations
+
+
+# Define key file paths and directories
+GENOME_FASTA="/srv/scratch/z3546698/true/reference/hg38.fa"
+
+BED_FILE="/srv/scratch/z3546698/true/exp/potential_hit/BEX4_Hit_all_trimmed_sorted_merged.bed"  # BED file
+BED_DIR=$(dirname "$BED_FILE")
+dna_sequences_output="$BED_DIR/high_coverage_sequences.fa"
+translated_proteins_output="$BED_DIR/translated_proteins.fa"
+
+# PDB and sequence paths
+UNIPROT_ID="Q9NWD9"
+PDB_PATH="/srv/scratch/z3546698/true/alphafold/database/UP000005640_9606_HUMAN_v4/AF-${UNIPROT_ID}-F1-model_v4.pdb"
+pdb_fasta_file="$BED_DIR/pdb_sequence_${UNIPROT_ID}.fasta"
+
+# Extract protein sequence from translated_proteins.fa
+protein_sequence=$(awk '/^>/ {if (seqlen) exit} {if (!/^>/) printf $0}' "$translated_proteins_output")
+
+# Prepare the PDB sequence in FASTA format using Biopython
+python3 -c "
+from Bio import SeqIO
+from Bio.PDB import PDBParser
+
+# Load PDB and extract sequences
+pdb_file = '$PDB_PATH'
+pdb_fasta = '$pdb_fasta_file'
+
+parser = PDBParser(QUIET=True)
+structure = parser.get_structure('Protein', pdb_file)
+model = structure[0]
+
+# Mapping three-letter codes to one-letter
+aa3to1 = {'CYS':'C', 'ASP':'D', 'SER':'S', 'GLN':'Q', 'LYS':'K', 
+          'ILE':'I', 'PRO':'P', 'THR':'T', 'PHE':'F', 'ASN':'N', 
+          'GLY':'G', 'HIS':'H', 'LEU':'L', 'ARG':'R', 'TRP':'W', 
+          'ALA':'A', 'VAL':'V', 'GLU':'E', 'TYR':'Y', 'MET':'M'}
+
+sequences = []
+
+for chain in model:
+    residues = [residue for residue in chain if residue.get_resname() in aa3to1]
+    seq = ''.join(aa3to1[residue.get_resname()] for residue in residues)
+    sequences.append((f'Chain_{chain.id}', seq))
+
+with open(pdb_fasta, 'w') as f:
+    for chain_id, sequence in sequences:
+        f.write(f'>{chain_id}\n{sequence}\n')
+"
+
+# Verify that pdb_fasta_file is created
+if [[ ! -f $pdb_fasta_file ]]; then
+    echo "PDB FASTA file creation failed."
+    exit 1
+fi
+
+alignment_results=$(python3 - <<END
+from Bio import SeqIO
+from Bio.Seq import Seq
+from Bio.Align import PairwiseAligner
+
+# Load the sequences
+protein_seq = Seq("$protein_sequence")
+
+with open('$pdb_fasta_file', 'r') as f:
+    pdb_records = list(SeqIO.parse(f, 'fasta'))
+
+# Initialize aligner
+aligner = PairwiseAligner()
+aligner.mode = 'local'  # Use local alignment
+
+# Adjust alignment parameters for longer matches
+aligner.open_gap_score = -2  # Adjust gap open penalty
+aligner.extend_gap_score = -0.5  # Adjust gap extension penalty
+aligner.match_score = 1  # Set higher match score
+aligner.mismatch_score = 0  # Set mismatch penalty
+
+best_score = 0
+best_alignment = None
+best_chain = None
+best_position = (0, 0)
+
+# Evaluate each chain in the PDB
+for record in pdb_records:
+    pdb_seq = record.seq
+    alignments = aligner.align(protein_seq, pdb_seq)
+
+    # Check all alignments to find the best one
+    for alignment in alignments:
+        if alignment.score > best_score and (alignment.aligned[0][0][1] - alignment.aligned[0][0][0]) > 5: # Example threshold for length
+            best_score = alignment.score
+            best_alignment = alignment
+            best_chain = record.id
+            best_position = alignment.aligned[1][0]  # This is (start, end)
+
+start_index, end_index = best_position
+end_index -= 1  # Convert to zero-based inclusive
+
+print(f'{best_chain} {start_index + 1} {end_index + 1}')
+END
+)
+
+# Capture the best alignment details
+read chain_id start_index end_index <<< "$alignment_results"
+
+echo "Chain ID: $chain_id"
+echo "Start Index: $start_index"
+echo "End Index: $end_index"
+
+chain_id="${chain_id#Chain_}"
+
+if [[ -n $chain_id && -n $start_index && -n $end_index ]]; then
+    echo "Creating PyMOL script with chain $chain_id and resi $start_index-$end_index"
+    SCRIPT=$(cat <<-EOF
+    load $PDB_PATH, structure
+    show cartoon, structure
+    select highlight_region, chain $chain_id and resi $start_index-$end_index
+    color gray, structure
+    color red, highlight_region
+    save $VISUAL_DIR/highlighted_structure.pse, format=pse
+    png $VISUAL_DIR/highlighted_structure.png, width=800, height=600, dpi=300, ray=1
+    quit
+EOF
+    )
+    pymol -c -d "${SCRIPT}"
+else
+    echo "Variable issue: ensure chain_id and indices are correctly defined."
+fi
