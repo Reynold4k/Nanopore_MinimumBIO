@@ -106,10 +106,10 @@ generate_file_paths <- function(base_dir, common_dirs) {
   paths <- setNames(nm = common_dirs)
   for (dir in common_dirs) {
     # Construct the path to the step4 directory within each timepoint
-    step4_dir <- file.path(base_dir, dir, "step3")
+    step3_dir <- file.path(base_dir, dir, "step3")
     
     # Construct the full file path to the expression counts file
-    file_path <- file.path(step4_dir, paste0(dir, "_combined_expression_counts.txt"))
+    file_path <- file.path(step3_dir, paste0(dir, "_combined_expression_counts.txt"))
     
     # Check if the file exists and store the path, otherwise, issue a warning
     if (file.exists(file_path)) {
