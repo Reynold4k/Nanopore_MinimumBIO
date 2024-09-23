@@ -1,4 +1,7 @@
 ## Pipeline 2
+![image](https://github.com/user-attachments/assets/6d290d16-b830-485e-bf54-6cb27c42ef00)
+![image](https://github.com/user-attachments/assets/57577119-5bcc-4c78-a291-996995d52a68)
+
 
 Once you have executed the initial analysis with your gene expression counts and identified potential hits, it’s time to further investigate them using AlphaFold for protein structure prediction. Below are detailed instructions for running the script while ensuring the relevant paths are properly set.
 
