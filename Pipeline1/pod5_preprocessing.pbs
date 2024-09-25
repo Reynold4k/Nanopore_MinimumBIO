@@ -14,6 +14,11 @@ spinner() {
     printf "    \b\b\b\b"
 }
 
+#Load the module available on Katana
+
+module load dorado/0.7.3
+
+
 # Display the logo from logo.sh
 source ./logo.sh
 
