@@ -17,7 +17,11 @@ spinner() {
 #Load the module available on Katana
 
 module load dorado/0.7.3
-
+module load porechop/0.2.4
+module load nanoplot/1.43.0
+module load bwa/0.7.17
+module load samtools/1.20
+module load subread/2.0.2
 
 # Display the logo from logo.sh
 source ./logo.sh
