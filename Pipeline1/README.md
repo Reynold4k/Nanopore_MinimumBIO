@@ -85,9 +85,14 @@ gunzip hg38.fa.gz
 ```
 
 ## Index your reference fasta files, this step must be conducted on your current portal to continue the next step
+
+You need to index the refenrence fasta file, for example, hg38.fa here:
+
 ```bash
 module load bwa/0.7.17
 
+
+#change the hg38.fa to your reference fasta
 bwa index hg38.fa
 
 wget ftp://ftp.ensembl.org/pub/release-104/gtf/homo_sapiens/Homo_sapiens.GRCh38.110.gtf.gz 
