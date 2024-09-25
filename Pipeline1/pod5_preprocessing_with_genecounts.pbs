@@ -1,19 +1,27 @@
 #!/bin/bash
 
+# This script walks through the bioinformatics pipeline, starting from basecalling with Dorado, conducting quality control with NanoPlot,
+# performing alignment, sorting, marking duplicates, and finally generating gene counts with featureCounts. Each step is crucial for
+# ensuring high-quality, analyzable data from raw experimental results.
+
+# What you need to modify:
+# 1.Change the line 13 BASE_DIR to your/pod5/path
+# 2.Change the line 14 REFERENCE to your/reference/path
+# 3.Change the line 15 ANNOTATION to your/ANNOTATION/path
+
 # Set the base directory and important paths
 BASE_DIR="/srv/scratch/z3546698/true/pod5/"
 REFERENCE="/srv/scratch/z3546698/true/reference/hg38.fa"
 ANNOTATION="/srv/scratch/z3546698/true/reference/Homo_sapiens.GRCh38.110.gtf"
 OUTPUT_DIR="$BASE_DIR/output"
-MODEL_DIR="/path/to/dorado/models"  # Set the correct path to Dorado models
 
+#Load the modules available on katana
 module load dorado/0.7.3
 module load porechop/0.2.4
 module load nanoplot/1.43.0
 module load bwa/0.7.17
 module load samtools/1.20
 module load subread/2.0.2
-
 
 # Create necessary directories
 mkdir -p "$OUTPUT_DIR/fastq_pass"
@@ -48,7 +56,7 @@ for STATE in pod5_pass pod5_fail; do
         mkdir -p "$dorado_out"
         
         # Basecalling with Dorado
-        dorado basecaller --model "$MODEL_DIR/model_name.dor" --device "cuda" "$merged_pod5_file" "$dorado_out"
+        dorado basecaller --device "cuda" "$merged_pod5_file" "$dorado_out"
 
         echo "Converted: $merged_pod5_file -> $dorado_out"
         
