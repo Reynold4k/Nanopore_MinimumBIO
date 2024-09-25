@@ -125,11 +125,10 @@ pwd
 
 FOLDER="the outout of your working directory having the same structure as below"
 
-![image](https://github.com/user-attachments/assets/7b8d6083-750e-4446-81cb-237977c89aa4)
-
 For example,
 FOLDER="/mnt/d/Small_Molecule/Biotin/T7MB-2/240421"  # Path to input experiments folders
 ```
+![image](https://github.com/user-attachments/assets/c507eded-0724-438a-afc2-74a3484a5785)
 
 
 
