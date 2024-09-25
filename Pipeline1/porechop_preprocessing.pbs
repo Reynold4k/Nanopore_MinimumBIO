@@ -68,7 +68,7 @@ find "$FOLDER" -type d -name "R*" | while IFS= read -r dir; do
     log_file="$step1_dir/porechop.log"
     
     # Run Porechop and redirect logs
-    porechop -i "$merged_file" -o "$output_file" > "$log_file" 2>&1
+    porechop -i "$merged_file" -o "$output_file" -t 16 > "$log_file" 2>&1
     echo "Trimmed: $merged_file -> $output_file"
     echo "Log saved to: $log_file"
 done
