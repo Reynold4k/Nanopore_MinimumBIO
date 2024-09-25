@@ -91,7 +91,7 @@ module load bwa/0.7.17
 bwa index hg38.fa
 
 wget ftp://ftp.ensembl.org/pub/release-104/gtf/homo_sapiens/Homo_sapiens.GRCh38.112.gtf.gz 
-gunzip Homo_sapiens.GRCh38.112.gtf.gz
+gunzip Homo_sapiens.GRCh38.110.gtf.gz
 ```
 
 # For katana only
