@@ -1,5 +1,17 @@
 #!/bin/bash
 
+# This script automates the process of extracting genomic DNA sequences from a set of genomic coordinates 
+# specified in a BED file and subsequently translating these sequences into protein sequences. 
+# It uses BEDTools to access specific DNA sequences from a reference genome based on the BED coordinates.
+# The extracted DNA sequences are then translated into protein sequences using a Python script with BioPython.
+# Key steps include loading necessary software modules, defining paths to reference data and output locations,
+# extracting DNA sequences, and handling edge cases such as non-multiples of three in sequence lengths to ensure accurate translation.
+# This pipeline facilitates the exploration of genomic regions by providing both nucleotide and amino acid sequences, 
+# which are crucial for downstream biological analysis and interpretation of functional genomic elements.
+
+
+
+
 # Load required modules
 module load samtools/1.20
 module load bedtools2/2.30.0  
