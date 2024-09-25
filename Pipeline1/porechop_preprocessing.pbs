@@ -14,6 +14,8 @@ ANNOTATION="/srv/scratch/z3546698/true/reference/Homo_sapiens.GRCh38.110.gtf"
 
 
 # Step 1: Trimming fastq files using Porechop
+# This step merges all FASTQ files within each subdirectory, then uses Porechop to trim adapters and other unwanted sequences. This prepares high-quality data for alignment by cleaning up the reads.
+
 echo "Trimming starts using Porechop......"
 
 # Find directories like R0, R1, etc., and process each independently
@@ -60,6 +62,8 @@ done
 
 
 # Step 2: Quality Control via NanoPlot
+# This step performs a quality control check using NanoPlot on the trimmed FASTQ files, providing detailed statistical and visual analyses of read quality that inform any subsequent data processing or filtering decisions.
+
 echo "Trimming finished......."
 echo "Quality Control in progress......."
 find "$FOLDER" -type f -path "*/step1/*_trimmed.fastq.gz" | while read -r trimmed_file; do
@@ -71,6 +75,8 @@ done
 echo "Quality Control finished........"
 
 # Step 3: Alignment and BAM file generation
+# The goal here is to align trimmed reads to a reference genome using BWA, converting them into BAM files. This positions each read along the genome, allowing for further analyses like variant calling or expression quantification.
+
 echo "Alignment and BAM file generation in progress......."
 find "$FOLDER" -type f -path "*/step1/*_trimmed.fastq.gz" | while read -r trimmed_file; do
     dir=$(dirname "$trimmed_file")
@@ -83,6 +89,8 @@ find "$FOLDER" -type f -path "*/step1/*_trimmed.fastq.gz" | while read -r trimme
 done
 
 # Step 4: Sort and mark duplicates in BAM files
+# This step involves sorting the aligned BAM files and marking duplicate reads. Sorting organizes reads for efficient access and processing, while marking duplicates helps reduce biases in downstream analyses by indicating which reads are likely artifacts of PCR amplification.
+
 echo "Sorting and marking duplicates......."
 find "$FOLDER" -type f -path "*/step1/*.bam" | while read -r bam_file; do
     dir=$(dirname "$bam_file")
@@ -107,6 +115,8 @@ done
 echo "Sorting and marking duplicates finished......."
 
 # Step 5: Feature Counting
+# This final processing step uses featureCounts to quantify gene expression by counting aligned reads at specific genomic features, such as genes or exons. This data is essential for downstream analyses like differential expression studies, allowing researchers to compare gene activity levels across different samples or conditions.
+
 echo "Feature counting with featureCounts......."
 find "$FOLDER" -mindepth 1 -maxdepth 1 -type d | while read -r r_folder; do
     r_group=$(basename "$r_folder")
