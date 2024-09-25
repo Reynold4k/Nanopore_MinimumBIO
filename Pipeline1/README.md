@@ -102,27 +102,37 @@ bwa index GRCh37.fa
 
 ```
 
+This section of commands performs two main actions: downloading and decompressing a GTF (General Feature Format) file that contains gene annotation data from Ensembl. Here’s a detailed breakdown:
+
+**Download the GTF File**:
+
 ```bash
 
-wget ftp://ftp.ensembl.org/pub/release-104/gtf/homo_sapiens/Homo_sapiens.GRCh38.110.gtf.gz 
+wget ftp://ftp.ensembl.org/pub/release-104/gtf/homo_sapiens/Homo_sapiens.GRCh38.110.gtf.gz
+```
+
+**Decompress the GTF File**:
+
+
+```bash
 gunzip Homo_sapiens.GRCh38.110.gtf.gz
 ```
-# Note: You can download GTF files for other species from the Ensembl FTP server or UCSC Genome Browser.
-# Below are examples of how to find the corresponding paths:
+### Note: You can download GTF files for other species from the Ensembl FTP server or UCSC Genome Browser.
+### Below are examples of how to find the corresponding paths:
 
-# 1. Ensembl FTP Server:
-# Visit the Ensembl FTP site: ftp://ftp.ensembl.org/pub/release-110/gtf/
-# To download a GTF for Mus musculus (mouse), use:
-# ftp://ftp.ensembl.org/pub/release-110/gtf/mus_musculus/
-# Example path for Mus musculus: "/path/to/your/directory/Mus_musculus.GRCm39.110.gtf.gz"
+ 1. Ensembl FTP Server:
+Visit the Ensembl FTP site: ftp://ftp.ensembl.org/pub/release-110/gtf/
+To download a GTF for Mus musculus (mouse), use:
+ftp://ftp.ensembl.org/pub/release-110/gtf/mus_musculus/
+### Example path for Mus musculus: "/path/to/your/directory/Mus_musculus.GRCm39.110.gtf.gz"
 
-# 2. UCSC Genome Browser:
-# Visit the UCSC Genome Browser downloads section: http://hgdownload.soe.ucsc.edu/downloads.html
-# To find a GTF for Danio rerio (zebrafish), browse to:
-# http://hgdownload.soe.ucsc.edu/goldenPath/danRer11/bigZips/genes/
-# Example path for Danio rerio: "/path/to/your/directory/danRer11.refGene.gtf.gz"
+2. UCSC Genome Browser:
+Visit the UCSC Genome Browser downloads section: http://hgdownload.soe.ucsc.edu/downloads.html
+To find a GTF for Danio rerio (zebrafish), browse to:
+http://hgdownload.soe.ucsc.edu/goldenPath/danRer11/bigZips/genes/
+Example path for Danio rerio: "/path/to/your/directory/danRer11.refGene.gtf.gz"
 
-# Make sure to decompress (.gz) files if needed and adjust the path accordingly.
+Make sure to decompress (.gz) files if needed and adjust the path accordingly.
 
 
 
