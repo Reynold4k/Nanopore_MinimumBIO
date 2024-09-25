@@ -23,6 +23,20 @@ run_command() {
     spinner
 }
 
+# This script walks through the bioinformatics pipeline, starting from basecalling with Dorado, conducting quality control with NanoPlot,
+# performing alignment, sorting, marking duplicates, and finally generating gene counts with featureCounts. Each step is crucial for
+# ensuring high-quality, analyzable data from raw experimental results.
+
+
+
+
+
+
+# Step 1: Basecalling using Dorado and Quality Control using NanoPlot
+# The first step in the pipeline focuses on converting raw nanopore sequencing data (.fast5 files) into basecalled sequences (in .fastq format).
+# We employ the Dorado tool for basecalling, followed by quality control analysis using NanoPlot, which provides comprehensive data visualization
+# on the quality of the sequencing run.
+
 # Step 1: Basecalling using Dorado and Quality Control using NanoPlot
 echo "Starting Step 1: Basecalling and Quality Control..."
 FOLDER="/mnt/d/Small_Molecule/Biotin/T7MB-2/240421"  # Path to input experiments folders
@@ -56,6 +70,11 @@ done
 
 echo "Step1 completed. Please check the sequencing quality report!"
 
+# Step 2: Converting and Alignment
+# In the second step, the focus is on aligning the sequence reads to a reference genome. This step includes
+# the conversion of the raw FASTQ data into BAM format using the bwa mem for alignment, followed by samtools
+# for reading conversion. Aligning reads to a reference helps in identifying the positions of genetic sequences
+# in relation to the reference genome.
 
 # Step 2: Converting and Alignment
 echo "Starting Step 2: Converting and Alignment..."
@@ -84,6 +103,11 @@ done
 
 echo "Step 2 completed."
 
+# Step 3: Sorting and Marking Duplicates
+# This step takes the aligned data in BAM format and sorts them before marking duplicate entries. Sorting facilitates
+# efficient data processing and analysis, while marking duplicates ensures that downstream analysis like variant calling
+# considers unique sequences, improving the quality of results.
+
 
 # Step 3: Sorting and Marking Duplicates
 echo "Starting Step 3: Sorting and Marking Duplicates..."
@@ -99,6 +123,11 @@ find "$FOLDER" -type f -name "*.bam" | while read -r bam_file; do
     rm "$bam_file"
 done
 echo "Step 3 completed."
+
+# Step 4: Generating Gene Counts and Annotation
+# In this final step, the pipeline focuses on quantifying gene expression. We use the featureCounts tool to count
+# the number of reads mapped to each gene in the reference genome. This analysis is essential for understanding
+# gene expression levels across different samples, which can be particularly useful for differential expression analysis.
 
 # Step 4: Generating Gene Counts and Annotation
 echo "Starting Step 4: Gene Counts and Annotation..."
