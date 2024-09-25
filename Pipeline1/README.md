@@ -43,6 +43,8 @@ qsub -I -l select=1:ncpus=16:mem=128gb -l walltime=04:00:00
 ### Notes
 
 - **Module Availability**: Ensure all these modules are available on your current working path.
+
+- Check them by command module av "the module"
   
 - **Version Compatibility**: Always check compatibility of module versions with your data and analysis workflow.
 
@@ -52,8 +54,6 @@ qsub -I -l select=1:ncpus=16:mem=128gb -l walltime=04:00:00
 - Gene annotation file in GTF format (e.g., `hg38.ensGene.gtf`).
 
 ## Installation Dependencies (If you're working on your local environment such as Ubuntu, if you're working with Katana, skip to usage instructions)
-
-
 
 To install necessary bioinformatics tools, you might require package managers like `conda` or `apt-get`:
 
@@ -68,6 +68,7 @@ conda activate bioenv
 ```bash
 sudo apt-get install porechop bwa samtools
 ```
+
 ## Setup Instructions
 
 1. Clone the repository or copy the script into your working directory.
