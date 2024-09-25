@@ -102,7 +102,7 @@ https://docs.restech.unsw.edu.au/
 
 Set the input and reference data paths in the script:
 
-Step1 Modify the preprocessing script(e.g. porechop_preprocessing.sh)
+## Step1 Modify the preprocessing script(e.g. porechop_preprocessing.sh)
 Do the same modification to the pod5 files processing scripts
 
 For fastq files: porechop_preprocessing.pbs
@@ -132,7 +132,7 @@ FOLDER="/mnt/d/Small_Molecule/Biotin/T7MB-2/240421"  # Path to input experiments
 
 
 
-Step2 Update gene reference and annotation file path in the pre processing script
+## Step2 Update gene reference and annotation file path in the pre processing script
 
 - **Update the `REFERENCE` and `annotation` paths**: Point these to your reference genome and annotation files, respectively.
 
@@ -146,7 +146,7 @@ Ensure your directory structure allows the script to find input files and output
 
 
 
-Step3 Save the edited script and execute script
+## Step3 Save the edited script and execute script
 
 - **Execute the scripts for their corresponding data
 
@@ -240,7 +240,7 @@ The pipeline produces the following outputs:
 
 
 
-## Analysis of generated gene counts matrix: Updating 3 Paths in R and Bash Scripts
+## step 4 Analysis of generated gene counts matrix: Updating 3 Paths in R and Bash Scripts
 
 In your R script, make sure that `exp_base_path` and `control_base_path` paths match the `FOLDER` path specified in the `porechop_preprocessing.sh` script. Below is an example of how you can configure these: 
 
