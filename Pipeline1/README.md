@@ -118,6 +118,7 @@ pwd
 
 ```bash
 FOLDER="the outout of your pwd working directory having the same structure as below"
+![image](https://github.com/user-attachments/assets/08f2a926-6e9f-47d1-b687-fcab6cab67f9)
 
 
 For example,
