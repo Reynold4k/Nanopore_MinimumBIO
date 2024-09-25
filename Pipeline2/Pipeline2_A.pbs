@@ -6,7 +6,10 @@
 # and visualizing coverage. Overall, this pipeline is designed to facilitate gene-specific analyses within high-throughput datasets,
 # allowing researchers to focus on particular genes of interest, manage raw data complexity, and enhance sequence accuracy with assembly strategies.
 
-
+# What you need to modify:
+# 1.Change the line 25 PARENT_DIR to your/path/to/exp/R3/step2
+# 2.Change the line 31 REFERENCE to your/reference/path
+# 3.Change the line 32 ANNOTATION to your/ANNOTATION/path
 
 
 
@@ -18,14 +21,18 @@ module load r/4.4.0
 module load blast-plus/2.12.0 
 
 # Paths to directories and files
+# Base directory path; modify this line to change the directory structure
 PARENT_DIR="/srv/scratch/z3546698/true/Small_Molecule/FK506/T7MB-2/231119/R3/step2"
-OUTPUT_DIR="/srv/scratch/z3546698/true/Small_Molecule/FK506/T7MB-2/231119/potential_hit"
-VISUAL_DIR="/srv/scratch/z3546698/true/Small_Molecule/FK506/T7MB-2/231119/potential_hit/visualization"  # Directory for visualizations
+
+# Derive the output and visualization directories from PARENT_DIR
+OUTPUT_DIR="${PARENT_DIR%/*/*}/potential_hit"  # Remove the last two path segments (R3/step2)
+VISUAL_DIR="${OUTPUT_DIR}/visualization"
+
 ANN_FILE="/srv/scratch/z3546698/true/reference/Homo_sapiens.GRCh38.110.gtf"
-FASTQ_DIR="${OUTPUT_DIR}/FASTQ"
-
-
 GENOME_FASTA="/srv/scratch/z3546698/true/reference/hg38.fa"  # Reference FASTA file
+
+
+FASTQ_DIR="${OUTPUT_DIR}/FASTQ"
 
 # Ensure visualization directory exists
 mkdir -p "$VISUAL_DIR"
