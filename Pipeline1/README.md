@@ -86,6 +86,7 @@ gunzip hg38.fa.gz
 
 ## Index your reference fasta files, this step must be conducted on your current portal to continue the next step
 ```bash
+module load bwa/0.7.17
 
 bwa index hg38.fa
 
