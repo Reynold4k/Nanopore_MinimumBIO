@@ -124,8 +124,8 @@ pwd
 
 
 FOLDER="the outout of your working directory having the same structure as below"
-![image](https://github.com/user-attachments/assets/08f2a926-6e9f-47d1-b687-fcab6cab67f9)
 
+![image](https://github.com/user-attachments/assets/7b8d6083-750e-4446-81cb-237977c89aa4)
 
 For example,
 FOLDER="/mnt/d/Small_Molecule/Biotin/T7MB-2/240421"  # Path to input experiments folders
