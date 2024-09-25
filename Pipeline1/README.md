@@ -117,13 +117,21 @@ pwd
 ```
 
 ```bash
-FOLDER="the outout of your pwd working directory having the same structure as below"
+# What you need to modify:
+# 1.Change the line 25 FOLDER to your/pod5/path
+# 2.Change the line 26 REFERENCE to your/reference/path
+# 3.Change the line 27 ANNOTATION to your/ANNOTATION/path
+
+
+FOLDER="the outout of your working directory having the same structure as below"
 ![image](https://github.com/user-attachments/assets/08f2a926-6e9f-47d1-b687-fcab6cab67f9)
 
 
 For example,
 FOLDER="/mnt/d/Small_Molecule/Biotin/T7MB-2/240421"  # Path to input experiments folders
 ```
+
+
 
 Step2 Update gene reference and annotation file path in the pre processing script
 
