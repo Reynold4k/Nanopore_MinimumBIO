@@ -1,28 +1,43 @@
 #!/bin/bash
 
+# This script facilitates the analysis and visualization of genomic and protein data by integrating various bioinformatics tools
+# and techniques. It extracts specific genomic regions, translates DNA sequences into proteins, matches these translated proteins to 
+# structural protein data obtained from PDB files, and generates visualizations using PyMOL. By aligning protein sequences obtained 
+# from high-coverage DNA sequences to reference structures in PDB format, the script identifies the best matching regions,
+# highlighting them for further analysis. The workflow includes sequence extraction, translation, local sequence alignment,
+# and structural visualization, ultimately aiding in visual insights into how specific genomic variants or regions might affect 
+# protein structure and function. This automated approach helps streamline molecular biology and genomics research by simplifying 
+# sequence-to-structure comparisons and generating publication-ready images.
+
+
+# What you need to modify:
+# 1.Change the line 22 VISUAL_DIR to your/path/to/exp/potential_hit/visualization
+# 2.Change the line 23 GENOME_FASTA to your/path/to/exp/potential_hit/gene_Hit_all_trimmed_sorted_merged.bed file
+
+
 # Load necessary modules
 module load blast-plus/2.12.0 
 
 # Define the output directory
 VISUAL_DIR="/srv/scratch/z3546698/true/exp/potential_hit/visualization"  # Directory for visualizations
 
-
 # Define key file paths and directories
 GENOME_FASTA="/srv/scratch/z3546698/true/reference/hg38.fa"
-
 BED_FILE="/srv/scratch/z3546698/true/exp/potential_hit/BEX4_Hit_all_trimmed_sorted_merged.bed"  # BED file
 
-FILENAME=$(basename "$BED_FILE")
-
-GENE_NAME=${FILENAME%%_*}
-
-BED_DIR=$(dirname "$BED_FILE")
 dna_sequences_output="$BED_DIR/high_coverage_sequences.fa"
 translated_proteins_output="$BED_DIR/translated_proteins.fa"
 
 # PDB and sequence paths
 UNIPROT_ID="Q9NWD9"
 PDB_PATH="/srv/scratch/z3546698/true/alphafold/database/UP000005640_9606_HUMAN_v4/AF-${UNIPROT_ID}-F1-model_v4.pdb"
+
+FILENAME=$(basename "$BED_FILE")
+
+GENE_NAME=${FILENAME%%_*}
+
+BED_DIR=$(dirname "$BED_FILE")
+
 pdb_fasta_file="$BED_DIR/pdb_sequence_${UNIPROT_ID}.fasta"
 
 # Extract protein sequence from translated_proteins.fa
