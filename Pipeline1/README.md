@@ -29,44 +29,6 @@ Ensure your system meets the following requirements before running the pipeline:
 
 - **Operating System**: Linux or compatible environment.
 
-**Software requirements**:
-## Software List
-
-
-All modules have been written in the scripts at a executable version which has passed the tests on Katana, here's instruction of how to load them manually:
-
-1. **Porechop**   (1_porechoptrim_fastqc.sh)
-   - Tool for trimming Oxford Nanopore reads.
-   - Module command: `module load porechop`
-
-2. **Cutadapt**
-   - Tool for trimming Oxford Nanopore reads.
-   - Module command: `module load cutadapt`
-
-3. **Dorado**     (dorado_preprocessing.sh)
-   - Tool for trimming Oxford Nanopore reads.
-   - Module command: `module load dorado`
-
-4. **NanoPlot**   (1_porechoptrim_fastqc.sh)
-   - Tool for quality control of nanopore reads.
-   - Module command: `module load nanoplot`
-
-5. **BWA**        (2_sam_bam.sh)
-   - Aligns sequence reads to a reference genome.
-   - Module command: `module load bwa`
-
-6. **Samtools**   (2_sam_bam.sh, 3_sort_markdup.sh)
-   - Utilities for manipulating alignments in the SAM format, including sorting and indexing.
-   - Module command: `module load samtools`
-
-7. **featureCounts**    (4_gene_counts.sh)
-   - Part of the Subread package for counting reads to genomic features.
-   - Module command: `module load subread`
-
-For the script <porechop_preprocessing.sh>, please load 1,4,5,6,7
-For the script <dorado_preprocessing.sh>, please load 3,4,5,6,7
-
-
 ## Rclone Example
 
 To use a specific version of Rclone in your environment, you can list available versions and load the desired one as shown below:
@@ -75,29 +37,6 @@ To use a specific version of Rclone in your environment, you can list available 
 
 ```bash
 qsub -I -l select=1:ncpus=16:mem=128gb -l walltime=04:00:00
-```
-
-```bash
-# Display all Rclone versions available
-module avail your_module
-
-# Load the desired version(porechop, nanoplot, bwa, samtools, subread)
-module load your_module/version_number
-
-# It may also be the case that some modules are not included in katana system packages, then please follow the procedure below:
-
-module load python/3.8.15  # please specify a python environment, for example python version 3.8.15
-
-# Create and Activate virtual environment for running pip command (Highly Recommended)
-
-python -m venv nanoplot_env
-source nanoplot_env/bin/activate
-
-# Please pip install the packages that you cannot find on katana
-pip install NanoPlot, dorado, bwa, ...
-
-# Using --help to check the availability of installed packages
-NanoPlot --help
 ```
 
 
