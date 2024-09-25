@@ -5,7 +5,7 @@ BASE_DIR="/srv/scratch/z3546698/true/pod5/"
 REFERENCE="/srv/scratch/z3546698/true/reference/hg38.fa"
 ANNOTATION="/srv/scratch/z3546698/true/reference/Homo_sapiens.GRCh38.110.gtf"
 OUTPUT_DIR="$BASE_DIR/output"
-MODEL_DIR="/path/to/dorado/models" # Set the path to Dorado models
+MODEL_DIR="/path/to/dorado/models"  # Set the correct path to Dorado models
 
 # Create necessary directories
 mkdir -p "$OUTPUT_DIR/fastq_pass"
@@ -16,21 +16,39 @@ mkdir -p "$OUTPUT_DIR/step2"
 mkdir -p "$OUTPUT_DIR/step3"
 mkdir -p "$OUTPUT_DIR/step4"
 
-# Step 1: Convert pod5 files to fastq using Dorado (process both pod5_pass and pod5_fail)
-echo "Converting .pod5 files to .fastq using Dorado from pod5_pass and pod5_fail..."
+# Step 1: Merge .pod5 files and convert them to .fastq using Dorado
+echo "Merging .pod5 files and converting them to .fastq..."
 for STATE in pod5_pass pod5_fail; do
-    find "$BASE_DIR/$STATE" -type f -name "*.pod5" | while read -r pod5_file; do
-        barcode_dir=$(basename "$(dirname "$pod5_file")")
-        dorado_out="$OUTPUT_DIR/fastq_${STATE#pod5_}/$barcode_dir"
+
+    # Directory to store the merged .pod5 files
+    merged_pod5_dir="$OUTPUT_DIR/merged_$STATE"
+    mkdir -p "$merged_pod5_dir"
+
+    # Merge .pod5 files per directory and keep track
+    find "$BASE_DIR/$STATE" -type d -mindepth 1 -maxdepth 1 | while read -r barcode_dir; do
+        merged_pod5_file="$merged_pod5_dir/$(basename "$barcode_dir").pod5"
+        
+        # Use npmerge or cat if applicable to merge .pod5 formats
+        echo "Merging pod5 files in $barcode_dir..."
+        # Here, you might need to adjust to a valid .pod5 merging command
+        # For illustration, assuming `npmerge` is a command to merge .pod5 files:
+        npmerge "$barcode_dir"/*.pod5 -o "$merged_pod5_file"
+        
+        dorado_out="$OUTPUT_DIR/fastq_${STATE#pod5_}/$(basename "$barcode_dir")"
         mkdir -p "$dorado_out"
-        dorado basecaller --model "$MODEL_DIR/model_name.dor" --device "cuda" "$pod5_file" "$dorado_out"
-        # Replace `model_name.dor` with the actual model file name
-        echo "Converted: $pod5_file -> $dorado_out"
+        
+        # Basecalling with Dorado
+        dorado basecaller --model "$MODEL_DIR/model_name.dor" --device "cuda" "$merged_pod5_file" "$dorado_out"
+
+        echo "Converted: $merged_pod5_file -> $dorado_out"
+        
+        # Optionally remove merged .pod5 files after conversion
+        rm "$merged_pod5_file"
     done
 done
 
 # Step 2: Trimming fastq files using Porechop from fastq_pass directory
-echo "Trimming started using Porechop..."
+echo "Trimming fastq files using Porechop..."
 for STATE in fastq_pass fastq_fail; do
     find "$OUTPUT_DIR/$STATE" -type f -name "*.fastq.gz" | while read -r fastq_file; do
         step1_dir="$OUTPUT_DIR/step1/$(basename "$(dirname "$fastq_file")")"
@@ -63,7 +81,7 @@ find "$OUTPUT_DIR/step1" -type f -name "*_trimmed.fastq.gz" | while read -r trim
 done
 
 # Step 5: Sort and mark duplicates in BAM files
-echo "Sorting and marking duplicates..."
+echo "Sorting and marking duplicates in BAM files..."
 find "$OUTPUT_DIR/step2" -type f -name "*.bam" | while read -r bam_file; do
     dir="$OUTPUT_DIR/step3/$(basename "$(dirname "$bam_file")")"
     mkdir -p "$dir"
@@ -71,11 +89,17 @@ find "$OUTPUT_DIR/step2" -type f -name "*.bam" | while read -r bam_file; do
     marked_bam="$dir/$(basename "${bam_file%.bam}_marked.bam")"
     metrics_file="$dir/$(basename "${bam_file%.bam}_metrics.txt")"
 
+    # Sort the BAM file
     samtools sort -o "$sorted_bam" "$bam_file"
     echo "Sorted BAM file: $sorted_bam"
 
+    # Mark duplicates in the sorted BAM file
     samtools markdup "$sorted_bam" "$marked_bam"
-    echo "Marked duplicates in BAM
+    echo "Marked duplicates in BAM file: $marked_bam"
+
+    # Optionally clean up intermediate sorted BAM files
+    rm "$sorted_bam"
+done
 
 # Step 6: Generate alignment statistics and reports
 echo "Generating alignment statistics and reports..."
@@ -85,14 +109,13 @@ find "$OUTPUT_DIR/step3" -type f -name "*_marked.bam" | while read -r marked_bam
 
     # Generate alignment statistics using samtools
     samtools flagstat "$marked_bam" > "$dir/$(basename "${marked_bam%.bam}_flagstat.txt")"
+    echo "Alignment statistics report generated for: $marked_bam"
 
-    # (Optional) Use a tool like Qualimap for additional BAM QC
+    # Optional: Use Qualimap or other tools for additional BAM QC
     # qualimap bamqc -bam "$marked_bam" -outdir "$dir/qualimap_report"
-
-    echo "Statistics and report generated for: $marked_bam"
 done
 
-# Step 7: Feature counting with featureCounts (for RNA-seq or similar data)
+# Step 7: Feature counting with featureCounts
 echo "Feature counting with featureCounts..."
 find "$OUTPUT_DIR/step3" -type f -name "*_marked.bam" | while read -r marked_bam; do
     dir="$OUTPUT_DIR/step4/$(basename "$(dirname "$marked_bam")")"
@@ -104,3 +127,4 @@ find "$OUTPUT_DIR/step3" -type f -name "*_marked.bam" | while read -r marked_bam
     echo "Feature counts generated in: $output_counts"
 done
 
+echo "Pipeline completed. Please check the output directories for results and reports!"
