@@ -17,6 +17,8 @@ mkdir -p "$OUTPUT_DIR/step3"
 mkdir -p "$OUTPUT_DIR/step4"
 
 # Step 1: Merge .pod5 files and convert them to .fastq using Dorado
+# This step involves merging all .pod5 files from each barcode directory and then converting these merged files into .fastq format using the Dorado basecaller. This prepares raw sequencing data for subsequent trimming and analysis.
+
 echo "Merging .pod5 files and converting them to .fastq..."
 for STATE in pod5_pass pod5_fail; do
 
@@ -48,6 +50,8 @@ for STATE in pod5_pass pod5_fail; do
 done
 
 # Step 2: Trimming fastq files using Porechop from fastq_pass directory
+# The aim of this step is to trim adapter sequences and other unwanted elements from the fastq files that were generated from the pod5 conversion. Porechop is used for this task to ensure clean and high-quality data is available for quality control.
+
 echo "Trimming fastq files using Porechop..."
 for STATE in fastq_pass fastq_fail; do
     find "$OUTPUT_DIR/$STATE" -type f -name "*.fastq.gz" | while read -r fastq_file; do
@@ -60,6 +64,8 @@ for STATE in fastq_pass fastq_fail; do
 done
 
 # Step 3: Quality Control via NanoPlot
+# This stage ensures that the trimmed fastq files meet the required quality standards. NanoPlot provides a graphical and statistical summary of the read quality, guiding decisions for any further data filtering required.
+
 echo "Quality Control in progress..."
 find "$OUTPUT_DIR/step1" -type f -name "*_trimmed.fastq.gz" | while read -r trimmed_file; do
     quality_control_dir="$OUTPUT_DIR/quality_control/$(basename "$(dirname "$trimmed_file")")"
@@ -70,6 +76,8 @@ done
 echo "Quality Control finished..."
 
 # Step 4: Alignment and BAM file generation
+# After quality control, the trimmed sequences are aligned to the reference genome using BWA. This alignment is crucial for positioning reads in the genome, thereby facilitating subsequent analyses like variant calling or expression analysis.
+
 echo "Alignment and BAM file generation in progress..."
 find "$OUTPUT_DIR/step1" -type f -name "*_trimmed.fastq.gz" | while read -r trimmed_file; do
     dir="$OUTPUT_DIR/step2/$(basename "$(dirname "$trimmed_file")")"
@@ -81,41 +89,43 @@ find "$OUTPUT_DIR/step1" -type f -name "*_trimmed.fastq.gz" | while read -r trim
 done
 
 # Step 5: Sort and mark duplicates in BAM files
+# This step involves sorting the BAM files and marking duplicate reads to eliminate bias in downstream analyses. Sorted BAM files allow for efficient data indexing and retrieval, while marking duplicates improves the accuracy of variant calling.
 echo "Sorting and marking duplicates in BAM files..."
 find "$OUTPUT_DIR/step2" -type f -name "*.bam" | while read -r bam_file; do
     dir="$OUTPUT_DIR/step3/$(basename "$(dirname "$bam_file")")"
     mkdir -p "$dir"
     sorted_bam="$dir/$(basename "${bam_file%.bam}_sorted.bam")"
     marked_bam="$dir/$(basename "${bam_file%.bam}_marked.bam")"
-    metrics_file="$dir/$(basename "${bam_file%.bam}_metrics.txt")"
 
-    # Sort the BAM file
+    # Sort BAM files
     samtools sort -o "$sorted_bam" "$bam_file"
     echo "Sorted BAM file: $sorted_bam"
 
-    # Mark duplicates in the sorted BAM file
+    # Mark duplicates
     samtools markdup "$sorted_bam" "$marked_bam"
     echo "Marked duplicates in BAM file: $marked_bam"
 
-    # Optionally clean up intermediate sorted BAM files
+    # Clean up intermediate files if needed
     rm "$sorted_bam"
 done
 
 # Step 6: Generate alignment statistics and reports
+# This stage generates comprehensive reports on the mapping quality and efficiency by examining the BAM files with marked duplicates. These statistics are essential for verifying the success and accuracy of the sequencing and alignment processes.
 echo "Generating alignment statistics and reports..."
 find "$OUTPUT_DIR/step3" -type f -name "*_marked.bam" | while read -r marked_bam; do
     dir="$OUTPUT_DIR/reports/$(basename "$(dirname "$marked_bam")")"
     mkdir -p "$dir"
 
-    # Generate alignment statistics using samtools
+    # Produce alignment statistics using samtools
     samtools flagstat "$marked_bam" > "$dir/$(basename "${marked_bam%.bam}_flagstat.txt")"
     echo "Alignment statistics report generated for: $marked_bam"
 
-    # Optional: Use Qualimap or other tools for additional BAM QC
+    # Optionally, generate additional QC metrics
     # qualimap bamqc -bam "$marked_bam" -outdir "$dir/qualimap_report"
 done
 
 # Step 7: Feature counting with featureCounts
+# In the final processing step, featureCounts quantifies gene expression levels by counting mapped reads at annotated genomic features. This quantification is crucial for differential expression analysis or other transcriptomic studies.
 echo "Feature counting with featureCounts..."
 find "$OUTPUT_DIR/step3" -type f -name "*_marked.bam" | while read -r marked_bam; do
     dir="$OUTPUT_DIR/step4/$(basename "$(dirname "$marked_bam")")"
