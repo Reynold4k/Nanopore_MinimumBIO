@@ -1,5 +1,16 @@
 #!/bin/bash
 
+# This script outlines a comprehensive bioinformatics pipeline designed to preprocess, analyze, and interpret high-throughput sequencing data. 
+# The process begins with merging and trimming FASTQ files to remove adapters and clean up the sequence data, ensuring quality inputs for alignment. 
+# Trimming is performed using Porechop, followed by Quality Control assessments with NanoPlot to verify data integrity and readiness for downstream analysis. 
+# The next step involves aligning the cleaned reads to a reference genome using BWA, producing BAM files that map the reads appropriately within genomic coordinates.
+# These BAM files are then sorted, and duplicates are marked to reduce biases incidental to PCR amplification, using tools such as Samtools. 
+# Finally, featureCounts is used to quantify gene expression levels by measuring how many reads align to each genomic feature, such as a gene or exon, 
+# providing key data for differential expression studies and other genomic investigations. 
+# This pipeline integrates essential preprocessing steps to ensure that the data is of high quality and ready for comprehensive genomic analyses.
+
+
+
 
 module load porechop/0.2.4
 module load nanoplot/1.43.0
