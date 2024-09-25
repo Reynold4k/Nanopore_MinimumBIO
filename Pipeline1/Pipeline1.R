@@ -1,5 +1,26 @@
+# This R script automates the analysis of high-throughput RNA sequencing data to uncover differences in gene expression
+# between experimental and control groups across multiple time points. The script performs several key bioinformatics 
+# tasks including data pre-processing, quality control, differential expression analysis, and visualization. 
 
+# Initially, the script checks for and installs necessary R packages, ensuring that all dependencies are met for subsequent analyses.
+# It reads in and processes GTF annotation files to extract gene identifiers and names, which are crucial for mapping expression data to biological features.
 
+# The analysis begins by aligning the sequencing reads and counting mapped reads with featureCounts, which results in expression matrices for both experimental 
+# and control samples across various replicate conditions. These matrices are normalized for effective comparison.
+
+# A key component of the script is the calculation of differential expression. This involves comparing counts per million (CPM) values between 
+# experimental and control datasets to determine relative changes in expression levels through time. Gene identifiers are converted to names for better readability.
+
+# The script performs principal component analysis (PCA) to visualize major sources of variance in the dataset, grouping samples by condition and time point.
+# It also creates line plots to track expression changes for the most variable genes across time points.
+
+# Finally, a volcano plot is generated to display genes with significant changes in expression, highlighting those that are considerably up- or down-regulated. 
+# Key genes are annotated for easier interpretation. Adjustments to plot aesthetics ensure comprehensive, publication-quality visualizations. 
+# This automated approach accelerates insights into complex RNA-seq datasets, facilitating data-driven decision-making in genomic studies.
+
+# What you need to modify:
+# 1.Change the line 73 and 74 to your exp and control folders
+# 2.Change the line 80 ANNOTATION to your/ANNOTATION/path
 
 
 
@@ -46,10 +67,19 @@ library(dplyr)
 library(tidyr)
 
 #Path to your newly generated Routput folder
-plot_base_dir <- "/srv/scratch/z3546698/true/Routput"
+
+# Define paths
+exp_base_path <- "/srv/scratch/z3546698/true/exp"
+control_base_path <- "/srv/scratch/z3546698/true/control"
+
+# Output paths
+plot_base_dir <- file.path(exp_base_path, "Routput")  # Construct path to Routput in the experiment directory
 
 # Read GTF file
 gtf_file <- "/srv/scratch/z3546698/true/reference/Homo_sapiens.GRCh38.110.gtf"  # Please replace with the actual path
+
+
+
 gtf_data <- import(gtf_file, format="gtf")
 
 # Extract gene information
@@ -72,8 +102,6 @@ convert_to_gene_names <- function(cpm_matrix, gene_info) {
 }
 
 
-
-
 # Load required libraries
 library(edgeR)
 
@@ -84,13 +112,6 @@ list_dirs <- function(base_path) {
   return(dirs)
 }
 
-# Define paths
-exp_base_path <- "/srv/scratch/z3546698/true/exp"
-#exp_base_path <- "/srv/scratch/z3546698/true/Small_Molecule/JQ1/CoT/240302/"
-
-
-control_base_path <- "/srv/scratch/z3546698/true/control"
-#control_base_path <- "/srv/scratch/z3546698/true/Small_Molecule/Biotin/CoT/240413"
 
 # Split the path into components
 path_components <- strsplit(exp_base_path, "/")[[1]]
