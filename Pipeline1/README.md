@@ -105,9 +105,8 @@ Set the input and reference data paths in the script:
 Step1 Modify the preprocessing script(e.g. porechop_preprocessing.sh)
 Do the same modification to the pod5 files processing scripts
 
-For fastq files: porechop_preprocessing.sh
-For Pod5 files: pod5_preprocessing.sh (Without gene counts)
-For Pod5 files: pod5_preprocessing_with_genecounts.sh (With gene counts)
+For fastq files: porechop_preprocessing.pbs
+For Pod5 files: pod5_preprocessing_with_genecounts.pbs
 
 
 - **Modify the `FOLDER` variable**: Set it to the directory containing your sequencing files.
