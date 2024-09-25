@@ -102,10 +102,12 @@ https://docs.restech.unsw.edu.au/
 Set the input and reference data paths in the script:
 
 Step1 Modify the preprocessing script(e.g. porechop_preprocessing.sh)
+Do the same modification to the pod5 files processing scripts
 
 For fastq files: porechop_preprocessing.sh
 For Pod5 files: pod5_preprocessing.sh (Without gene counts)
 For Pod5 files: pod5_preprocessing_with_genecounts.sh (With gene counts)
+
 
 - **Modify the `FOLDER` variable**: Set it to the directory containing your sequencing files.
 
@@ -113,8 +115,10 @@ If you aren't sure about your location, you can print your location just by runn
 ```bash
 pwd
 ```
+
 ```bash
 FOLDER="the outout of your pwd working directory having the same structure as below"
+
 
 For example,
 FOLDER="/mnt/d/Small_Molecule/Biotin/T7MB-2/240421"  # Path to input experiments folders
