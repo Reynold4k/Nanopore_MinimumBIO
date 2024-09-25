@@ -81,23 +81,50 @@ mkdir -p /path/to/reference
 cd /path/to/reference
 wget https://hgdownload.soe.ucsc.edu/goldenPath/hg38/bigZips/hg38.fa.gz
 gunzip hg38.fa.gz
-
-```
-
-## Index your reference fasta files, this step must be conducted on your current portal to continue the next step
-
-You need to index the refenrence fasta file, for example, hg38.fa here:
-
-```bash
 module load bwa/0.7.17
-
 
 #change the hg38.fa to your reference fasta
 bwa index hg38.fa
 
+```
+
+## Index your reference fasta files, this step must be conducted on your current portal to continue the next step
+If you want to use a different reference genome for the `bwa index` command instead of `hg38.fa`, you can follow these steps:
+
+1. **Download or Prepare Your Reference Genome**: First, ensure that you have the FASTA file for the reference genome you'd like to use. This could be any genome such as `mm10.fa` (mouse), `GRCh37.fa` (older human reference), or even a custom genome assembly. The file should be in FASTA format, which usually has a `.fa` or `.fasta` extension.
+
+2. **Modify the Command**: Replace `hg38.fa` with the path to your reference genome. For example, if you want to index the `GRCh37.fa` reference genome, the command would look like this:
+
+```bash
+
+bwa index /path/to/your/reference_genome.fa
+bwa index GRCh37.fa
+
+```
+
+```bash
+
 wget ftp://ftp.ensembl.org/pub/release-104/gtf/homo_sapiens/Homo_sapiens.GRCh38.110.gtf.gz 
 gunzip Homo_sapiens.GRCh38.110.gtf.gz
 ```
+# Note: You can download GTF files for other species from the Ensembl FTP server or UCSC Genome Browser.
+# Below are examples of how to find the corresponding paths:
+
+# 1. Ensembl FTP Server:
+# Visit the Ensembl FTP site: ftp://ftp.ensembl.org/pub/release-110/gtf/
+# To download a GTF for Mus musculus (mouse), use:
+# ftp://ftp.ensembl.org/pub/release-110/gtf/mus_musculus/
+# Example path for Mus musculus: "/path/to/your/directory/Mus_musculus.GRCm39.110.gtf.gz"
+
+# 2. UCSC Genome Browser:
+# Visit the UCSC Genome Browser downloads section: http://hgdownload.soe.ucsc.edu/downloads.html
+# To find a GTF for Danio rerio (zebrafish), browse to:
+# http://hgdownload.soe.ucsc.edu/goldenPath/danRer11/bigZips/genes/
+# Example path for Danio rerio: "/path/to/your/directory/danRer11.refGene.gtf.gz"
+
+# Make sure to decompress (.gz) files if needed and adjust the path accordingly.
+
+
 
 # For katana only
 4. Mount your OneDrive directories to your katana scratch, please refer to the official guidances:
@@ -287,11 +314,6 @@ gtf_file <- "/path/to/your/directory/Homo_sapiens.GRCh38.112.gtf.gz"
 
 # 2. UCSC Genome Browser:
 # Visit the UCSC Genome Browser downloads section: http://hgdownload.soe.ucsc.edu/downloads.html
-# To find a GTF for Danio rerio (zebrafish), browse to:
-# http://hgdownload.soe.ucsc.edu/goldenPath/danRer11/bigZips/genes/
-# Example path for Danio rerio: "/path/to/your/directory/danRer11.refGene.gtf.gz"
-
-# Make sure to decompress (.gz) files if needed and adjust the path accordingly.
 ```
 
 
