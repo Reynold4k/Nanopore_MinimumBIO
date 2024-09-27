@@ -28,6 +28,9 @@ To run the `pipeline1.5.pbs` script, follow these steps:
       ```bash
       FASTQ_FOLDER="/path/to/your/fastq/files"
       ```
+      This will be the folder path like below:
+      ![image](https://github.com/user-attachments/assets/9cfb1d87-747c-4e3d-8f47-ec78c661b40b)
+
     - Change **Line 36**: Locate the line that defines `REFERENCE` and update the path to your reference file. For example:
       ```bash
       REFERENCE="/path/to/your/reference/file"
