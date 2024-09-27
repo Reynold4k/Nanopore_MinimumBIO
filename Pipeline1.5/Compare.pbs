@@ -14,9 +14,9 @@ The main purpose of this script is to analyze the gene coverage between experime
 
 
 # What you what to modify:
-# 1.Change the line 31 EXPERIMENTAL_FOLDER to your/exp/fastq parent path
-# 2.Change the line 36 CONTROL_FOLDER to your/control/fastq parent path
-# 3.Change the line 36 REFERENCE to your/path/to/reference
+# 1.Change the line 25 EXPERIMENTAL_FOLDER to your/exp/fastq parent path
+# 2.Change the line 26 CONTROL_FOLDER to your/control/fastq parent path
+# 3.Change the line 27 REFERENCE to your/path/to/reference
 
 module load python/3.11.3
 module load bc/1.07
