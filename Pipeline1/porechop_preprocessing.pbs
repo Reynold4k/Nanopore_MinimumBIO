@@ -21,7 +21,7 @@ module load nanoplot/1.43.0
 module load bwa/0.7.17
 module load samtools/1.20
 module load subread/2.0.2
-module load seqkit  # Ensure seqkit is loaded
+module load seqkit/2.5.1  
 
 # Define paths
 FOLDER="/srv/scratch/z3546698/true/Small_Molecule/JQ1/T7MB-2/231104"  # Main directory path
