@@ -15,13 +15,14 @@ REFERENCE="/srv/scratch/z3546698/true/reference/hg38.fa"
 ANNOTATION="/srv/scratch/z3546698/true/reference/Homo_sapiens.GRCh38.110.gtf"
 OUTPUT_DIR="$BASE_DIR/output"
 
-#Load the modules available on katana
+# Load necessary modules on katana
 module load dorado/0.7.3
 module load porechop/0.2.4
 module load nanoplot/1.43.0
 module load bwa/0.7.17
 module load samtools/1.20
 module load subread/2.0.2
+module load seqkit  # Ensure seqkit is available
 
 # Create necessary directories
 mkdir -p "$OUTPUT_DIR/fastq_pass"
@@ -31,10 +32,9 @@ mkdir -p "$OUTPUT_DIR/quality_control"
 mkdir -p "$OUTPUT_DIR/step2"
 mkdir -p "$OUTPUT_DIR/step3"
 mkdir -p "$OUTPUT_DIR/step4"
+mkdir -p "$OUTPUT_DIR/reports"
 
 # Step 1: Merge .pod5 files and convert them to .fastq using Dorado
-# This step involves merging all .pod5 files from each barcode directory and then converting these merged files into .fastq format using the Dorado basecaller. This prepares raw sequencing data for subsequent trimming and analysis.
-
 echo "Merging .pod5 files and converting them to .fastq..."
 for STATE in pod5_pass pod5_fail; do
 
@@ -42,14 +42,11 @@ for STATE in pod5_pass pod5_fail; do
     merged_pod5_dir="$OUTPUT_DIR/merged_$STATE"
     mkdir -p "$merged_pod5_dir"
 
-    # Merge .pod5 files per directory and keep track
     find "$BASE_DIR/$STATE" -type d -mindepth 1 -maxdepth 1 | while read -r barcode_dir; do
         merged_pod5_file="$merged_pod5_dir/$(basename "$barcode_dir").pod5"
         
-        # Use npmerge or cat if applicable to merge .pod5 formats
         echo "Merging pod5 files in $barcode_dir..."
-        # Here, you might need to adjust to a valid .pod5 merging command
-        # For illustration, assuming `npmerge` is a command to merge .pod5 files:
+        # Assuming `npmerge` is used for merging .pod5 files
         npmerge "$barcode_dir"/*.pod5 -o "$merged_pod5_file"
         
         dorado_out="$OUTPUT_DIR/fastq_${STATE#pod5_}/$(basename "$barcode_dir")"
@@ -57,8 +54,17 @@ for STATE in pod5_pass pod5_fail; do
         
         # Basecalling with Dorado
         dorado basecaller --device "cuda" "$merged_pod5_file" "$dorado_out"
-
+        
         echo "Converted: $merged_pod5_file -> $dorado_out"
+
+        # Process with seqkit
+        echo "Processing with seqkit for $dorado_out..."
+        find "$dorado_out" -type f -name "*.fastq" | while read -r fastq_file; do
+            seqprocessed_file="${fastq_file%.fastq}_processed.fastq"
+            seqkit replace -p "^((?:.*?\n){3}).*?(GATCCGAATTC[ACGTN].*$)(\n.*)" -r '$1$2$3' -o "$seqprocessed_file" "$fastq_file"
+            echo "Processed FASTQ file: $seqprocessed_file"
+            mv "$seqprocessed_file" "$fastq_file"  # Overwrite the original with the processed file
+        done
         
         # Optionally remove merged .pod5 files after conversion
         rm "$merged_pod5_file"
@@ -66,22 +72,18 @@ for STATE in pod5_pass pod5_fail; do
 done
 
 # Step 2: Trimming fastq files using Porechop from fastq_pass directory
-# The aim of this step is to trim adapter sequences and other unwanted elements from the fastq files that were generated from the pod5 conversion. Porechop is used for this task to ensure clean and high-quality data is available for quality control.
-
 echo "Trimming fastq files using Porechop..."
 for STATE in fastq_pass fastq_fail; do
-    find "$OUTPUT_DIR/$STATE" -type f -name "*.fastq.gz" | while read -r fastq_file; do
+    find "$OUTPUT_DIR/$STATE" -type f -name "*.fastq" | while read -r fastq_file; do
         step1_dir="$OUTPUT_DIR/step1/$(basename "$(dirname "$fastq_file")")"
         mkdir -p "$step1_dir"
-        output_file="$step1_dir/$(basename "${fastq_file%.fastq*}_trimmed.fastq.gz")"
+        output_file="$step1_dir/$(basename "${fastq_file%.fastq}_trimmed.fastq.gz")"
         porechop -i "$fastq_file" -o "$output_file"
         echo "Trimmed: $fastq_file -> $output_file"
     done
 done
 
 # Step 3: Quality Control via NanoPlot
-# This stage ensures that the trimmed fastq files meet the required quality standards. NanoPlot provides a graphical and statistical summary of the read quality, guiding decisions for any further data filtering required.
-
 echo "Quality Control in progress..."
 find "$OUTPUT_DIR/step1" -type f -name "*_trimmed.fastq.gz" | while read -r trimmed_file; do
     quality_control_dir="$OUTPUT_DIR/quality_control/$(basename "$(dirname "$trimmed_file")")"
@@ -92,8 +94,6 @@ done
 echo "Quality Control finished..."
 
 # Step 4: Alignment and BAM file generation
-# After quality control, the trimmed sequences are aligned to the reference genome using BWA. This alignment is crucial for positioning reads in the genome, thereby facilitating subsequent analyses like variant calling or expression analysis.
-
 echo "Alignment and BAM file generation in progress..."
 find "$OUTPUT_DIR/step1" -type f -name "*_trimmed.fastq.gz" | while read -r trimmed_file; do
     dir="$OUTPUT_DIR/step2/$(basename "$(dirname "$trimmed_file")")"
@@ -105,7 +105,6 @@ find "$OUTPUT_DIR/step1" -type f -name "*_trimmed.fastq.gz" | while read -r trim
 done
 
 # Step 5: Sort and mark duplicates in BAM files
-# This step involves sorting the BAM files and marking duplicate reads to eliminate bias in downstream analyses. Sorted BAM files allow for efficient data indexing and retrieval, while marking duplicates improves the accuracy of variant calling.
 echo "Sorting and marking duplicates in BAM files..."
 find "$OUTPUT_DIR/step2" -type f -name "*.bam" | while read -r bam_file; do
     dir="$OUTPUT_DIR/step3/$(basename "$(dirname "$bam_file")")"
@@ -126,7 +125,6 @@ find "$OUTPUT_DIR/step2" -type f -name "*.bam" | while read -r bam_file; do
 done
 
 # Step 6: Generate alignment statistics and reports
-# This stage generates comprehensive reports on the mapping quality and efficiency by examining the BAM files with marked duplicates. These statistics are essential for verifying the success and accuracy of the sequencing and alignment processes.
 echo "Generating alignment statistics and reports..."
 find "$OUTPUT_DIR/step3" -type f -name "*_marked.bam" | while read -r marked_bam; do
     dir="$OUTPUT_DIR/reports/$(basename "$(dirname "$marked_bam")")"
@@ -135,13 +133,9 @@ find "$OUTPUT_DIR/step3" -type f -name "*_marked.bam" | while read -r marked_bam
     # Produce alignment statistics using samtools
     samtools flagstat "$marked_bam" > "$dir/$(basename "${marked_bam%.bam}_flagstat.txt")"
     echo "Alignment statistics report generated for: $marked_bam"
-
-    # Optionally, generate additional QC metrics
-    # qualimap bamqc -bam "$marked_bam" -outdir "$dir/qualimap_report"
 done
 
 # Step 7: Feature counting with featureCounts
-# In the final processing step, featureCounts quantifies gene expression levels by counting mapped reads at annotated genomic features. This quantification is crucial for differential expression analysis or other transcriptomic studies.
 echo "Feature counting with featureCounts..."
 find "$OUTPUT_DIR/step3" -type f -name "*_marked.bam" | while read -r marked_bam; do
     dir="$OUTPUT_DIR/step4/$(basename "$(dirname "$marked_bam")")"
