@@ -17,6 +17,10 @@ This script is designed to process high-throughput sequencing data by executing 
 This script provides an automated workflow for bioinformatics research, significantly increasing data processing efficiency while ensuring accuracy and consistency in the results.
 
 
+# What you what to modify:
+# 1.Change the line 31 FASTQ_FOLDER to your/fastq/path
+# 2.Change the line 36 REFERENCE to your/reference/path
+
 
 module load porechop/0.2.4
 module load nanoplot/1.43.0
