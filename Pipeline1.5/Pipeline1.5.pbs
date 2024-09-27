@@ -1,0 +1,114 @@
+#!/bin/bash
+
+# Define paths
+FASTQ_FOLDER="/mnt/d/Bait_Glue/CRBN/MB014/TON/230827"
+REFERENCE="/mnt/c/Users/70921/OneDrive/桌面/reference/T7-Pep_Ref_93nt.fasta"
+
+# Iterate over directories like R0, R1, etc.
+find "$FASTQ_FOLDER" -mindepth 1 -maxdepth 1 -type d -name "R*" | while IFS= read -r sample_dir; do
+    echo "Processing directory: $sample_dir"
+
+    # Define step1 and step2 directories
+    step1_dir="${sample_dir}/step1"
+    step2_dir="${sample_dir}/step2"
+    
+    # Create directories if they don't exist
+    mkdir -p "$step1_dir"
+    mkdir -p "$step2_dir"
+    
+    # Merge and trim FASTQ files with Porechop
+    merged_file="${step1_dir}/all_sequences.fastq.gz"
+    trimmed_file="${step1_dir}/all_trimmed.fastq.gz"
+    log_file="$step1_dir/porechop.log"
+
+    # Merge all FASTQ files in the directory
+    find "$sample_dir" -type f -name "*.fastq.gz" -print0 | xargs -0 cat > "$merged_file"
+
+    # Check if the merge was successful
+    if [ -s "$merged_file" ]; then
+        echo "Files successfully merged into $merged_file."
+        
+        # Perform trimming
+        porechop -i "$merged_file" -o "$trimmed_file" -t 24 > "$log_file" 2>&1
+        
+        # Remove the original FASTQ files after merging, excluding files starting with 'all'
+        find "$sample_dir" -type f -name "*.fastq.gz" ! -name "all*.fastq.gz" -delete
+        echo "Original FASTQ files deleted from directory: $sample_dir (excluding 'all' prefixed files)"
+    
+        # Quality control using NanoPlot
+        quality_control_dir="${sample_dir}/quality_control"
+        mkdir -p "$quality_control_dir"
+        NanoPlot --fastq "$trimmed_file" --outdir "${quality_control_dir}/"
+    
+        # Align reads to the reference genome with Minimap2 and create BAM file
+        bam_file="${step2_dir}/aligned.bam"
+        minimap2 -ax map-ont "$REFERENCE" "$trimmed_file" | samtools view -Sb - > "$bam_file"
+
+        # Sort BAM file
+        sorted_bam_file="${step2_dir}/aligned_sorted.bam"
+        samtools sort -o "$sorted_bam_file" "$bam_file"
+    
+        # Optional cleanup for unsorted BAM
+        # rm "$bam_file"
+    
+        # Calculate coverage
+        coverage_file="${step2_dir}/coverage.txt"
+        samtools depth "$sorted_bam_file" > "$coverage_file"
+        
+        echo "Finished processing directory: $sample_dir. Results saved in step1 and step2."
+    else
+        echo "Merging failed for directory: $sample_dir. Skipping processing."
+    fi
+done
+
+echo "All directories processed."
+
+# Iterate over directories like R0, R1, etc.
+find "$FASTQ_FOLDER" -mindepth 1 -maxdepth 1 -type d -name "R*" | while IFS= read -r sample_dir; do
+    echo "Processing directory: $sample_dir"
+    
+    # Define paths for step2 and step3
+    step2_dir="${sample_dir}/step2"
+    step3_dir="${sample_dir}/step3"
+    
+    # Ensure step3 directory exists
+    mkdir -p "$step3_dir"
+
+    # Files
+    output_bed="${step2_dir}/positions.bed"
+    output_fasta="${step3_dir}/extracted_sequences.fasta"
+    
+    # Check if the BED file exists before proceeding
+    if [ -f "$output_bed" ]; then
+        # Step 1: Initialize the output FASTA file
+        > "$output_fasta"  # Clear the output file
+
+        # Step 2: Read from positions.bed
+        echo "Extracting sequences from reference using positions in BED..."
+        while IFS=$'\t' read -r gene_id start end; do
+            # Find the corresponding sequence in the FASTA file
+            fasta_seq=$(grep -A 1 "^>$gene_id" "$REFERENCE" | tail -n 1)
+
+            # Check if the sequence exists
+            if [[ -z "$fasta_seq" ]]; then
+                echo "WARNING: Sequence $gene_id not found in FASTA file."
+                continue
+            fi
+
+            # Extract the required subsequence
+            extracted_sequence="${fasta_seq:$((start-1)):$(($end-start+1))}"
+
+            # Write to output FASTA
+            echo ">$gene_id" >> "$output_fasta"
+            echo "$extracted_sequence" >> "$output_fasta"
+
+            echo "Sequence for $gene_id extracted from position $start to $end."
+        done < "$output_bed"
+
+        echo "Finished processing directory: $sample_dir. Extracted sequences are in $output_fasta."
+    else
+        echo "Necessary positions.bed file not found in $step2_dir. Skipping directory."
+    fi
+done
+
+echo "All directories processed."
