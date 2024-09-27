@@ -133,18 +133,17 @@ folder_parts = folder_path.split('/')  # Split the path by '/'
 title_name = f"{folder_parts[-3]}_{folder_parts[-2]}_{folder_parts[-1]}"  # Format title as _VHL_MB012_TON
 
 # Create a horizontal bar plot with a black background
-plt.style.use('dark_background')  # Use dark background style
-plt.figure(figsize=(12, 8))
-bars = plt.barh(data['Gene'], data['Experimental_Coverage'], color='lime', alpha=0.8)  # Fluorescent green color
+plt.figure(figsize=(12, 8), facecolor='none')
+bars = plt.barh(data['Gene'], data['Experimental_Coverage'], color='black', alpha=0.8)  # Fluorescent green color
 
 # Add labels and title with increased font size
-plt.title(f' {title_name}', color='white', fontsize=18)
-plt.xlabel('Coverage', color='white', fontsize=24)
-plt.ylabel('Gene', color='white', fontsize=24)
+plt.title(f' {title_name}', color='black', fontsize=18)
+plt.xlabel('Coverage', color='black', fontsize=24)
+plt.ylabel('Gene', color='black', fontsize=24)
 
 # Set x-ticks and customize color with increased font size
-plt.xticks(color='white', fontsize=18)
-plt.yticks(color='white', fontsize=18)
+plt.xticks(color='black', fontsize=18)
+plt.yticks(color='black', fontsize=18)
 
 # Add a grid for better readability
 plt.grid(color='gray', linestyle='--', alpha=0.5)
@@ -158,5 +157,6 @@ print(f"Horizontal bar plot generated and saved as bar_plot{title_name}.png in s
 EOF
 
 echo "Horizontal bar plot generation process completed."
+
 
 
