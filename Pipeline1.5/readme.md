@@ -29,6 +29,7 @@ To run the `pipeline1.5.pbs` script, follow these steps:
       FASTQ_FOLDER="/path/to/your/fastq/files"
       ```
       This will be the folder path like below:
+      
       ![image](https://github.com/user-attachments/assets/9cfb1d87-747c-4e3d-8f47-ec78c661b40b)
 
     - Change **Line 36**: Locate the line that defines `REFERENCE` and update the path to your reference file. For example:
@@ -116,6 +117,7 @@ The output of the `Compare.pbs` script will include:
 - **Horizontal Bar Plot**: The plot visually displays the `Experimental_Coverage` for each gene. The length of each bar indicates the coverage level, allowing for quick identification of significant differences between experimental and control groups.
 
 One example plot here:
+
 ![MB012_TON_230827](https://github.com/user-attachments/assets/a3dedd9b-c9fb-4be2-8ea2-487411baff24)
 
 
