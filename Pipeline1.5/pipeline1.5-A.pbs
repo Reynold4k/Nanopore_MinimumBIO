@@ -5,6 +5,7 @@ FASTQ_FOLDER=(
     "/mnt/d/Bait_Glue/CRBN/glue/TON/240427"
     "/mnt/d/Bait_Glue/CRBN/MB014/TON/230827"
 )
+
 REFERENCE="/mnt/c/Users/70921/OneDrive/桌面/reference/T7-Pep_Ref_93nt.fasta"
 
 for folder in "${FASTQ_FOLDER[@]}"; do
@@ -78,6 +79,7 @@ for folder in "${FASTQ_FOLDER[@]}"; do
         output_fasta="${step3_dir}/extracted_sequences.fasta"
         # Check if the coverage file exists before proceeding
         if [ -f "$coverage_file" ]; then
+            
             echo "Preparing positions in new range format..."
 
             # Prepare ranges from coverage and generate BED file
@@ -108,6 +110,20 @@ for folder in "${FASTQ_FOLDER[@]}"; do
             # OPTIONAL: Check generated BED file
             echo "Generated BED File:"
             cat "$output_bed"
+
+            # Create visualization directory
+            visualization_dir="${sample_dir}/visualization"
+            mkdir -p "$visualization_dir"  # Ensure visualization directory exists
+
+            # Create individual BED files for each gene in positions.bed
+            while IFS=$'\t' read -r gene_id start end; do
+                # Generate the individual BED file name
+                bed_file="${visualization_dir}/${gene_id}.bed"
+        
+                # Write the gene position to the new BED file
+                echo -e "$gene_id\t$start\t$end" > "$bed_file"
+                echo "Created BED file for $gene_id at $bed_file"
+            done < "$output_bed"
 
             # Step 2: Initialize the output FASTA file
             > "$output_fasta"  # Clear the output file
