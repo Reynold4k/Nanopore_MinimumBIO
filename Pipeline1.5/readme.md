@@ -112,4 +112,8 @@ The output of the `Compare.pbs` script will include:
 
 - **Horizontal Bar Plot**: The plot visually displays the `Experimental_Coverage` for each gene. The length of each bar indicates the coverage level, allowing for quick identification of significant differences between experimental and control groups.
 
+One example plot here:
+![MB012_TON_230827](https://github.com/user-attachments/assets/a3dedd9b-c9fb-4be2-8ea2-487411baff24)
+
+
 By following these steps and interpreting the output correctly, you can effectively analyze gene coverage and visualize your results.
