@@ -1,0 +1,92 @@
+#!/bin/bash
+
+# Define paths
+EXPERIMENTAL_FOLDER="/mnt/d/Bait_Glue/VHL/MB012/TON/230815"  # Path for experimental group
+CONTROL_FOLDER="/mnt/d/Bait_Glue/VHL/glue/TON/240427"      # Path for control group
+
+# Find the last round's step3 path for experimental and control groups
+EXPERIMENTAL_STEP3_DIR=$(ls -d "$EXPERIMENTAL_FOLDER"/R* | tail -n 1)/step3
+CONTROL_STEP3_DIR=$(ls -d "$CONTROL_FOLDER"/R* | tail -n 1)/step3
+
+# Define the FASTA file paths
+EXPERIMENTAL_FASTA="$EXPERIMENTAL_STEP3_DIR/extracted_sequences.fasta"
+CONTROL_FASTA="$CONTROL_STEP3_DIR/extracted_sequences.fasta"
+
+# Check if the experimental FASTA file exists
+if [ ! -f "$EXPERIMENTAL_FASTA" ]; then
+    echo "Experimental FASTA file not found: $EXPERIMENTAL_FASTA"
+    exit 1
+fi
+
+# Check if the control FASTA file exists
+if [ ! -f "$CONTROL_FASTA" ]; then
+    echo "Control FASTA file not found: $CONTROL_FASTA"
+    exit 1
+fi
+
+# Step 1: Extract titles from FASTA files
+echo "Extracting titles from experimental and control FASTA files..."
+experimental_titles=$(grep "^>" "$EXPERIMENTAL_FASTA" | sed 's/>//g')  # Extract titles without '>'
+control_titles=$(grep "^>" "$CONTROL_FASTA" | sed 's/>//g')              # Extract titles without '>'
+
+# Step 2: Find unique titles in the experimental group
+unique_titles=()
+for title in $experimental_titles; do
+    if ! echo "$control_titles" | grep -q "^$title$"; then  # Check if the title is not in control titles
+        unique_titles+=("$title")  # Add to unique titles if it's not found in control
+    fi
+done
+
+# Step 3: Compare coverage in first and last rounds for the experimental group
+LAST_COVERAGE_FILE="$EXPERIMENTAL_STEP3_DIR/../step2/coverage.txt"  # Coverage file in step2 directory
+FIRST_COVERAGE_FILE="$(ls -d "$EXPERIMENTAL_FOLDER"/R* | head -n 1)/step2/coverage.txt"
+
+# Check if coverage files exist
+if [ ! -f "$LAST_COVERAGE_FILE" ]; then
+    echo "Last round coverage file not found: $LAST_COVERAGE_FILE"
+    exit 1
+fi
+
+if [ ! -f "$FIRST_COVERAGE_FILE" ]; then
+    echo "First round coverage file not found: $FIRST_COVERAGE_FILE"
+    exit 1
+fi
+
+# Prepare associative arrays for coverage data
+declare -A first_coverage
+declare -A last_coverage
+
+# Read first round coverage file
+while read -r gene count; do
+    first_coverage["$gene"]=$count
+done < <(awk '{print $1, $3}' "$FIRST_COVERAGE_FILE")  # Assuming the 3rd column is the coverage
+
+# Read last round coverage file
+while read -r gene count; do
+    last_coverage["$gene"]=$count
+done < <(awk '{print $1, $3}' "$LAST_COVERAGE_FILE")  # Assuming the 3rd column is the coverage
+
+# Step 4: Filter unique_titles based on coverage increase
+filtered_titles=()
+for gene in "${unique_titles[@]}"; do
+    last_count=${last_coverage["$gene"]}
+    first_count=${first_coverage["$gene"]}
+
+    # Check if the title either does not exist in the first round or has increased coverage
+    if [[ -z "$first_count" || $last_count -gt $first_count ]]; then
+        filtered_titles+=("$gene")
+    fi
+done
+
+# Step 5: Extract sequences corresponding to the filtered titles from the experimental FASTA
+echo "Extracting sequences for filtered experimental titles..."
+OUTPUT_FASTA="$EXPERIMENTAL_STEP3_DIR/unique_experimental_sequences.fasta"
+> "$OUTPUT_FASTA"  # Clear the output file
+
+for title in "${filtered_titles[@]}"; do
+    # Find the sequence in the experimental FASTA file
+    sequence=$(grep -A 1 "^>$title" "$EXPERIMENTAL_FASTA" | tail -n 1)  # Get the sequence
+
+    # Check if the sequence exists
+    if [[ -z "$sequence" ]]; then
+        echo "WARNING: Sequence $title not found in experimental FASTA file
