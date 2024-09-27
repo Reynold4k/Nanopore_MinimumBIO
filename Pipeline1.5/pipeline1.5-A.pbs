@@ -141,6 +141,6 @@ for folder in "${FASTQ_FOLDER[@]}"; do
         fi
     done
 done
-}
+
 
 echo "All directories processed."
