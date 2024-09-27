@@ -15,7 +15,7 @@
 # 2.Change the line 27 GENOME_FASTA to your/path/to/reference
 # 3.Change the line 28 BED_FILE to your/path/to/exp/potential_hit/gene_Hit_all_trimmed_sorted_merged.bed file
 # 4.Change the line 34 UNIPROT_ID to your gene's uniprot id
-# 5.Do not change the last part of the sample directory! Change the line 35 PDB_PATH to your/path/to/alphafold database/UP000005640_9606_HUMAN_v4/AF-${UNIPROT_ID}-F1-model_v4.pdb
+# 5.Important!!! Do not change the last part of the sample directory! Change the line 35 PDB_PATH to your/path/to/alphafold database/UP000005640_9606_HUMAN_v4/AF-${UNIPROT_ID}-F1-model_v4.pdb
 
 # Load necessary modules
 module load blast-plus/2.12.0 
@@ -25,13 +25,13 @@ VISUAL_DIR="/mnt/d/Bait_Glue/VHL/MB012/TON/230815/visualization"  # Directory fo
 
 # Define key file paths and directories
 GENOME_FASTA="/mnt/c/Users/70921/OneDrive/桌面/reference/T7-Pep_Ref_93nt.fasta"
-BED_FILE="/srv/scratch/z3546698/true/exp/potential_hit/BEX4_Hit_all_trimmed_sorted_merged.bed"  # BED file
+BED_FILE="/mnt/d/Bait_Glue/CRBN/glue/TON/240427/R1/visualization/NP_000080.2_39.bed"  # BED file
 
 dna_sequences_output="$BED_DIR/high_coverage_sequences.fa"
 translated_proteins_output="$BED_DIR/translated_proteins.fa"
 
 # PDB and sequence paths
-UNIPROT_ID="Q9NWD9"
+UNIPROT_ID="P08123"
 PDB_PATH="/srv/scratch/z3546698/true/alphafold/database/UP000005640_9606_HUMAN_v4/AF-${UNIPROT_ID}-F1-model_v4.pdb"
 
 FILENAME=$(basename "$BED_FILE")
