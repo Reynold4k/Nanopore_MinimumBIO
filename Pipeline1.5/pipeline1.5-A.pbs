@@ -18,7 +18,11 @@ This script provides an automated workflow for bioinformatics research, signific
 
 
 
-
+module load porechop/0.2.4
+module load nanoplot/1.43.0
+module load samtools/1.20
+module load seqkit/2.5.1 
+module load minimap2/2.26
 
 # Define paths
 FASTQ_FOLDER=(
