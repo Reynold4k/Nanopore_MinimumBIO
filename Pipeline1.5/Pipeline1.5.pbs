@@ -74,40 +74,76 @@ find "$FASTQ_FOLDER" -mindepth 1 -maxdepth 1 -type d -name "R*" | while IFS= rea
     # Ensure step3 directory exists
     mkdir -p "$step3_dir"
 
-    # Files
+    # Paths for necessary files
+    coverage_file="${step2_dir}/coverage.txt"
     output_bed="${step2_dir}/positions.bed"
     output_fasta="${step3_dir}/extracted_sequences.fasta"
     
-    # Check if the BED file exists before proceeding
-    if [ -f "$output_bed" ]; then
-        # Step 1: Initialize the output FASTA file
+    # Check if the coverage file exists before proceeding
+    if [ -f "$coverage_file" ]; then
+        # Step 1: Prepare ranges from coverage and generate BED file
+        echo "Preparing positions in new range format..."
+        awk '{
+            # Create a unique key for each gene
+            key = $1;  # Gene name
+            position = $2;  # Start position
+
+            # Store the start and end positions in an array
+            if (key in positions) {
+                if (position < positions[key][1]) {
+                    positions[key][1] = position;  # Update minimum start
+                }
+                positions[key][2] = position;      # Update to current position (end)
+            } else {
+                positions[key][1] = position;  # Initialize min start
+                positions[key][2] = position;  # Initialize min end
+            }
+        } END {
+            for (gene in positions) {
+                # Print the gene with start-end range
+                print gene "\t" positions[gene][1] "-" positions[gene][2];
+            }
+        }' "$coverage_file" > "${step2_dir}/positions.txt"
+
+        # Generate BED file
+        awk -F "\t" '{split($2, range, "-");print $1 "\t" range[1] "\t" range[2]}' "${step2_dir}/positions.txt" > "$output_bed"
+
+        # OPTIONAL: Check generated BED file
+        echo "Generated BED File:"
+        cat "$output_bed"
+
+        # Step 2: Initialize the output FASTA file
         > "$output_fasta"  # Clear the output file
 
-        # Step 2: Read from positions.bed
-        echo "Extracting sequences from reference using positions in BED..."
-        while IFS=$'\t' read -r gene_id start end; do
-            # Find the corresponding sequence in the FASTA file
-            fasta_seq=$(grep -A 1 "^>$gene_id" "$REFERENCE" | tail -n 1)
+        # Step 3: Read from positions.bed
+        if [ -f "$output_bed" ]; then
+            echo "Extracting sequences from reference using positions in BED..."
+            while IFS=$'\t' read -r gene_id start end; do
+                # Find the corresponding sequence in the FA
+                fasta_seq=$(grep -A 1 "^>$gene_id" "$REFERENCE" | tail -n 1)
 
-            # Check if the sequence exists
-            if [[ -z "$fasta_seq" ]]; then
-                echo "WARNING: Sequence $gene_id not found in FASTA file."
-                continue
-            fi
+                # Check if the sequence exists
+                if [[ -z "$fasta_seq" ]]; then
+                    echo "WARNING: Sequence $gene_id not found in FASTA file."
+                    continue
+                fi
 
-            # Extract the required subsequence
-            extracted_sequence="${fasta_seq:$((start-1)):$(($end-start+1))}"
+                # Extract the required subsequence
+                extracted_sequence="${fasta_seq:$((start-1)):$(($end-start+1))}"
 
-            # Write to output FASTA
-            echo ">$gene_id" >> "$output_fasta"
-            echo "$extracted_sequence" >> "$output_fasta"
+                # Write to output FASTA
+                echo ">$gene_id" >> "$output_fasta"
+                echo "$extracted_sequence" >> "$output_fasta"
 
-            echo "Sequence for $gene_id extracted from position $start to $end."
-        done < "$output_bed"
+                echo "Sequence for $gene_id extracted from position $start to $end."
+            done < "$output_bed"
 
-        echo "Finished processing directory: $sample_dir. Extracted sequences are in $output_fasta."
+            echo "Finished processing directory: $sample_dir. Extracted sequences are in $output_fasta."
+        else
+            echo "Necessary positions.bed file not found in $step2_dir. Skipping directory."
+        fi
     else
-        echo "Necessary positions.bed file not found in $step2_dir. Skipping directory."
+        echo "Necessary coverage file not found in $step2_dir. Skipping directory."
     fi
 done
 
