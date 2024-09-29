@@ -43,10 +43,37 @@ To run the `pipeline1.5.pbs` script, follow these steps:
       
       ```
 
-3. **Execute the Script**: Once you have modified the paths, save the file and submit it to your job scheduler. For example, use the following command:
+3. **Set Up the Environment**: At the beginning of the script, add commands to load the required modules and set up a Python virtual environment. Follow these steps:
+
+    - **Load Python Module**: Load the desired version of Python.
+    ```bash
+    module load python/3.10.8
+    ```
+
+    - **Create the Virtual Environment**: Create a virtual environment in your home directory.
+    ```bash
+    python3 -m venv /home/your_username/environments/my_env
+    ```
+
+    - **Activate the Virtual Environment**: Activate the created virtual environment.
+    ```bash
+    source /home/your_username/environments/my_env/bin/activate
+    ```
+
+    - **Install Required Packages**: Install the necessary Python packages with pip.
+    ```bash
+    pip3 install pandas matplotlib
+    ```
+
+4. **Execute the Script**: Once you have modified the paths and set up the environment, save the file and submit it to your job scheduler. For example, use the following command:
     ```bash
     qsub pipeline1.5.pbs
     ```
+
+### Notes:
+- **Virtual Environment Activation**: After activating the virtual environment, the shell prompt will change, indicating that the environment is active. You can now use Python and pip to install and manage packages within this environment.
+- Replace `your_username` in the paths with your actual username.
+- This process ensures that you are using an isolated environment for your Python scripts, making dependency management easier.
 
 ### Expected Output
 
