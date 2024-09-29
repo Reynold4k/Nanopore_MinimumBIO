@@ -98,21 +98,30 @@ echo "Differential coverage analysis complete. Results saved in: $output_diff_co
 
 # Start Python script for Horizontal Bar Plot
 python3 - <<EOF
+import subprocess
+import sys
 def install(package):
+    """Installs the specified package using pip."""
     subprocess.check_call([sys.executable, '-m', 'pip', 'install', package])
 
-# Install required packages
-try:
-    import pandas
-    import matplotlib
-    import numpy
-except ImportError:
-    install('pandas')
-    install('matplotlib')
-    install('numpy')
+# List of required packages
+required_packages = ['pandas', 'matplotlib']
 
+for package in required_packages:
+    try:
+        __import__(package)
+    except ImportError:
+        install(package)
+        __import__(package)
+
+# Import the libraries
 import pandas as pd
 import matplotlib.pyplot as plt
+
+# Importing subprocess and sys from standard library directly
+# They do not require installation
+import subprocess
+import sys
 
 # Load the data with the last line as the header
 data = pd.read_csv('$output_diff_coverage', sep='\\t', header=None)
@@ -125,20 +134,23 @@ data = data[:-1]  # Remove the last row from data
 data.columns = data.columns.str.strip()
 
 # Check the DataFrame
-print(data.head())  # For debugging, check the first few rows
+print("Columns in DataFrame:", data.columns)  # Print the columns to verify
+print(data.head())  # To see the first few rows of data for debugging
 
 # Extract relevant parts from the folder path for the title
 folder_path = '$EXPERIMENTAL_FOLDER'  # Get the experiment folder from the environment variable
 folder_parts = folder_path.split('/')  # Split the path by '/'
 title_name = f"{folder_parts[-3]}_{folder_parts[-2]}_{folder_parts[-1]}"  # Format title as _VHL_MB012_TON
 
-# Create a horizontal bar plot with a black background
+# Create a horizontal bar plot with a transparent background
 plt.figure(figsize=(12, 8), facecolor='none')
-bars = plt.barh(data['Gene'], data['Experimental_Coverage'], color='black', alpha=0.8)  # Fluorescent green color
+
+# Use 'Difference' column for bar lengths
+bars = plt.barh(data['Gene'], data['Difference'], color='black', alpha=0.8)
 
 # Add labels and title with increased font size
-plt.title(f' {title_name}', color='black', fontsize=18)
-plt.xlabel('Coverage', color='black', fontsize=24)
+plt.title(f'{title_name}', color='black', fontsize=18)
+plt.xlabel('Difference (Experimental - Control)', color='black', fontsize=24)  # Change label to 'Difference'
 plt.ylabel('Gene', color='black', fontsize=24)
 
 # Set x-ticks and customize color with increased font size
@@ -148,15 +160,14 @@ plt.yticks(color='black', fontsize=18)
 # Add a grid for better readability
 plt.grid(color='gray', linestyle='--', alpha=0.5)
 
-# Save the plot using title_name for the filename
+# Save and close the plot
 plt.tight_layout()  # Adjust layout to make room for labels
-plt.savefig(f'$EXPERIMENTAL_FOLDER/statistical_diff/{title_name}.png', bbox_inches='tight')
+plt.savefig(f'$EXPERIMENTAL_FOLDER/statistical_diff/{title_name}.png', bbox_inches='tight', transparent=True)
 plt.close()
 
 print(f"Horizontal bar plot generated and saved as bar_plot{title_name}.png in statistical_diff directory.")
 EOF
 
 echo "Horizontal bar plot generation process completed."
-
 
 
