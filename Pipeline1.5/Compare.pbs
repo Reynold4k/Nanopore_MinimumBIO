@@ -100,28 +100,10 @@ echo "Differential coverage analysis complete. Results saved in: $output_diff_co
 python3 - <<EOF
 import subprocess
 import sys
-def install(package):
-    """Installs the specified package using pip."""
-    subprocess.check_call([sys.executable, '-m', 'pip', 'install', package])
-
-# List of required packages
-required_packages = ['pandas', 'matplotlib']
-
-for package in required_packages:
-    try:
-        __import__(package)
-    except ImportError:
-        install(package)
-        __import__(package)
 
 # Import the libraries
 import pandas as pd
 import matplotlib.pyplot as plt
-
-# Importing subprocess and sys from standard library directly
-# They do not require installation
-import subprocess
-import sys
 
 # Load the data with the last line as the header
 data = pd.read_csv('$output_diff_coverage', sep='\\t', header=None)
