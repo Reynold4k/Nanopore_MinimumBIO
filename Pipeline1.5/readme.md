@@ -124,7 +124,7 @@ The output of the `Compare.pbs` script will include:
 
 One example plot here:
 
-![MB012_TON_230827](https://github.com/user-attachments/assets/a3dedd9b-c9fb-4be2-8ea2-487411baff24)
+![MB012_TON_230827](https://github.com/user-attachments/assets/dd5642ff-acea-4fe5-8f42-68ad2fce68ae)
 
 
 By following these steps and interpreting the output correctly, you can effectively analyze gene coverage and visualize your results.
