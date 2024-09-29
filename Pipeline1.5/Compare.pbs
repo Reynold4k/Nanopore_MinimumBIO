@@ -132,6 +132,8 @@ data = data[:-1]  # Remove the last row from data
 
 # Trim whitespace from column names
 data.columns = data.columns.str.strip()
+# Convert the difference data type to numeric
+data['Difference'] = pd.to_numeric(data['Difference'], errors='coerce')
 
 # Check the DataFrame
 print("Columns in DataFrame:", data.columns)  # Print the columns to verify
