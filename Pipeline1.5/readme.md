@@ -36,6 +36,12 @@ To run the `pipeline1.5.pbs` script, follow these steps:
       ```bash
       REFERENCE="/path/to/your/reference/file"
       ```
+    - If you haven't index your reference fasta file, please index it first using the command below:
+      ```bash
+      
+      bwa index your_reference_fasta
+      
+      ```
 
 3. **Execute the Script**: Once you have modified the paths, save the file and submit it to your job scheduler. For example, use the following command:
     ```bash
