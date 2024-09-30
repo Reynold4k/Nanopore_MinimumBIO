@@ -84,29 +84,29 @@ top_genes <- overall_CPM %>%
   group_by(Gene) %>%
   summarise(mean_CPM = mean(CPM, na.rm = TRUE), .groups = 'drop') %>%
   arrange(desc(abs(mean_CPM))) %>%
-  slice_head(n = 15)  # Select top 10 based on the absolute value
+  slice_head(n = 15)  # Select top 15 based on the absolute value
 
 # Filter overall_CPM for top genes to plot
 top_genes_data <- overall_CPM %>%
   filter(Gene %in% top_genes$Gene)
 
-# Create the line plot only for the top 10 genes using CPM
+# Reorder the Gene levels based on mean CPM for plotting
+top_genes_data$Gene <- factor(top_genes_data$Gene, levels = top_genes$Gene[order(top_genes$mean_CPM, decreasing = TRUE)])
+
+# Create the line plot only for the top 15 genes using CPM, with the legend ordered by mean CPM
 line_plot <- ggplot(top_genes_data, aes(x = Round, y = CPM, group = Gene, color = Gene)) +
   geom_line() +
   geom_point() +
-  labs(
-    title = paste(exp_name),
-    x = "Round",
-    y = "CPM",
-  ) +
-  theme(axis.text.x = element_text(angle = 90, hjust = 1))+
+  xlab("Round") +
+  ylab("CPM") +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1)) +
   theme(
     plot.title = element_text(size = 14, face = "bold"), # Title size adjustment and bold
     legend.position = "right",  # Adjust as needed
     axis.title = element_text(size = 20),  # Axis title size
     axis.text = element_text(size = 18),  # Axis text size
     legend.title = element_text(size = 18),  # Legend title size
-    legend.text = element_text(size = 14)  # Legend text size
+    legend.text = element_text(size = 14)   # Legend text size
   )
 
 ggsave(file.path(EXPERIMENTAL_FOLDER, "line_plot.png"), plot = line_plot, width = 8, height = 6)
