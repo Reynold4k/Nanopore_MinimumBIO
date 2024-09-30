@@ -33,7 +33,7 @@ FASTQ_FOLDER=(
     "/mnt/d/Bait_Glue/CRBN/MB014/TON/230827"
 )
 
-REFERENCE="/mnt/c/Users/70921/OneDrive/Desktop/reference/T7-Pep_Ref_93nt.fasta"
+REFERENCE="/mnt/d/Bait_Glue/TargetLibrary_cDNA.fasta"
 
 # Define the pattern to match and replace
 PATTERN="^((?:.*?\n){3}).*?(GATCCGAATTC[ACGTN].*$)(\n.*)"
