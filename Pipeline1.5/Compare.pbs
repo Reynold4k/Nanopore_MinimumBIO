@@ -152,6 +152,11 @@ plt.close()
 print(f"Horizontal bar plot generated and saved as bar_plot{title_name}.png in statistical_diff directory.")
 EOF
 
-echo "Horizontal bar plot generation process completed."
+then
+    echo "Horizontal bar plot generation process completed."
+else
+    echo "Error: Python script failed."
+    exit 1
+fi
 
 
