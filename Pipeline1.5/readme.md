@@ -140,8 +140,12 @@ To run the `Compare.pbs` script, follow these steps:
 4. **Analysis**: Once you have executed the step3 above successfully, analyse it using the R script (Analysis.R) following command:
    ```bash
     conda activate bioenv
-    EXPERIMENTAL_FOLDER="/path/to/your/exp/fastq"
+    mkdir R_library
     module load r/4.4.0
+   ```
+### After you modified the path directory in the Analysis.R, run the R script through:
+   
+   ```bash
     Rscript Analysis.R
    ``` 
 ### Expected Output
@@ -157,12 +161,8 @@ The output of the `Compare.pbs` script will include:
   - **Control_Coverage**: The coverage value for the control group.
   - **Experimental_Coverage**: The coverage value for the experimental group.
   - **Difference**: The difference in coverage values between the experimental and control groups.
+![line_plot](https://github.com/user-attachments/assets/9d3c75b0-1345-4d3a-837b-6675fe390be0)
 
-- **Horizontal Bar Plot**: The plot visually displays the `Experimental_Coverage` for each gene. The length of each bar indicates the coverage level, allowing for quick identification of significant differences between experimental and control groups.
-
-One example plot here:
-
-![MB012_TON_230827](https://github.com/user-attachments/assets/dd5642ff-acea-4fe5-8f42-68ad2fce68ae)
+![volcano_plot](https://github.com/user-attachments/assets/d70d1959-62a4-426c-a840-0de4fa5e4c46)
 
 
-By following these steps and interpreting the output correctly, you can effectively analyze gene coverage and visualize your results.
