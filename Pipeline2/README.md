@@ -61,10 +61,17 @@ make
 jq --version
 
 ```
+## Install biopython packages
+
+```bash
+
+pip install biopython
+
+```
 
 
 ## A quick implementation:
-
+### (If you're using a personalized library, please skip PartA and please follow Part B)
 ## After setting up the environment and libraries in the stepD, you need to change several directories setting in the script: pipeline2-A.pbs
 
 ```bash
