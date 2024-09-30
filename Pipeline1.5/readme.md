@@ -63,6 +63,10 @@ To run the `pipeline1.5.pbs` script, follow these steps:
     - **Install Required Packages**: Install the necessary Python packages with pip.
     ```bash
     pip3 install pandas matplotlib
+
+    #Check if the installation is successful:
+    which pandas
+    which matplotlib
     ```
 
 4. **Execute the Script**: Once you have modified the paths and set up the environment, save the file and submit it to your job scheduler. For example, use the following command:
