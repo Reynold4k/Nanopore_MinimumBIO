@@ -100,7 +100,7 @@ for round_exp in "${round_dirs_exp[@]}"; do
     done
 
     # Sort the output file based on the difference
-    sort -k4,4gr -o "$output_diff_coverage" "$output_diff_coverage"
+    sort -k4,4gr -S 75% --parallel=6 --temporary-directory=/tmp -o "$output_diff_coverage" "$output_diff_coverage"
 
     echo "Differential coverage analysis for $round_name complete. Results saved in: $output_diff_coverage"
 done  
