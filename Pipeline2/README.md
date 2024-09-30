@@ -113,6 +113,8 @@ BED_FILE="Path to your selected gene bed file/FKBP1C_Hit_all_trimmed_sorted_merg
 bash ./pipeline2_1_PartB.pbs
 ```
 
+## Then some operations are also required for part B_pymol:
+
 For the pipeline2_1_PartB_pymol.pbs, you need to change:
 
 ```bash
