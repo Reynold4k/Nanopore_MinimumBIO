@@ -1,4 +1,4 @@
-
+#!/bin/bash
 
 # This script automates the analysis and visualization of potential genomic hits from RNA sequencing data focused on specific genes.
 # It is structured to process BAM files to extract regions of interest, convert these into FASTQ files, and perform a genome assembly
@@ -7,9 +7,8 @@
 # allowing researchers to focus on particular genes of interest, manage raw data complexity, and enhance sequence accuracy with assembly strategies.
 
 # What you need to modify:
-# 1.Change the line 25 PARENT_DIR to your/path/to/exp/R3/step2
-# 2.Change the line 31 REFERENCE to your/reference/path
-# 3.Change the line 32 ANNOTATION to your/ANNOTATION/path
+# 1.Change the line 15 GENOME_FASTA to your/reference/path
+# 2.Change the line 16 BED_FILE to your/bed/path
 
 # Define files and directories
 GENOME_FASTA="/mnt/c/Users/70921/OneDrive/桌面/reference/T7-Pep_Ref_93nt.fasta" # Reference FASTA file
