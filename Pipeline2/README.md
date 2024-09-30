@@ -71,7 +71,7 @@ pip install biopython
 
 
 ## A quick implementation:
-### (If you're using a personalized library, please skip PartA and use Pipeline2_1.5.pbs and then Pipeline2_1_PartB_pymol.pbs)
+### (If you're using a personalized library, please skip PartA and use Pipeline2_1.5.pbs and then Pipeline2_1_PartB_pymol.pbs, and you may find your bed files in the visualization folder)
 ## After setting up the environment and libraries in the stepD, you need to change several directories setting in the script: pipeline2_1_PartA.pbs
 
 ```bash
