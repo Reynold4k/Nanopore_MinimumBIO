@@ -96,7 +96,75 @@ for folder in "${FASTQ_FOLDER[@]}"; do
         fi
     done
 
-    # (The remaining extraction steps are unchanged)
+    # Handle extraction for each processed directory
+    find "$folder" -mindepth 1 -maxdepth 1 -type d -name "R*" | while IFS= read -r sample_dir; do
+        echo "Processing directory for extraction: $sample_dir"
+        
+        step2_dir="${sample_dir}/step2"
+        step3_dir="${sample_dir}/step3"
+        
+        # Ensure step3 directory exists
+        mkdir -p "$step3_dir"
+
+        # Paths for necessary files
+        coverage_file="${step2_dir}/coverage.txt"
+        output_bed="${step2_dir}/positions.bed"
+        output_fasta="${step3_dir}/extracted_sequences.fasta"
+        # Check if the coverage file exists before proceeding
+        if [ -f "$coverage_file" ]; then
+            
+            echo "Preparing positions in new range format..."
+
+            # Prepare ranges from coverage and generate BED file
+            awk '{
+                key = $1;  # Gene name
+                position = $2;  # Start position
+
+                # Store the start and end positions in an array
+                if (key in positions) {
+                    if (position < positions[key][1]) {
+                        positions[key][1] = position;  # Update minimum start
+                    }
+                    positions[key][2] = position;      # Update to current position (end)
+                } else {
+                    positions[key][1] = position;  # Initialize min start
+                    positions[key][2] = position;  # Initialize min end
+                }
+            } END {
+                for (gene in positions) {
+                    # Print the gene with start-end range
+                    print gene "\t" positions[gene][1] "\t" positions[gene][2];
+                }
+            }' "$coverage_file" > "${step2_dir}/positions.txt"
+
+            # Generate BED file
+            awk '{print $1 "\t" $2 "\t" $3}' "${step2_dir}/positions.txt" > "$output_bed"
+
+            # OPTIONAL: Check generated BED file
+            echo "Generated BED File:"
+            cat "$output_bed"
+
+            # Create visualization directory
+            visualization_dir="${sample_dir}/visualization"
+            mkdir -p "$visualization_dir"  # Ensure visualization directory exists
+
+            # Create individual BED files for each gene in positions.bed
+            while IFS=$'\t' read -r gene_id start end; do
+                # Generate the individual BED file name
+                bed_file="${visualization_dir}/${gene_id}.bed"
+        
+                # Write the gene position to the new BED file
+                echo -e "$gene_id\t$start\t$end" > "$bed_file"
+                echo "Created BED file for $gene_id at $bed_file"
+            done < "$output_bed"
+
+            # Step 2: Initialize the output FASTA file
+            > "$output_fasta"  # Clear the output file
+        else
+            echo "Necessary coverage file not found in $step2_dir. Skipping directory."
+        fi
+    done
 done
+
 
 echo "All directories processed."
