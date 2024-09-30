@@ -52,12 +52,12 @@ To run the `pipeline1.5.pbs` script, follow these steps:
 
     - **Create the Virtual Environment**: Create a virtual environment in your home directory.
     ```bash
-    python3 -m venv /home/your_username/environments/my_env
+    python3 -m venv /home/your_username/environments/pipeline1.5_env
     ```
 
     - **Activate the Virtual Environment**: Activate the created virtual environment.
     ```bash
-    source /home/your_username/environments/my_env/bin/activate
+    source /home/your_username/environments/pipeline1.5_env/bin/activate
     ```
 
     - **Install Required Packages**: Install the necessary Python packages with pip.
