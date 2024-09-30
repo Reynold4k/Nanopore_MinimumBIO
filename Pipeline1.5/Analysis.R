@@ -7,12 +7,41 @@
 # What you what to modify:
 # 1.Change the line 25 EXPERIMENTAL_FOLDER to your/exp/fastq parent path
 
+dir.create("/srv/scratch/z3546698/true/lib", recursive = TRUE)
+.libPaths("/srv/scratch/z3546698/true/lib")
 
-#Installation of packages:
-install.packages("dplyr")
-install.packages("ggplot2")
-install.packages("readr")
+install.packages("BiocManager", lib = "/srv/scratch/z3546698/true/lib")
 
+# List of required packages
+required_packages <- c(
+  "BiocManager", "dplyr", "ggplot2", "readr"
+)
+
+# Function to check if a package is installed and install it if not
+install_missing_packages <- function(packages) {
+  for (pkg in packages) {
+    if (!requireNamespace(pkg, quietly = TRUE)) {
+      if (pkg %in% rownames(installed.packages())) {
+        # If it's already installed just load it
+        library(pkg, character.only = TRUE)
+      } else {
+        # If it's not installed via Bioconductor, use install.packages for CRAN packages
+        if (pkg %in% c("ggplot2", "dplyr", "tidyr")) {
+          install.packages(pkg)
+        } else {
+          # Use BiocManager for Bioconductor packages
+          if (!requireNamespace("BiocManager", quietly = TRUE)) {
+            install.packages("BiocManager")
+          }
+          BiocManager::install(pkg)
+        }
+      }
+    }
+  }
+}
+
+# Check and install missing packages
+install_missing_packages(required_packages)
 
 # Load necessary libraries
 library(dplyr)
