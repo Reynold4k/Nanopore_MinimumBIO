@@ -100,16 +100,11 @@ for folder in "${FASTQ_FOLDER[@]}"; do
     find "$folder" -mindepth 1 -maxdepth 1 -type d -name "R*" | while IFS= read -r sample_dir; do
         echo "Processing directory for extraction: $sample_dir"
         
-        step2_dir="${sample_dir}/step2"
-        step3_dir="${sample_dir}/step3"
-        
-        # Ensure step3 directory exists
-        mkdir -p "$step3_dir"
+        step2_dir="${sample_dir}/step2"        
 
         # Paths for necessary files
         coverage_file="${step2_dir}/coverage.txt"
         output_bed="${step2_dir}/positions.bed"
-        output_fasta="${step3_dir}/extracted_sequences.fasta"
         # Check if the coverage file exists before proceeding
         if [ -f "$coverage_file" ]; then
             
