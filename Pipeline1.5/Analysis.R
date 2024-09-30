@@ -5,7 +5,8 @@
 # a volcano plot highlighting significant changes in gene expression between conditions.
 
 # What you what to modify:
-# 1.Change the line 25 EXPERIMENTAL_FOLDER to your/exp/fastq parent path
+# 1.Change the line 11,12,14 path_lib to your/newly_created_library_for_R
+# 1.Change the line 55 EXPERIMENTAL_FOLDER to your/exp/fastq parent path
 
 dir.create("/srv/scratch/z3546698/true/lib", recursive = TRUE)
 .libPaths("/srv/scratch/z3546698/true/lib")
