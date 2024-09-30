@@ -5,13 +5,15 @@
 # a volcano plot highlighting significant changes in gene expression between conditions.
 
 # What you what to modify:
-# 1.Change the line 11,12,14 path_lib to your/newly_created_library_for_R
-# 1.Change the line 55 EXPERIMENTAL_FOLDER to your/exp/fastq parent path
+# 1.Change the line 11,12,13 path_lib to your/newly_created_library_for_R
+# 2.Change the line 16 EXPERIMENTAL_FOLDER to your/exp/fastq parent path
 
 dir.create("/srv/scratch/z3546698/true/lib", recursive = TRUE)
 .libPaths("/srv/scratch/z3546698/true/lib")
-
 install.packages("BiocManager", lib = "/srv/scratch/z3546698/true/lib")
+
+# Set the experimental folder path
+EXPERIMENTAL_FOLDER <- "/mnt/d/Bait_Glue/VHL/MB012/TON/230827"
 
 # List of required packages
 required_packages <- c(
@@ -51,8 +53,6 @@ library(readr)
 
 
 
-# Set the experimental folder path
-EXPERIMENTAL_FOLDER <- "/mnt/d/Bait_Glue/VHL/MB012/TON/230827"
 
 # Split the path into components
 path_components <- strsplit(EXPERIMENTAL_FOLDER, "/")[[1]]
