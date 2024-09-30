@@ -161,7 +161,7 @@ The output of the `Compare.pbs` script will include:
   - **Control_Coverage**: The coverage value for the control group.
   - **Experimental_Coverage**: The coverage value for the experimental group.
   - **Difference**: The difference in coverage values between the experimental and control groups.
-![image](https://github.com/user-attachments/assets/3c47d58d-aa1c-49ef-8bbe-f5d3c2afa502)
+![image](https://github.com/user-attachments/assets/0179be74-56a4-4577-8207-5dbf1be378d2)
 
 ![volcano_plot](https://github.com/user-attachments/assets/d70d1959-62a4-426c-a840-0de4fa5e4c46)
 
