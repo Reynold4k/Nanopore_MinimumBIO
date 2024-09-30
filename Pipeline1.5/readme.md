@@ -137,7 +137,7 @@ To run the `Compare.pbs` script, follow these steps:
     qsub Compare.pbs
     ```
 
-4. **Analysis**: Once you have executed the step3 above successfully, analyse it using the following command:
+4. **Analysis**: Once you have executed the step3 above successfully, analyse it using the R script (Analysis.R) following command:
    ```bash
     EXPERIMENTAL_FOLDER="/path/to/your/exp/fastq"
     module load r/4.4.0
