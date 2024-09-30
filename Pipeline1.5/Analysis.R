@@ -1,3 +1,13 @@
+# R Script for Processing Differential Coverage Data
+
+# This script processes differential coverage data from experimental rounds and generates two types of plots: 
+# a line plot depicting CPM values across experimental rounds
+# a volcano plot highlighting significant changes in gene expression between conditions.
+
+# What you what to modify:
+# 1.Change the line 25 EXPERIMENTAL_FOLDER to your/exp/fastq parent path
+
+
 #Installation of packages:
 install.packages("dplyr")
 install.packages("ggplot2")
@@ -8,6 +18,7 @@ install.packages("readr")
 library(dplyr)
 library(ggplot2)
 library(readr)
+
 
 
 # Set the experimental folder path
