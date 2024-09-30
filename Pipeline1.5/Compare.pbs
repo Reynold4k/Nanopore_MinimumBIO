@@ -24,136 +24,87 @@ module load bc/1.07
 # Define paths
 EXPERIMENTAL_FOLDER="/mnt/d/Bait_Glue/VHL/MB012/TON/230827"
 CONTROL_FOLDER="/mnt/d/Bait_Glue/VHL/glue/TON/240427"  # Adjust this to your actual control path
-REFERENCE="/mnt/c/Users/70921/OneDrive/桌面/reference/T7-Pep_Ref_93nt.fasta"
 
-# Function to get the last round directory name
-function get_last_round_directory {
+# Function to get all round directory names
+function get_round_directories {
     local folder="$1"
-    find "$folder" -mindepth 1 -maxdepth 1 -type d -name "R*" | sort -V | tail -n 1
+    find "$folder" -mindepth 1 -maxdepth 1 -type d -name "R*"
 }
 
-# Get last round directories for experimental and control groups
-last_round_exp=$(get_last_round_directory "$EXPERIMENTAL_FOLDER")
-last_round_ctrl=$(get_last_round_directory "$CONTROL_FOLDER")
+# Get all round directories for experimental and control groups
+round_dirs_exp=($(get_round_directories "$EXPERIMENTAL_FOLDER"))
+round_dirs_ctrl=($(get_round_directories "$CONTROL_FOLDER"))
 
-# Check if last round directories were found
-if [ -z "$last_round_exp" ] || [ -z "$last_round_ctrl" ]; then
-    echo "Error: One or both last round directories do not exist."
+# Check if any round directories were found
+if [ ${#round_dirs_exp[@]} -eq 0 ] || [ ${#round_dirs_ctrl[@]} -eq 0 ]; then
+    echo "Error: No round directories found in one or both folders."
     exit 1
 fi
 
-# Process coverage for the last round
-coverage_file_exp="${last_round_exp}/step2/coverage.txt"
-coverage_file_ctrl="${last_round_ctrl}/step2/coverage.txt"
+# Loop through each round directory in the experimental group
+for round_exp in "${round_dirs_exp[@]}"; do
+    round_name=$(basename "$round_exp")
 
-# Check if coverage files exist
-if [ ! -f "$coverage_file_exp" ] || [ ! -f "$coverage_file_ctrl" ]; then
-    echo "Error: One or both coverage files do not exist."
-    exit 1
-fi
+    # Corresponding control round directory based on the round name
+    last_round_ctrl="${CONTROL_FOLDER}/${round_name}"
 
-# Declare associative arrays
-declare -A control_coverage
-declare -A experimental_coverage
-
-# Read control coverage into an associative array
-while read -r gene_id _ coverage; do
-    control_coverage["$gene_id"]="$coverage"
-done < <(cut -f 1,2,3 "$coverage_file_ctrl")
-
-# Read experimental coverage and sum values
-while read -r gene_id _ exp_coverage; do
-    # Sum the experimental coverage values for the same gene
-    experimental_coverage["$gene_id"]=$(echo "${experimental_coverage["$gene_id"]:-0} + $exp_coverage" | bc)
-done < <(cut -f 1,2,3 "$coverage_file_exp")
-
-# Output file for differential coverage
-output_diff_coverage="${EXPERIMENTAL_FOLDER}/statistical_diff/differential_coverage.txt"
-
-# Ensure the output directory exists
-mkdir -p "${EXPERIMENTAL_FOLDER}/statistical_diff"
-
-# Header for the output file
-echo -e "Gene\tControl_Coverage\tExperimental_Coverage\tDifference" > "$output_diff_coverage"
-
-# Write the results, summing the control and experimental coverage for the same gene ID
-for gene_id in "${!experimental_coverage[@]}"; do
-    ctrl_coverage=${control_coverage[$gene_id]:-0}  # Default to 0 if not found in control
-    exp_coverage=${experimental_coverage[$gene_id]:-0}  # Get the summed experimental coverage
-    
-    # Calculate the difference
-    difference=$(awk "BEGIN {print $exp_coverage - $ctrl_coverage}")
-
-    # Only output if the difference is non-zero
-    if (( $(echo "$difference != 0" | bc -l) )); then
-        # Output to file
-        echo -e "$gene_id\t$ctrl_coverage\t$exp_coverage\t$difference" >> "$output_diff_coverage"
+    # Check if control round directory exists
+    if [ ! -d "$last_round_ctrl" ]; then
+        echo "Warning: Control round directory $last_round_ctrl does not exist. Skipping."
+        continue
     fi
-done
 
-# Sort the output file based on the difference
-sort -k4,4gr -o "$output_diff_coverage" "$output_diff_coverage"
+    # Process coverage for the current round
+    coverage_file_exp="${round_exp}/step2/coverage.txt"
+    coverage_file_ctrl="${last_round_ctrl}/step2/coverage.txt"
 
-echo "Differential coverage analysis complete. Results saved in: $output_diff_coverage"
+    # Check if coverage files exist
+    if [ ! -f "$coverage_file_exp" ] || [ ! -f "$coverage_file_ctrl" ]; then
+        echo "Error: One or both coverage files do not exist in $round_name. Skipping."
+        continue
+    fi
 
-# Start Python script for Horizontal Bar Plot
-python3 - <<EOF
-import subprocess
-import sys
+    # Declare associative arrays
+    declare -A control_coverage
+    declare -A experimental_coverage
 
-# Import the libraries
-import pandas as pd
-import matplotlib.pyplot as plt
+    # Read control coverage into an associative array
+    while read -r gene_id _ coverage; do
+        control_coverage["$gene_id"]="$coverage"
+    done < <(cut -f 1,2,3 "$coverage_file_ctrl")
 
-# Load the data with the last line as the header
-data = pd.read_csv('$output_diff_coverage', sep='\\t', header=None)
+    # Read experimental coverage and sum values
+    while read -r gene_id _ exp_coverage; do
+        # Sum the experimental coverage values for the same gene
+        experimental_coverage["$gene_id"]=$(echo "${experimental_coverage["$gene_id"]:-0} + $exp_coverage" | bc)
+    done < <(cut -f 1,2,3 "$coverage_file_exp")
 
-# Use the last row as the header and drop it from the data
-data.columns = data.iloc[-1]  # Set the last row as header
-data = data[:-1]  # Remove the last row from data
+    # Output file for differential coverage
+    output_diff_coverage="${round_exp}/differential_coverage.txt"
 
-# Trim whitespace from column names
-data.columns = data.columns.str.strip()
-# Convert the difference data type to numeric
-data['Difference'] = pd.to_numeric(data['Difference'], errors='coerce')
+    # Header for the output file
+    echo -e "Gene\tControl_Coverage\tExperimental_Coverage\tDifference" > "$output_diff_coverage"
 
-# Check the DataFrame
-print("Columns in DataFrame:", data.columns)  # Print the columns to verify
-print(data.head())  # To see the first few rows of data for debugging
+    # Write the results, summing the control and experimental coverage for the same gene ID
+    for gene_id in "${!experimental_coverage[@]}"; do
+        ctrl_coverage=${control_coverage[$gene_id]:-0}  # Default to 0 if not found in control
+        exp_coverage=${experimental_coverage[$gene_id]:-0}  # Get the summed experimental coverage
 
-# Extract relevant parts from the folder path for the title
-folder_path = '$EXPERIMENTAL_FOLDER'  # Get the experiment folder from the environment variable
-folder_parts = folder_path.split('/')  # Split the path by '/'
-title_name = f"{folder_parts[-3]}_{folder_parts[-2]}_{folder_parts[-1]}"  # Format title as _VHL_MB012_TON
+        # Calculate the difference
+        difference=$(awk "BEGIN {print $exp_coverage - $ctrl_coverage}")
 
-# Create a horizontal bar plot with a transparent background
-plt.figure(figsize=(12, 8), facecolor='none')
+        # Only output if the difference is non-zero
+        if (( $(echo "$difference != 0" | bc -l) )); then
+            # Output to file
+            echo -e "$gene_id\t$ctrl_coverage\t$exp_coverage\t$difference" >> "$output_diff_coverage"
+        fi
+    done
 
-# Use 'Difference' column for bar lengths
-bars = plt.barh(data['Gene'], data['Difference'], color='black', alpha=0.8)
+    # Sort the output file based on the difference
+    sort -k4,4gr -o "$output_diff_coverage" "$output_diff_coverage"
 
-# Add labels and title with increased font size
-plt.title(f'{title_name}', color='black', fontsize=18)
-plt.xlabel('Difference (Experimental - Control)', color='black', fontsize=24)  # Change label to 'Difference'
-plt.ylabel('Gene', color='black', fontsize=24)
-
-# Set x-ticks and customize color with increased font size
-plt.xticks(color='black', fontsize=18)
-plt.yticks(color='black', fontsize=18)
-
-# Add a grid for better readability
-plt.grid(color='gray', linestyle='--', alpha=0.5)
-
-# Save and close the plot
-plt.tight_layout()  # Adjust layout to make room for labels
-plt.savefig(f'$EXPERIMENTAL_FOLDER/statistical_diff/{title_name}.png', bbox_inches='tight', transparent=True)
-plt.close()
-
-print(f"Horizontal bar plot generated and saved as bar_plot{title_name}.png in statistical_diff directory.")
-EOF
-
-
-echo "Horizontal bar plot generation process completed."
+    echo "Differential coverage analysis for $round_name complete. Results saved in: $output_diff_coverage"
+done  
 
     
 
