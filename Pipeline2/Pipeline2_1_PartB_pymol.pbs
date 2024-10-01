@@ -27,8 +27,6 @@ VISUAL_DIR="/srv/scratch/z3546698/true/exp/potential_hit/visualization"  # Direc
 GENOME_FASTA="/srv/scratch/z3546698/true/reference/hg38.fa"
 BED_FILE="/srv/scratch/z3546698/true/exp/potential_hit/BEX4_Hit_all_trimmed_sorted_merged.bed"  # BED file
 
-dna_sequences_output="$BED_DIR/high_coverage_sequences.fa"
-translated_proteins_output="$BED_DIR/translated_proteins.fa"
 
 # PDB and sequence paths
 UNIPROT_ID="Q9NWD9"
@@ -39,6 +37,9 @@ FILENAME=$(basename "$BED_FILE")
 GENE_NAME=${FILENAME%%_*}
 
 BED_DIR=$(dirname "$BED_FILE")
+
+dna_sequences_output="$BED_DIR/high_coverage_sequences.fa"
+translated_proteins_output="$BED_DIR/translated_proteins.fa"
 
 pdb_fasta_file="$BED_DIR/pdb_sequence_${UNIPROT_ID}.fasta"
 
