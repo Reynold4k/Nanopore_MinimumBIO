@@ -100,20 +100,22 @@ for folder in "${FASTQ_FOLDER[@]}"; do
     find "$folder" -mindepth 1 -maxdepth 1 -type d -name "R*" | while IFS= read -r sample_dir; do
         echo "Processing directory for extraction: $sample_dir"
         
-        step2_dir="${sample_dir}/step2"        
-
+        step2_dir="${sample_dir}/step2"
+        
         # Paths for necessary files
         coverage_file="${step2_dir}/coverage.txt"
         output_bed="${step2_dir}/positions.bed"
+
         # Check if the coverage file exists before proceeding
         if [ -f "$coverage_file" ]; then
             
             echo "Preparing positions in new range format..."
 
-            # Prepare ranges from coverage and generate BED file
+            # Prepare ranges from coverage and generate positions.txt with coverage values
             awk '{
                 key = $1;  # Gene name
                 position = $2;  # Start position
+                coverage = $3;  # Coverage value
 
                 # Store the start and end positions in an array
                 if (key in positions) {
@@ -121,37 +123,47 @@ for folder in "${FASTQ_FOLDER[@]}"; do
                         positions[key][1] = position;  # Update minimum start
                     }
                     positions[key][2] = position;      # Update to current position (end)
+                    positions[key][3] += coverage;     # Accumulate coverage
                 } else {
                     positions[key][1] = position;  # Initialize min start
                     positions[key][2] = position;  # Initialize min end
+                    positions[key][3] = coverage;  # Initialize coverage
                 }
             } END {
                 for (gene in positions) {
-                    # Print the gene with start-end range
-                    print gene "\t" positions[gene][1] "\t" positions[gene][2];
+                    # Print the gene with start-end range and total coverage
+                    print gene "\t" positions[gene][1] "\t" positions[gene][2] "\t" positions[gene][3];
                 }
             }' "$coverage_file" > "${step2_dir}/positions.txt"
 
-            # Generate BED file
-            awk '{print $1 "\t" $2 "\t" $3}' "${step2_dir}/positions.txt" > "$output_bed"
+            # Sort to get the top 100 genes by coverage
+            sort -k4,4nr "${step2_dir}/positions.txt" | head -n 100 > "${step2_dir}/top_100_positions.txt"
 
-            # OPTIONAL: Check generated BED file
-            echo "Generated BED File:"
-            cat "$output_bed"
-
-            # Create visualization directory
-            visualization_dir="${sample_dir}/visualization"
+            # Now create BED files from the top 100 genes
+            visualization_dir="${step2_dir}/visualization"
             mkdir -p "$visualization_dir"  # Ensure visualization directory exists
 
-            # Create individual BED files for each gene in positions.bed
-            while IFS=$'\t' read -r gene_id start end; do
+            # Initialize a counter
+            counter=0
+            max_bed_files=100
+
+            while IFS=$'\t' read -r gene_id start end total_coverage; do
+                # Check if we've reached the maximum number of BED files
+                if [ "$counter" -ge "$max_bed_files" ]; then
+                    echo "Reached maximum of $max_bed_files BED files. Stopping."
+                    break
+                fi
+
                 # Generate the individual BED file name
                 bed_file="${visualization_dir}/${gene_id}.bed"
-        
+
                 # Write the gene position to the new BED file
                 echo -e "$gene_id\t$start\t$end" > "$bed_file"
                 echo "Created BED file for $gene_id at $bed_file"
-            done < "$output_bed"
+
+                # Increment the counter
+                counter=$((counter + 1))
+            done < "${step2_dir}/top_100_positions.txt"
 
             # Step 2: Initialize the output FASTA file
             > "$output_fasta"  # Clear the output file
@@ -161,5 +173,6 @@ for folder in "${FASTQ_FOLDER[@]}"; do
     done
 done
 
-
 echo "All directories processed."
+
+
