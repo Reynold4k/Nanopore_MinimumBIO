@@ -144,6 +144,18 @@ df <- df %>%
   mutate(Gene = ifelse(is.na(Entry), Gene, 
                        paste(Entry, sub("^[^_]*_[^_]*_", "", Gene), sep="_"))) 
 
+# Extract the gene information
+overall_CPM <- overall_CPM %>%
+  mutate(Gene_Match = sub("^([^_]*_[^_]*)_.*$", "\\1", Gene))  # 提取到第二个下划线前的内容
+
+# left connection with id_mapping
+overall_CPM <- overall_CPM %>%
+  left_join(id_mapping, by = c("Gene_Match" = "From")) %>%
+  mutate(Gene = ifelse(is.na(Entry), Gene, 
+                       paste(Entry, sub("^[^_]*_[^_]*_", "", Gene), sep="_")))
+
+
+
 # Select top 15 most variable genes based on absolute mean CPM
 top_genes <- overall_CPM %>%
   group_by(Gene) %>%
@@ -180,7 +192,11 @@ ggsave(file.path(EXPERIMENTAL_FOLDER, "line_plot.png"), plot = line_plot, width 
 df <- df %>%
   mutate(
     log2foldchange = log2(CPM_EXP / CPM_Control),
-    log10CPM = log10(abs(CPM_EXP - CPM_Control) + 1), # Adding +1 to avoid log10(0)
+    log10CPM = log10(abs(CPM_EXP - CPM_Control) + 1)  # 添加 +1 避免 log10(0)
+  ) %>%
+  # Delete the duplicated
+  filter(!is.infinite(log2foldchange) & !is.infinite(log10CPM)) %>%
+  mutate(
     color = case_when(
       log2foldchange < -1 ~ "blue",
       log2foldchange > 1 ~ "red",
