@@ -21,8 +21,8 @@ module load python/3.11.3
 module load bc/1.07
 
 # Define paths
-EXPERIMENTAL_FOLDER="/mnt/d/Bait_Glue/VHL/MB012/TON/230827"
-CONTROL_FOLDER="/mnt/d/Bait_Glue/VHL/glue/TON/240427"  # Adjust this to your actual control path
+EXPERIMENTAL_FOLDER="/mnt/d/exp"
+CONTROL_FOLDER="/mnt/d/control_240906"  # Adjust this to your actual control path
 
 # Function to get all round directory names
 function get_round_directories {
@@ -53,13 +53,13 @@ for round_exp in "${round_dirs_exp[@]}"; do
         continue
     fi
 
-    # Process coverage for the current round
-    coverage_file_exp="${round_exp}/step2/coverage.txt"
-    coverage_file_ctrl="${last_round_ctrl}/step2/coverage.txt"
+    # Paths for top 100 positions for experimental and control
+    top_100_exp="${round_exp}/step2/top_100_positions.txt"
+    top_100_ctrl="${last_round_ctrl}/step2/top_100_positions.txt"
 
-    # Check if coverage files exist
-    if [ ! -f "$coverage_file_exp" ] || [ ! -f "$coverage_file_ctrl" ]; then
-        echo "Error: One or both coverage files do not exist in $round_name. Skipping."
+    # Check if top 100 files exist
+    if [ ! -f "$top_100_exp" ] || [ ! -f "$top_100_ctrl" ]; then
+        echo "Error: One or both top 100 position files do not exist in $round_name. Skipping."
         continue
     fi
 
@@ -67,16 +67,19 @@ for round_exp in "${round_dirs_exp[@]}"; do
     declare -A control_coverage
     declare -A experimental_coverage
 
-    # Read control coverage into an associative array
-    while read -r gene_id _ coverage; do
+    # Read control coverage into an associative array, only for top 100 genes
+    while read -r gene_id _; do
+        # Extract coverage only for the 'gene_id' in the control
+        coverage=$(awk -v gene="$gene_id" '$1 == gene {print $3}' "$top_100_ctrl")
         control_coverage["$gene_id"]="$coverage"
-    done < <(cut -f 1,2,3 "$coverage_file_ctrl")
+    done < <(cut -f 1 "$top_100_ctrl")
 
-    # Read experimental coverage and sum values
-    while read -r gene_id _ exp_coverage; do
+    # Read experimental coverage for top 100 genes
+    while read -r gene_id _; do
+        exp_coverage=$(awk -v gene="$gene_id" '$1 == gene {print $3}' "$top_100_exp")
         # Sum the experimental coverage values for the same gene
         experimental_coverage["$gene_id"]=$(echo "${experimental_coverage["$gene_id"]:-0} + $exp_coverage" | bc)
-    done < <(cut -f 1,2,3 "$coverage_file_exp")
+    done < <(cut -f 1 "$top_100_exp")
 
     # Output file for differential coverage
     output_diff_coverage="${round_exp}/differential_coverage.txt"
@@ -103,7 +106,8 @@ for round_exp in "${round_dirs_exp[@]}"; do
     sort -k4,4gr -S 75% --parallel=6 --temporary-directory=/tmp -o "$output_diff_coverage" "$output_diff_coverage"
 
     echo "Differential coverage analysis for $round_name complete. Results saved in: $output_diff_coverage"
-done  
+done
+
 
     
 
