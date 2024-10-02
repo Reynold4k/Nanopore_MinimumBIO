@@ -64,23 +64,19 @@ for round_exp in "${round_dirs_exp[@]}"; do
         continue
     fi
 
-    # Declare associative arrays
+    # Declare associative arrays for coverage values
     declare -A control_coverage
     declare -A experimental_coverage
 
-    # Read control coverage into an associative array, only for top 100 genes
-    while read -r gene_id _; do
-        # Extract coverage only for the 'gene_id' in the control
-        coverage=$(awk -v gene="$gene_id" '$1 == gene {print $3}' "$top_100_ctrl")
+    # Read control coverage into an associative array
+    while read -r gene_id start end coverage; do
         control_coverage["$gene_id"]="$coverage"
-    done < <(cut -f 1 "$top_100_ctrl")
+    done < <(cut -f 1,2,3,4 "$top_100_ctrl")  # Assuming format: gene_id start end coverage
 
     # Read experimental coverage for top 100 genes
-    while read -r gene_id _; do
-        exp_coverage=$(awk -v gene="$gene_id" '$1 == gene {print $3}' "$top_100_exp")
-        # Sum the experimental coverage values for the same gene
+    while read -r gene_id start end exp_coverage; do
         experimental_coverage["$gene_id"]=$(echo "${experimental_coverage["$gene_id"]:-0} + $exp_coverage" | bc)
-    done < <(cut -f 1 "$top_100_exp")
+    done < <(cut -f 1,2,3,4 "$top_100_exp")  # Assuming format: gene_id start end coverage
 
     # Output file for differential coverage
     output_diff_coverage="${round_exp}/differential_coverage.txt"
@@ -92,7 +88,7 @@ for round_exp in "${round_dirs_exp[@]}"; do
     for gene_id in "${!experimental_coverage[@]}"; do
         ctrl_coverage=${control_coverage[$gene_id]:-0}  # Default to 0 if not found in control
         exp_coverage=${experimental_coverage[$gene_id]:-0}  # Get the summed experimental coverage
-
+        
         # Calculate the difference
         difference=$(awk "BEGIN {print $exp_coverage - $ctrl_coverage}")
 
@@ -108,8 +104,5 @@ for round_exp in "${round_dirs_exp[@]}"; do
 
     echo "Differential coverage analysis for $round_name complete. Results saved in: $output_diff_coverage"
 done
-
-
-    
 
 
