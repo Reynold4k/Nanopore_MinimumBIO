@@ -5,8 +5,9 @@
 # a volcano plot highlighting significant changes in gene expression between conditions.
 
 # What you what to modify:
-# 1.Change the line 11,12,13 path_lib to your/newly_created_library_for_R
-# 2.Change the line 16 EXPERIMENTAL_FOLDER to your/exp/fastq parent path
+# 1.Change the line 12,13,14 path_lib to your/newly_created_library_for_R
+# 2.Change the line 17 EXPERIMENTAL_FOLDER to your/exp/fastq parent path
+# 3.Change the line 19 id_mapping to your/id_mapping_file
 
 dir.create("/srv/scratch/z3546698/true/R_library", recursive = TRUE)
 .libPaths("/srv/scratch/z3546698/true/R_library")
@@ -14,6 +15,14 @@ install.packages("BiocManager", lib = "/srv/scratch/z3546698/true/R_library")
 
 # Set the experimental folder path
 EXPERIMENTAL_FOLDER <- "/mnt/d/Bait_Glue/VHL/MB012/TON/230827"
+
+id_mapping <- read.table("D:/Bait_Glue/idmapping_2024_10_01.tsv", 
+                         header = TRUE, 
+                         sep = "\t", 
+                         stringsAsFactors = FALSE, 
+                         fill = TRUE, 
+                         quote = "",  
+                         comment.char = "") 
 
 # List of required packages
 required_packages <- c(
@@ -76,13 +85,22 @@ for (round_dir in round_dirs) {
   }
   
   # Read the differential coverage file without header
-  df <- read_table(diff_coverage_file, col_names = FALSE)
+  df <- read.table(diff_coverage_file, header = FALSE, sep = "\t", stringsAsFactors = FALSE)
+  
+  # Print the number of rows read
+  print(paste("Number of rows read from", diff_coverage_file, ":", nrow(df)))
   
   # Set the last row as column names
   colnames(df) <- as.character(unlist(df[nrow(df), ]))
   
   # Remove the last row from the data as it contains the column names
   df <- df[-nrow(df), ]
+  
+  # Check if df is empty after processing
+  if (nrow(df) == 0) {
+    warning(paste("Warning: Empty dataframe for:", round_dir))
+    next  # Skip this iteration if df is empty
+  }
   
   # Convert columns to numeric as needed, but keep the first column (gene names) as character
   df <- df %>%
@@ -98,9 +116,16 @@ for (round_dir in round_dirs) {
            CPM_EXP = (Experimental_Coverage / total_exp) * 1000000,
            Round = basename(round_dir))  # Add round information to the dataframe
   
+  # Check if df has the necessary columns before binding
+  if (!"X1" %in% names(df) || !"CPM_EXP" %in% names(df)) {
+    warning("Warning: Necessary columns 'X1' or 'CPM_EXP' are missing.")
+    next  # Skip to next round if necessary columns are missing
+  }
+  
   # Prepare data for overall CPM line plot
   overall_CPM <- bind_rows(overall_CPM,
-                           data.frame(Gene = df$Gene, CPM = df$CPM_EXP, Round = basename(round_dir)))  # Use CPM_EXP for plotting
+                           data.frame(Gene = df$X1, CPM = df$CPM_EXP, Round = basename(round_dir))  # Use X1 as gene column if it is the first
+  )
   
   # Save updated dataframe
   updated_file_path <- file.path(round_dir, paste0("updated_", basename(round_dir), "_differential_coverage.txt"))
@@ -108,6 +133,16 @@ for (round_dir in round_dirs) {
   
   message(paste("Updated differential coverage saved to:", updated_file_path))
 }
+    
+
+df <- df %>%
+  mutate(Gene_Match = sub("^([^_]*_[^_]*)_.*$", "\\1\\2", Gene))  
+
+# left connection with id_mapping
+df <- df %>%
+  left_join(id_mapping, by = c("Gene_Match" = "From")) %>%
+  mutate(Gene = ifelse(is.na(Entry), Gene, 
+                       paste(Entry, sub("^[^_]*_[^_]*_", "", Gene), sep="_"))) 
 
 # Select top 15 most variable genes based on absolute mean CPM
 top_genes <- overall_CPM %>%
