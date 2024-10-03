@@ -104,10 +104,33 @@ To run the `pipeline1.5.pbs` script, follow these steps:
     ```
 
 5. **Execute the Script**: Once you have modified the paths and set up the environment, save the file and submit it to your job scheduler. For example, use the following command:
+
+    If you didn't book any CPU, then you need to create another pbs script having the contents below:
+
+```bash
+   #!/bin/bash
+    #how many CPU and Memory you would like to use when running:
+    #PBS -l select=1:ncpus=1:mem=4gb
+    #how much time you would like to use when running:
+    #PBS -l walltime=12:00:00
+    #how to let you know when to finish:
+    #PBS -M your.name.here@unsw.edu.au
+    #PBS -m ae
+    #PBS -j oe
+
+    #don't change it
+    cd $PBS_O_WORKDIR
+    #Make sure the name of the script you would to run is correct:
+    ./pipeline1.5.pbs
+```
+
     ```bash
     #If you didn't book any CPU:
-    qsub pipeline1.5.pbs
-    #If you didn book any CPU:
+    qsub run.pbs
+    ```
+### Highly recommended!!!
+    ```bash
+    #If you didn book any CPU, directly run:
     bash ./pipeline1.5.pbs
     ```
 
