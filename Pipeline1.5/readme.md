@@ -53,7 +53,7 @@ To run the `pipeline1.5.pbs` script, follow these steps:
       ```
     - If you haven't index your reference fasta file, please index it first using the command below:
       ```bash
-      
+      module load bwa
       bwa index your_reference_fasta
       
       ```
