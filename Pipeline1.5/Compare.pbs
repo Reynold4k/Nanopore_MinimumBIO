@@ -2,14 +2,14 @@
 
 ## Overview
 
-The main purpose of this script is to analyze the gene coverage between experimental and control groups, calculate differential coverage. The specific steps are as follows:
+#The main purpose of this script is to analyze the gene coverage between experimental and control groups, calculate differential coverage. The specific steps are as follows:
 
-1. **Load Required Modules**: Use the `module load` command to load the necessary Python and computational tools.
-2. **Define Paths**: Specify the paths for the experimental group, control group, and reference files.
-3. **Find the Latest Experimental Directory**: Retrieve the latest experimental and control round directories based on the folder structure.
-4. **Check Coverage Files**: Confirm that the coverage files exist.
-5. **Read Coverage Data**: Read the coverage data for the control and experimental groups into associative arrays.
-6. **Calculate Differences**: Compare the coverage between the control and experimental groups, calculate the difference, and write the results to an output file.
+#1. **Load Required Modules**: Use the `module load` command to load the necessary Python and computational tools.
+#2. **Define Paths**: Specify the paths for the experimental group, control group, and reference files.
+#3. **Find the Latest Experimental Directory**: Retrieve the latest experimental and control round directories based on the folder structure.
+#4. **Check Coverage Files**: Confirm that the coverage files exist.
+#5. **Read Coverage Data**: Read the coverage data for the control and experimental groups into associative arrays.
+#6. **Calculate Differences**: Compare the coverage between the control and experimental groups, calculate the difference, and write the results to an output file.
 
 
 
