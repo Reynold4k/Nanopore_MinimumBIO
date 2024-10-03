@@ -54,6 +54,8 @@ To run the `pipeline1.5.pbs` script, follow these steps:
       bwa index your_reference_fasta
       
       ```
+![image](https://github.com/user-attachments/assets/aeb9ee35-ca29-4b82-abae-15250df71707)
+
 
 3. **Set Up the Environment**: At the beginning of the script, add commands to load the required modules and set up a Python virtual environment. Follow these steps:
 
