@@ -78,12 +78,12 @@ To run the `pipeline1.5.pbs` script, follow these steps:
     Paste your output from 'pwd' to the following paste_here:
 
     ```bash
-    python3 -m venv paste_here/pipeline1.5_env
+    python3 -m venv paste_here/bioenv
     ```
 
     - **Activate the Virtual Environment**: Activate the created virtual environment.
     ```bash
-    source /home/your_username/environments/pipeline1.5_env/bin/activate
+    source /home/your_username/environments/bioenv/bin/activate
     ```
     Or:
     ```bash
@@ -171,17 +171,22 @@ https://ioflood.com/blog/nano-linux-command/#:~:text=To%20use%20the%20nano%20com
       ```bash
       CONTROL_FOLDER="/path/to/your/control/fastq"
       ```
-    - Change **Line 27**: Locate the line that defines `REFERENCE` and update the path to your reference file. For example:
-      ```bash
-      REFERENCE="/path/to/your/path/to/reference"
-      ```
+
+![image](https://github.com/user-attachments/assets/5a2f7537-9bba-4d75-9802-6b22a9ee7991)
+
 
 3. **Execute the Script**: Once you have modified the paths, save the file and submit it to your job scheduler. For example, use the following command:
     ```bash
+    #If you didn't book any CPU:
     qsub Compare.pbs
+    #If you didn book any CPU:
+    bash ./Compare.pbs
     ```
+   
+### Step3 Analysis: Once you have executed the step3 above successfully, analyse it using the R script (Analysis.R) following command:
+   
+The following command illustrates how to intiate the environment and make a new R library, this is important!!!
 
-5. **Analysis**: Once you have executed the step3 above successfully, analyse it using the R script (Analysis.R) following command:
    ```bash
     conda activate bioenv
     mkdir R_library
