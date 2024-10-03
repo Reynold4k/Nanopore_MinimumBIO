@@ -2,7 +2,7 @@
 
 ## Overview
 
-The main purpose of this script is to analyze the gene coverage between experimental and control groups, calculate differential coverage, and generate a corresponding horizontal bar plot for visualization. The specific steps are as follows:
+The main purpose of this script is to analyze the gene coverage between experimental and control groups, calculate differential coverage, and generate a corresponding progress curves or pseudovolcano plot for visualization. The specific steps are as follows:
 
 1. **Load Required Modules**: Use the `module load` command to load the necessary Python and computational tools.
 2. **Define Paths**: Specify the paths for the experimental group, control group, and reference files.
@@ -10,7 +10,7 @@ The main purpose of this script is to analyze the gene coverage between experime
 4. **Check Coverage Files**: Confirm that the coverage files exist.
 5. **Read Coverage Data**: Read the coverage data for the control and experimental groups into associative arrays.
 6. **Calculate Differences**: Compare the coverage between the control and experimental groups, calculate the difference, and write the results to an output file.
-7. **Generate Visualization Charts**: Use Python to create a horizontal bar plot that displays the coverage for the experimental group.
+7. **Generate Visualization Charts**: Use Python to create a progress curves or pseudovolcano plot that displays the coverage for the experimental group.
 
 
 
