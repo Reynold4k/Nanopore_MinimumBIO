@@ -59,21 +59,37 @@ To run the `pipeline1.5.pbs` script, follow these steps:
 
 3. **Set Up the Environment**: At the beginning of the script, add commands to load the required modules and set up a Python virtual environment. Follow these steps:
 
-    - **Load Python Module**: Load the desired version of Python.
+    - **Load Python Module**: Load the desired version of Python.(This is only applied when using Katana)
     ```bash
     module load python/3.10.8
     ```
 
-    - **Create the Virtual Environment**: Create a virtual environment in your home directory.
+    - **Create the Virtual Environment**: Create a virtual environment in your home directory or current directory
     ```bash
     python3 -m venv /home/your_username/environments/pipeline1.5_env
+    ```
+    
+    If you're unsure about your current path, using the below command:
+
+    ```bash
+    pwd
+    ```
+    
+    Paste your output from 'pwd' to the following paste_here:
+
+    ```bash
+    python3 -m venv paste_here/pipeline1.5_env
     ```
 
     - **Activate the Virtual Environment**: Activate the created virtual environment.
     ```bash
     source /home/your_username/environments/pipeline1.5_env/bin/activate
     ```
-
+    Or:
+    ```bash
+    source paste_here/pipeline1.5_env/bin/activate
+    ```
+    
     - **Install Required Packages**: Install the necessary Python packages with pip.
     ```bash
     pip3 install pandas matplotlib
@@ -83,9 +99,12 @@ To run the `pipeline1.5.pbs` script, follow these steps:
     which matplotlib
     ```
 
-4. **Execute the Script**: Once you have modified the paths and set up the environment, save the file and submit it to your job scheduler. For example, use the following command:
+5. **Execute the Script**: Once you have modified the paths and set up the environment, save the file and submit it to your job scheduler. For example, use the following command:
     ```bash
+    #If you didn't book any CPU:
     qsub pipeline1.5.pbs
+    #If you didn book any CPU:
+    bash ./pipeline1.5.pbs
     ```
 
 ### Notes:
@@ -128,9 +147,20 @@ The main purpose of the `Compare.pbs` script is to analyze the gene coverage bet
 
 ### Step 2: Modifying and Executing `Compare.pbs`
 
+Function introduction: As you may find out yourself, if you don't really have an annotation gtf file rather than your personalized reference fasta, what you could do is to do the similar calculation on those data you could have at this stage. So Compare.pbs compare the difference of the coverage files you generated during step2 between experimental and control groups when you specify them into the correct directory.
+
+So let's continue!
+
 To run the `Compare.pbs` script, follow these steps:
 
-1. **Open the Script**: Open the file `Compare.pbs` in a text editor.
+1. **Open the Script**: Open the file `Compare.pbs` in a text editor, or whatever you can to edit the text, if you're a person of super natural, please use the command:
+
+Before running the script, you would be required to fully understand the functions of Nano command through, including how to edit and save it:
+https://ioflood.com/blog/nano-linux-command/#:~:text=To%20use%20the%20nano%20command,will%20create%20it%20for%20you.
+
+   ```bash
+    Nano Compare.pbs
+   ```
 
 2. **Modify Paths**:
     - Change **Line 25**: Locate the line that defines `EXPERIMENTAL_FOLDER` and replace it with the path to your experimental group's FASTQ parent folder. For example:
@@ -151,7 +181,7 @@ To run the `Compare.pbs` script, follow these steps:
     qsub Compare.pbs
     ```
 
-4. **Analysis**: Once you have executed the step3 above successfully, analyse it using the R script (Analysis.R) following command:
+5. **Analysis**: Once you have executed the step3 above successfully, analyse it using the R script (Analysis.R) following command:
    ```bash
     conda activate bioenv
     mkdir R_library
