@@ -130,7 +130,7 @@ To run the `pipeline1.5.pbs` script, follow these steps:
     ```
 ### Highly recommended!!!
     ```bash
-    #If you didn book any CPU, directly run:
+    #If you did book any CPU, directly run:
     bash ./pipeline1.5.pbs
     ```
 
@@ -203,11 +203,31 @@ https://ioflood.com/blog/nano-linux-command/#:~:text=To%20use%20the%20nano%20com
 
 
 3. **Execute the Script**: Once you have modified the paths, save the file and submit it to your job scheduler. For example, use the following command:
+```bash
+   #!/bin/bash
+    #how many CPU and Memory you would like to use when running:
+    #PBS -l select=1:ncpus=1:mem=4gb
+    #how much time you would like to use when running:
+    #PBS -l walltime=12:00:00
+    #how to let you know when to finish:
+    #PBS -M your.name.here@unsw.edu.au
+    #PBS -m ae
+    #PBS -j oe
+
+    #don't change it
+    cd $PBS_O_WORKDIR
+    #Make sure the name of the script you would to run is correct:
+    ./compare.pbs
+```
+
     ```bash
     #If you didn't book any CPU:
-    qsub Compare.pbs
-    #If you didn book any CPU:
-    bash ./Compare.pbs
+    qsub run.pbs
+    ```
+### Highly recommended!!!
+    ```bash
+    #If you did book any CPU, directly run:
+    bash ./compare.pbs
     ```
    
 ### Step3 Analysis: Once you have executed the step3 above successfully, analyse it using the R script (Analysis.R) following command:
