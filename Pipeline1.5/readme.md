@@ -38,8 +38,11 @@ To run the `pipeline1.5.pbs` script, follow these steps:
 2. **Modify Paths**:
     - Change **Line 31**: Locate the line that defines `FASTQ_FOLDER` and replace it with the path to your folder containing the FASTQ files. For example:
       ```bash
-      FASTQ_FOLDER="/path/to/your/fastq/files"
-      ```
+      #You can add as many folder as you want:
+        FASTQ_FOLDER=(
+            "/mnt/d/Bait_Glue/CRBN/glue/TON/240427"
+            "/mnt/d/Bait_Glue/CRBN/MB014/TON/230827")
+       ```
       This will be the folder path like below:
       
       ![image](https://github.com/user-attachments/assets/9cfb1d87-747c-4e3d-8f47-ec78c661b40b)
