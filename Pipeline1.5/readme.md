@@ -69,7 +69,8 @@ To run the `pipeline1.5.pbs` script, follow these steps:
 
     - **Create the Virtual Environment**: Create a virtual environment in your home directory or current directory
     ```bash
-    python3 -m venv /home/your_username/environments/pipeline1.5_env
+    python3 -m venv /home/z2123888/miniconda3/envs/my_conda (replace the red part with your zID)
+
     ```
     
     If you're unsure about your current path, using the below command:
