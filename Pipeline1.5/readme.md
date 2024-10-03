@@ -190,8 +190,11 @@ The following command illustrates how to intiate the environment and make a new 
    ```bash
     conda activate bioenv
     mkdir R_library
+    #Choose your favourite R version on the Katana server
     module load r/4.4.0
    ```
+![image](https://github.com/user-attachments/assets/1b616d91-ed8a-4f04-a898-c80ba191a47a)
+
 ### After you modified the path directory in the Analysis.R, run the R script through:
    
    ```bash
