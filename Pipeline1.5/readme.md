@@ -15,13 +15,25 @@ This pipeline script is designed to process high-throughput sequencing data by e
 
 5. **Sequence Extraction**: Based on the generated BED file, extracts specified regions from the reference sequences and saves them in FASTA format for further analysis and applications.
 
-This script provides an automated workflow for bioinformatics research, significantly increasing data processing efficiency while ensuring accuracy and consistency in the results.
+These scripts provides an automated workflow for bioinformatics research, significantly increasing data processing efficiency while ensuring accuracy and consistency in the results.
+
+### Overall of all the scripts you would go through here is shown in order below:
+
+pipeline1.5.pbs -> Compare.pbs -> Analysis.R
 
 ### Step 1: Modifying and Executing `pipeline1.5.pbs`
 
+Function introduction: Pipeline1.5.pbs is the script which goes through the working path you specified in the script, you need to edit and modify the working path in the script before running, please note, if you're using Katana, you would need to load several modules coz Katana is not able to remember the modules you used before——not like your local PC, but don't worry the stable versions of these modules have been comprehensive definied in the very begining of each script you would go through.
+
+In conclusion, what is going on in the pipeline1.5.pbs is to go through every rounds in your specified experimental folder and load all the fastq first, then it would be merging all the fastq files into one to accelerate the analysing process, more details are available in the start of the script.
+
+The software I recommend you to use is VS Code, you could download it via:https://code.visualstudio.com/.
+
+So let's start!
+
 To run the `pipeline1.5.pbs` script, follow these steps:
 
-1. **Open the Script**: Open the file `pipeline1.5.pbs` in a text editor.
+1. **Open the Script**: Open the file `pipeline1.5.pbs` in a text editor, if you're using Katana, you could also open the script in the VS Code.
 
 2. **Modify Paths**:
     - Change **Line 31**: Locate the line that defines `FASTQ_FOLDER` and replace it with the path to your folder containing the FASTQ files. For example:
