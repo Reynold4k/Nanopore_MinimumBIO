@@ -22,7 +22,9 @@
 # 1.Change the line 73 and 74 to your exp and control folders
 # 2.Change the line 80 ANNOTATION to your/ANNOTATION/path
 
-
+dir.create("/srv/scratch/z3546698/true/R_library", recursive = TRUE)
+.libPaths("/srv/scratch/z3546698/true/R_library")
+install.packages("BiocManager", lib = "/srv/scratch/z3546698/true/R_library")
 
 # List of required packages
 required_packages <- c(
