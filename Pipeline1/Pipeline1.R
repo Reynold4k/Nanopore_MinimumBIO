@@ -28,8 +28,7 @@ install.packages("BiocManager", lib = "/srv/scratch/z3546698/true/R_library")
 
 # List of required packages
 required_packages <- c(
-  "BiocManager", "Signac", "rtracklayer", "ggplot2", 
-  "Rsubread", "DESeq2", "edgeR", "dplyr", "tidyr"
+  "rtracklayer", "ggplot2", "Rsubread", "DESeq2","edgeR", "dplyr","tidyr"
 )
 
 # Function to check if a package is installed and install it if not
@@ -64,7 +63,6 @@ library(ggplot2)
 library(Rsubread)
 library(DESeq2)
 library(edgeR)
-library(ggplot2)
 library(dplyr)
 library(tidyr)
 
