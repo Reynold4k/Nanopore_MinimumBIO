@@ -48,7 +48,10 @@ qsub -I -l select=1:ncpus=24:mem=64gb -l walltime=04:00:00
 
 ## Setup Instructions
 
-1. Clone the repository or copy the script into your working directory.
+1. Clone the repository and copy the script into your working directory.
+For the data moving problems on Katana, please refere to: https://docs.restech.unsw.edu.au/
+
+   
 2. Download hg38 reference and annotation files via:
 
 ```bash
