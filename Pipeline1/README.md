@@ -272,7 +272,7 @@ module load r/4.4.0
  
 ```r
 #Path to your newly generated Routput folder
-plot_base_dir <- "/srv/scratch/z3546698/true/Routput"
+
 ```
 
 3.Change the line 80 ANNOTATION to your/ANNOTATION/path
