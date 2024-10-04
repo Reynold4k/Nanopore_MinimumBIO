@@ -37,44 +37,19 @@ To use a specific version of Rclone in your environment, you can list available 
 ## If you're using Katana UNSW, you can book an interactive CPU portal and then run the following command
 
 ```bash
-qsub -I -l select=1:ncpus=16:mem=128gb -l walltime=04:00:00
+qsub -I -l select=1:ncpus=24:mem=64gb -l walltime=04:00:00
 ```
 
 
-### Notes
-
-- **Module Availability**: Ensure all these modules are available on your current working path.
-
-- Check them by command module av "the module"
-  
-- **Version Compatibility**: Always check compatibility of module versions with your data and analysis workflow.
-
-
-**Reference Files**:
+**Reference and Annotation Files**:
 - Reference genome in FASTA format (e.g., `hg38.fa`).
 - Gene annotation file in GTF format (e.g., `hg38.ensGene.gtf`).
 
-## Installation Dependencies (If you're working on your local environment such as Ubuntu, if you're working with Katana, skip to usage instructions)
-
-To install necessary bioinformatics tools, you might require package managers like `conda` or `apt-get`:
-
-```bash
-# Create working environment with conda
-conda create -n bioenv porechop nanopolish bwa samtools subread
-conda activate bioenv
-
-```
-
-# Installation with apt-get
-```bash
-sudo apt-get install porechop bwa samtools
-```
 
 ## Setup Instructions
 
 1. Clone the repository or copy the script into your working directory.
-2. Ensure that the script and any additional scripts (`logo.sh`) are in the same directory.
-3. Download hg38 reference and annotation files via:
+2. Download hg38 reference and annotation files via:
 
 ```bash
 
@@ -85,7 +60,7 @@ gunzip hg38.fa.gz
 module load bwa/0.7.17
 
 #change the hg38.fa to your reference fasta
-bwa index hg38.fa
+bwa index -24 hg38.fa
 
 ```
 
