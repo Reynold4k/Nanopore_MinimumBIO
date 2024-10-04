@@ -73,8 +73,8 @@ If you want to use a different reference genome for the `bwa index` command inst
 
 ```bash
 
-bwa index -t 24 /path/to/your/reference_genome.fa
-bwa index -t 24 GRCh37.fa
+bwa index  24 /path/to/your/reference_genome.fa
+bwa index  24 GRCh37.fa
 
 ```
 
