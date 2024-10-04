@@ -234,23 +234,35 @@ https://ioflood.com/blog/nano-linux-command/#:~:text=To%20use%20the%20nano%20com
    
 The following command illustrates how to intiate the environment and make a new R library, this is important!!!
 
-### This is included in the R scripts:
- 1.Change the line 26, 27, 28 to the spare path which
+## What you what to modify:
+
+ 1.Change the line 12,13,14 to your/newly_created_library_for_R
 ```bash
 #Please replace the z3546698 with your own zid when running, for example:
 mkdir /srv/scratch/z3546698/R_library
+
 ```
 
-And then change the folder path of the Pipeline1.R in the lines 26, 27, 28
+And then change the folder path of the Pipeline1.R in the lines 12,13,14 with a text editor of Analysis.R
 
- 2.Change the line 73 and 74 to your exp and control folders
- 
+# 2.Change the line 17 EXPERIMENTAL_FOLDER to your/exp/fastq parent path
+
 ```r
-# The Path here should be in the same level as above Porechop_processing.pbs
-exp_base_path <- "/srv/scratch/z3546698/true/exp"
-
+# Set the experimental folder path
+EXPERIMENTAL_FOLDER <- "/mnt/d/Bait_Glue/VHL/MB012/TON/230827"
 ```
 
+# 3.Change the line 19 id_mapping to your/id_mapping_file, you could save the id_mapping file in your previous reference folder if you want to:
+
+```r
+id_mapping <- read.table("path/to/your/reference/idmapping_2024_10_01.tsv", 
+                         header = TRUE, 
+                         sep = "\t", 
+                         stringsAsFactors = FALSE, 
+                         fill = TRUE, 
+                         quote = "",  
+                         comment.char = "") 
+```
 
 
 Then run through the whole R scripts and check the result plots.
