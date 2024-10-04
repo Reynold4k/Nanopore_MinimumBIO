@@ -74,7 +74,7 @@ If you want to use a different reference genome for the `bwa index` command inst
 ```bash
 
 bwa index -t 24 /path/to/your/reference_genome.fa
-bwa index -t GRCh37.fa
+bwa index -t 24 GRCh37.fa
 
 ```
 
@@ -111,10 +111,6 @@ Example path for Danio rerio: "/path/to/your/directory/danRer11.refGene.gtf.gz"
 Make sure to decompress (.gz) files if needed and adjust the path accordingly.
 
 
-
-# For katana only
-4. Mount your OneDrive directories to your katana scratch, please refer to the official guidances:
-https://docs.restech.unsw.edu.au/
 
 
 ### Usage Instruction
