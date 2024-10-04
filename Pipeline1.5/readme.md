@@ -234,12 +234,33 @@ https://ioflood.com/blog/nano-linux-command/#:~:text=To%20use%20the%20nano%20com
    
 The following command illustrates how to intiate the environment and make a new R library, this is important!!!
 
-   ```bash
-    conda activate bioenv
-    mkdir R_library
-    #Choose your favourite R version on the Katana server
-    module load r/4.4.0
-   ```
+### This is included in the R scripts:
+ 1.Change the line 26, 27, 28 to the spare path which
+```bash
+#Please replace the z3546698 with your own zid when running, for example:
+mkdir /srv/scratch/z3546698/R_library
+```
+
+And then change the folder path of the Pipeline1.R in the lines 26, 27, 28
+
+ 2.Change the line 73 and 74 to your exp and control folders
+ 
+```r
+# The Path here should be in the same level as above Porechop_processing.pbs
+exp_base_path <- "/srv/scratch/z3546698/true/exp"
+
+```
+
+
+
+Then run through the whole R scripts and check the result plots.
+
+```bash
+
+module load r/4.4.0
+
+Rscript script.R
+```
 ![image](https://github.com/user-attachments/assets/1b616d91-ed8a-4f04-a898-c80ba191a47a)
 
 ### After you modified the path directory in the Analysis.R, run the R script through:
