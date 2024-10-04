@@ -19,8 +19,9 @@
 # This automated approach accelerates insights into complex RNA-seq datasets, facilitating data-driven decision-making in genomic studies.
 
 # What you need to modify:
-# 1.Change the line 73 and 74 to your exp and control folders
-# 2.Change the line 80 ANNOTATION to your/ANNOTATION/path
+# 1.Change the line 26, 27, 28 to the spare path which
+# 2.Change the line 73 and 74 to your exp and control folders
+# 3.Change the line 80 ANNOTATION to your/ANNOTATION/path
 
 dir.create("/srv/scratch/z3546698/true/R_library", recursive = TRUE)
 .libPaths("/srv/scratch/z3546698/true/R_library")
