@@ -62,9 +62,6 @@ wget https://hgdownload.soe.ucsc.edu/goldenPath/hg38/bigZips/hg38.fa.gz
 gunzip hg38.fa.gz
 module load bwa/0.7.17
 
-#change the hg38.fa to your reference fasta
-bwa index -t 24 hg38.fa
-
 ```
 
 ## Index your reference fasta files, this step must be conducted on your current portal to continue the next step
