@@ -73,8 +73,8 @@ If you want to use a different reference genome for the `bwa index` command inst
 
 ```bash
 
-bwa index  24 /path/to/your/reference_genome.fa
-bwa index  24 GRCh37.fa
+bwa index /path/to/your/reference_genome.fa
+bwa index GRCh37.fa
 
 ```
 
@@ -85,6 +85,7 @@ This section of commands performs two main actions: downloading and decompressin
 ```bash
 
 wget ftp://ftp.ensembl.org/pub/release-104/gtf/homo_sapiens/Homo_sapiens.GRCh38.110.gtf.gz
+
 ```
 
 **Decompress the GTF File**:
@@ -261,11 +262,13 @@ wget ftp://ftp.ensembl.org/pub/release-112/gtf/homo_sapiens/Homo_sapiens.GRCh38.
 
 ### This is included in the R scripts:
  1.Change the line 26, 27, 28 to the spare path which
-```r
+```bash
 #Please replace the z3546698 with your own zid when running, for example:
-/srv/scratch/z3546698/R_library
-
+mkdir /srv/scratch/z3546698/R_library
 ```
+
+And then change the folder path of the Pipeline1.R in the lines 26, 27, 28
+
  2.Change the line 73 and 74 to your exp and control folders
  
 ```r
