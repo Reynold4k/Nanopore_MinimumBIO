@@ -263,7 +263,11 @@ module load r/4.4.0
 
 ### This is included in the R scripts:
  1.Change the line 26, 27, 28 to the spare path which
+```r
+#Please replace the z3546698 with your own zid when running, for example:
+/srv/scratch/z3546698/R_library
 
+```
  2.Change the line 73 and 74 to your exp and control folders
  
 ```r
