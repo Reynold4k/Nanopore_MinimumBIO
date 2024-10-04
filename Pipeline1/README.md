@@ -60,7 +60,7 @@ gunzip hg38.fa.gz
 module load bwa/0.7.17
 
 #change the hg38.fa to your reference fasta
-bwa index -24 hg38.fa
+bwa index -t 24 hg38.fa
 
 ```
 
@@ -73,8 +73,8 @@ If you want to use a different reference genome for the `bwa index` command inst
 
 ```bash
 
-bwa index /path/to/your/reference_genome.fa
-bwa index GRCh37.fa
+bwa index -t 24 /path/to/your/reference_genome.fa
+bwa index -t GRCh37.fa
 
 ```
 
@@ -203,26 +203,6 @@ If run successfully, you'll see:
 ![image](https://github.com/user-attachments/assets/208572f3-bbff-4e30-acc2-107beacb8476)
 
 
-### Clean Step: Edit the Cleaning Script and Execute
-
-This script is designed to detect all expected output files generated from previous processing steps and, if all are confirmed to be present, it clears intermediate folders.
-#### Execution:
-
-1. Please edit the folder path with the same stratefy above in the step1,
-
-For example,
-FOLDER="/mnt/d/Small_Molecule/Biotin/T7MB-2/240421" 
-
-2. Save the script as `clear_intermediate.sh`.
-3. Ensure the script has execution permissions by running:
-   ```bash
-   chmod +x clear_intermediate.sh
-
-   ```
-4. Execute the cleaning script via:
-   ```bash
-   ./clear_intermediate.sh
-   ```
 
 
 #### Functionality of the Script:
