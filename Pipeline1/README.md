@@ -255,8 +255,6 @@ To download the `Homo_sapiens.GRCh38.112.gtf` file on a Linux system, use the fo
 
 wget ftp://ftp.ensembl.org/pub/release-112/gtf/homo_sapiens/Homo_sapiens.GRCh38.112.gtf.gz -P /path/to/your/directory
 
-module load r/4.4.0
-
 ```
 
 ## Then edit R scripts in the gtf path:
@@ -271,7 +269,9 @@ module load r/4.4.0
  2.Change the line 73 and 74 to your exp and control folders
  
 ```r
-#Path to your newly generated Routput folder
+# The Path here should be in the same level as above Porechop_processing.pbs
+exp_base_path <- "/srv/scratch/z3546698/true/exp"
+control_base_path <- "/srv/scratch/z3546698/true/control"
 
 ```
 
@@ -293,7 +293,10 @@ gtf_file <- "/path/to/your/directory/Homo_sapiens.GRCh38.112.gtf.gz"
 
 
 Then run through the whole R scripts and check the result plots.
+
 ```bash
+
+module load r/4.4.0
 
 Rscript script.R
 ```
