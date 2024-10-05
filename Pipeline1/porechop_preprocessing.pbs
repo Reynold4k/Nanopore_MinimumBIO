@@ -23,117 +23,119 @@ module load samtools/1.20
 module load subread/2.0.2
 module load seqkit/2.5.1  
 
-# Define paths
-FOLDER="/srv/scratch/z3546698/true/Small_Molecule/JQ1/T7MB-2/231104"  # Main directory path
-REFERENCE="/srv/scratch/z3546698/true/reference/hg38.fa"
-ANNOTATION="/srv/scratch/z3546698/true/reference/Homo_sapiens.GRCh38.110.gtf"
+# Define paths for multiple folder processing
+FOLDERS=(
+    "/srv/scratch/z3546698/tutorial/Small_Molecule/Biotin/Co/240511"
+    "/srv/scratch/z3546698/tutorial/Small_Molecule/JQ1/Co/240217"
+    # Add more directories as needed
+)
+REFERENCE="/srv/scratch/z3546698/tutorial/reference/hg38.fa"
+ANNOTATION="/srv/scratch/z3546698/tutorial/reference/Homo_sapiens.GRCh38.110.gtf"
 
-# Step 1: Merging, Processing with seqkit, and Trimming FASTQ files using Porechop
-echo "Trimming starts using Porechop......"
+for FOLDER in "${FOLDERS[@]}"; do
+  echo "Trimming starts using Porechop in folder $FOLDER......"
 
-find "$FOLDER" -type d -name "R*" | while IFS= read -r dir; do
-    echo "Processing directory: $dir"
+  find "$FOLDER" -type d -name "R*" | while IFS= read -r dir; do
+      echo "Processing directory: $dir"
 
-    # Define output merged file path
-    merged_file="$dir/all_sequences.fastq.gz"
-    seqprocessed_file="$dir/all_sequences_processed.fastq.gz"
+      # Define output merged file path
+      merged_file="$dir/all_sequences.fastq.gz"
+      seqprocessed_file="$dir/all_sequences_processed.fastq.gz"
 
-    # Initialize or clear the existing merged file
-    > "$merged_file"
+      # Initialize or clear the existing merged file
+      > "$merged_file"
 
-    # Find and merge all fastq files
-    find "$dir" -type f \( -name "*.fastq" -o -name "*.fastq.gz" \) -print0 | while IFS= read -r -d '' file; do
-        echo "Merging file: $file"
-        if [[ "$file" == *.gz ]]; then
-            zcat "$file" >> "$merged_file"
-        else
-            cat "$file" >> "$merged_file"
-        fi
-    done
+      # Find and merge all fastq files
+      find "$dir" -type f \( -name "*.fastq" -o -name "*.fastq.gz" \) -print0 | while IFS= read -r -d '' file; do
+          echo "Merging file: $file"
+          if [[ "$file" == *.gz ]]; then
+              zcat "$file" >> "$merged_file"
+          else
+              cat "$file" >> "$merged_file"
+          fi
+      done
 
-    # Check if merger was successful
-    if [ -s "$merged_file" ]; then
-        echo "Files merged into $merged_file."
+      if [ -s "$merged_file" ]; then
+          echo "Files merged into $merged_file."
 
-        # Process with seqkit
-        echo "Processing with seqkit for $merged_file"
-        seqkit replace -p "^((?:.*?\n){3}).*?(GATCCGAATTC[ACGTN].*$)(\n.*)" -r '$1$2$3' -o "$seqprocessed_file" "$merged_file"
-        echo "Sequences processed and saved to $seqprocessed_file"
+          # Process with seqkit
+          echo "Processing with seqkit for $merged_file"
+          seqkit replace -p "^((?:.*?\n){3}).*?(GATCCGAATTC[ACGTN].*$)(\n.*)" -r '$1$2$3' -o "$seqprocessed_file" "$merged_file"
+          echo "Sequences processed and saved to $seqprocessed_file"
 
-        # Remove original files, excluding processed/merged file
-        find "$dir" -type f \( -name "*.fastq" -o -name "*.fastq.gz" \) ! -name "all_sequences*.fastq.gz" -delete
+          find "$dir" -type f \( -name "*.fastq" -o -name "*.fastq.gz" \) ! -name "all_sequences*.fastq.gz" -delete
 
-        # Create step1 directory
-        step1_dir="$dir/step1"
-        mkdir -p "$step1_dir"
-        output_file="$step1_dir/all_trimmed.fastq.gz"
-        log_file="$step1_dir/porechop.log"
+          # Create step1 directory
+          step1_dir="$dir/step1"
+          mkdir -p "$step1_dir"
+          output_file="$step1_dir/all_trimmed.fastq.gz"
+          log_file="$step1_dir/porechop.log"
 
-        # Run Porechop, use seqprocessed file
-        porechop -i "$seqprocessed_file" -o "$output_file" -t 16 > "$log_file" 2>&1
-        echo "Trimmed $seqprocessed_file -> $output_file"
-        echo "Log saved to $log_file"
-    else
-        echo "Merging failed for $dir. Skipping to next."
-    fi
+          # Run Porechop
+          porechop -i "$seqprocessed_file" -o "$output_file" -t 24 > "$log_file" 2>&1
+          echo "Trimmed $seqprocessed_file -> $output_file"
+          echo "Log saved to $log_file"
+      else
+          echo "Merging failed for $dir. Skipping to next."
+      fi
+  done
+
+  echo "Trimming finished......."
+  echo "Quality Control in progress......."
+  find "$FOLDER" -type f -path "*/step1/*_trimmed.fastq.gz" | while read -r trimmed_file; do
+      quality_control_dir="$(dirname "$trimmed_file")/../quality_control"
+      mkdir -p "$quality_control_dir"
+      NanoPlot --fastq "$trimmed_file" --outdir "$quality_control_dir/$(basename "${trimmed_file%.fastq.gz}_nanop")"
+  done
+
+  echo "Quality Control finished........"
+
+  echo "Alignment and BAM file generation in progress......."
+  find "$FOLDER" -type f -path "*/step1/*_trimmed.fastq.gz" | while read -r trimmed_file; do
+      dir=$(dirname "$trimmed_file")
+      step1_dir="${dir}/../step1"
+      mkdir -p "$step1_dir"
+      basename=$(basename "$trimmed_file" .fastq.gz)
+      output_bam="$step1_dir/${basename}.bam"
+      bwa mem "$REFERENCE" "$trimmed_file" | samtools view -Sb - > "$output_bam"
+      echo "BAM file generated in step1 directory: $output_bam"
+  done
+
+  echo "Sorting and marking duplicates......."
+  find "$FOLDER" -type f -path "*/step1/*.bam" | while read -r bam_file; do
+      dir=$(dirname "$bam_file")
+      basename=$(basename "$bam_file" .bam)
+      step2_dir="${dir}/../step2"
+      mkdir -p "$step2_dir"
+      sorted_bam="${step2_dir}/${basename}_sorted.bam"
+      marked_bam="${step2_dir}/${basename}_marked.bam"
+
+      samtools sort -o "$sorted_bam" "$bam_file"
+      echo "Sorted BAM file: $sorted_bam"
+
+      samtools markdup "$sorted_bam" "$marked_bam"
+      echo "Marked duplicates in BAM file: $marked_bam"
+  done
+
+  echo "Sorting and marking duplicates finished......."
+
+  echo "Feature counting with featureCounts......."
+  find "$FOLDER" -mindepth 1 -maxdepth 1 -type d | while read -r r_folder; do
+      r_group=$(basename "$r_folder")
+      step2_dir="${r_folder}/step2"
+      step3_dir="${r_folder}/step3"
+      mkdir -p "$step3_dir"
+      mapfile -t bam_files < <(find "$step2_dir" -type f -name "*.bam")
+
+      if [ ${#bam_files[@]} -eq 0 ]; then
+          echo "No BAM files found in $step2_dir, skipping."
+          continue
+      fi
+
+      output_counts="${step3_dir}/${r_group}_combined_expression_counts.txt"
+      featureCounts -a "$ANNOTATION" -o "$output_counts" -T 4 "${bam_files[@]}"
+      echo "Combined feature counts for $r_group are in: $output_counts"
+  done
+
+  echo "All preprocessing done for folder $FOLDER. Please check the sequencing quality and expression counts reports!"
 done
-
-# Step 2 onward remains unchanged
-echo "Trimming finished......."
-echo "Quality Control in progress......."
-find "$FOLDER" -type f -path "*/step1/*_trimmed.fastq.gz" | while read -r trimmed_file; do
-    quality_control_dir="$(dirname "$trimmed_file")/../quality_control"
-    mkdir -p "$quality_control_dir"
-    NanoPlot --fastq "$trimmed_file" --outdir "$quality_control_dir/$(basename "${trimmed_file%.fastq.gz}_nanop")"
-done
-
-echo "Quality Control finished........"
-
-echo "Alignment and BAM file generation in progress......."
-find "$FOLDER" -type f -path "*/step1/*_trimmed.fastq.gz" | while read -r trimmed_file; do
-    dir=$(dirname "$trimmed_file")
-    step1_dir="${dir}/../step1"
-    mkdir -p "$step1_dir"
-    basename=$(basename "$trimmed_file" .fastq.gz)
-    output_bam="$step1_dir/${basename}.bam"
-    bwa mem "$REFERENCE" "$trimmed_file" | samtools view -Sb - > "$output_bam"
-    echo "BAM file generated in step1 directory: $output_bam"
-done
-
-echo "Sorting and marking duplicates......."
-find "$FOLDER" -type f -path "*/step1/*.bam" | while read -r bam_file; do
-    dir=$(dirname "$bam_file")
-    basename=$(basename "$bam_file" .bam)
-    step2_dir="${dir}/../step2"
-    mkdir -p "$step2_dir"
-    sorted_bam="${step2_dir}/${basename}_sorted.bam"
-    marked_bam="${step2_dir}/${basename}_marked.bam"
-
-    samtools sort -o "$sorted_bam" "$bam_file"
-    echo "Sorted BAM file: $sorted_bam"
-
-    samtools markdup "$sorted_bam" "$marked_bam"
-    echo "Marked duplicates in BAM file: $marked_bam"
-done
-
-echo "Sorting and marking duplicates finished......."
-
-echo "Feature counting with featureCounts......."
-find "$FOLDER" -mindepth 1 -maxdepth 1 -type d | while read -r r_folder; do
-    r_group=$(basename "$r_folder")
-    step2_dir="${r_folder}/step2"
-    step3_dir="${r_folder}/step3"
-    mkdir -p "$step3_dir"
-    mapfile -t bam_files < <(find "$step2_dir" -type f -name "*.bam")
-
-    if [ ${#bam_files[@]} -eq 0 ]; then
-        echo "No BAM files found in $step2_dir, skipping."
-        continue
-    fi
-
-    output_counts="${step3_dir}/${r_group}_combined_expression_counts.txt"
-    featureCounts -a "$ANNOTATION" -o "$output_counts" -T 4 "${bam_files[@]}"
-    echo "Combined feature counts for $r_group are in: $output_counts"
-done
-
-echo "All preprocessing done. Please check the sequencing quality and expression counts reports!"
