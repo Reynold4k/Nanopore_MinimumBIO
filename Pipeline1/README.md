@@ -84,7 +84,7 @@ This section of commands performs two main actions: downloading and decompressin
 
 ```bash
 
-wget ftp://ftp.ensembl.org/pub/release-104/gtf/homo_sapiens/Homo_sapiens.GRCh38.110.gtf.gz
+wget http://ftp.ensembl.org/pub/release-110/gtf/homo_sapiens/Homo_sapiens.GRCh38.110.gtf.gz
 
 ```
 
