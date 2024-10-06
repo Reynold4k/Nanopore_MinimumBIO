@@ -19,13 +19,17 @@
 # This automated approach accelerates insights into complex RNA-seq datasets, facilitating data-driven decision-making in genomic studies.
 
 # What you need to modify:
-# 1.Change the line 26, 27, 28 to the spare path which
-# 2.Change the line 73 and 74 to your exp and control folders
-# 3.Change the line 80 ANNOTATION to your/ANNOTATION/path
+# 1.Change the line 26 and 27 to your exp and control folders
+# 2.Change the line 31 ANNOTATION to your/ANNOTATION/path
 
-dir.create("/srv/scratch/z3546698/R_library", recursive = TRUE)
-.libPaths("/srv/scratch/z3546698/R_library")
-install.packages("BiocManager", lib = "/srv/scratch/z3546698/R_library")
+# Define paths
+exp_base_path <- "/srv/scratch/z3546698/true/exp"
+control_base_path <- "/srv/scratch/z3546698/true/control"
+
+
+# Read GTF file
+gtf_file <- "/srv/scratch/z3546698/true/reference/Homo_sapiens.GRCh38.110.gtf"  # Please replace with the actual path
+
 
 # List of required packages
 required_packages <- c(
@@ -69,15 +73,9 @@ library(tidyr)
 
 #Path to your newly generated Routput folder
 
-# Define paths
-exp_base_path <- "/srv/scratch/z3546698/true/exp"
-control_base_path <- "/srv/scratch/z3546698/true/control"
 
 # Output paths
 plot_base_dir <- file.path(exp_base_path, "Routput")  # Construct path to Routput in the experiment directory
-
-# Read GTF file
-gtf_file <- "/srv/scratch/z3546698/true/reference/Homo_sapiens.GRCh38.110.gtf"  # Please replace with the actual path
 
 
 
