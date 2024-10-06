@@ -60,38 +60,37 @@ To run the `pipeline1.5.pbs` script, follow these steps:
 ![image](https://github.com/user-attachments/assets/aeb9ee35-ca29-4b82-abae-15250df71707)
 
 
-3. **Set Up the Environment**: At the beginning of the script, add commands to load the required modules and set up a Python virtual environment. Follow these steps:
+3. **Set Up the Environment**: At the beginning of the script, add commands to load the required modules and set up a Conda environment. Follow these steps:
 
-    - **Load Python Module**: Load the desired version of Python.(This is only applied when using Katana)
+    - **Load Python Module**: Load the desired version of Python. (This is only applied when using Katana)
     ```bash
     module load python/3.10.8
     ```
 
-    - **Create the Virtual Environment**: Create a virtual environment in your home directory or current directory
+    - **Create the Conda Environment**: Create a Conda environment in your home directory.
     ```bash
-    python3 -m venv /home/z2123888/miniconda3/envs/my_conda (replace the red part with your zID)
-
+    conda create -n my_conda python=3.10
     ```
     
-    If you're unsure about your current path, using the below command:
+    If you're unsure about your current directory path, using the below command:
 
     ```bash
     pwd
     ```
     
-    Paste your output from 'pwd' to the following paste_here:
+    Use the environment name from the directory where you want it:
 
     ```bash
-    python3 -m venv paste_here/bioenv
+    conda create --prefix /your/current/directory/my_conda python=3.10
     ```
 
-    - **Activate the Virtual Environment**: Activate the created virtual environment.
+    - **Activate the Conda Environment**: Activate the created Conda environment.
     ```bash
-    source /home/your_username/environments/bioenv/bin/activate
+    conda activate my_conda
     ```
-    Or:
+    Or, if you used a specific path to create the environment, you can activate it with:
     ```bash
-    source paste_here/pipeline1.5_env/bin/activate
+    conda activate /your/current/directory/my_conda
     ```
     
     - **Install Required Packages**: Install the necessary Python packages with pip.
