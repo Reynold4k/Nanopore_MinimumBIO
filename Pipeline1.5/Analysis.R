@@ -9,9 +9,9 @@
 # 2.Change the line 17 EXPERIMENTAL_FOLDER to your/exp/fastq parent path
 # 3.Change the line 19 id_mapping to your/id_mapping_file
 
-dir.create("/srv/scratch/z3546698/true/R_library", recursive = TRUE)
-.libPaths("/srv/scratch/z3546698/true/R_library")
-install.packages("BiocManager", lib = "/srv/scratch/z3546698/true/R_library")
+dir.create("/srv/scratch/z3546698/R_library", recursive = TRUE)
+.libPaths("/srv/scratch/z3546698/R_library")
+install.packages("BiocManager", lib = "/srv/scratch/z3546698/R_library")
 
 # Set the experimental folder path
 EXPERIMENTAL_FOLDER <- "/mnt/d/Bait_Glue/VHL/MB012/TON/230827"
