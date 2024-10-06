@@ -349,7 +349,6 @@ pca_plot <- ggplot(pca_data, aes(x = PC1, y = PC2, color = Group, shape = Timepo
   )
 
 
-ggsave(file.path(plot_base_dir, "pca_plot.png"), plot = pca_plot, width = 8, height = 6)
 
 
 
@@ -392,9 +391,6 @@ line_plot <- ggplot(filtered_long_df, aes(x = Timepoint, y = Difference, color =
     legend.title = element_text(size = 18),  # Legend title size
     legend.text = element_text(size = 14)  # Legend text size
   )
-
-
-ggsave(file.path(plot_base_dir, "line_plot.png"), plot = line_plot, width = 8, height = 6)
 
 
 
@@ -543,4 +539,16 @@ volcano_plot <- ggplot(differences_df_named, aes(x = Normalized_Growth_LR_FR, y 
   )
 
                   
+# Output paths
+plot_base_dir <- file.path(exp_base_path, "Routput")
+
+# Ensure the directory exists or create it
+if (!dir.exists(plot_base_dir)) {
+  dir.create(plot_base_dir, recursive = TRUE)
+}
+                  
+
+# After creating plots, ensure you save them into the existing directory
+ggsave(file.path(plot_base_dir, "pca_plot.png"), plot = pca_plot, width = 8, height = 6)
+ggsave(file.path(plot_base_dir, "line_plot.png"), plot = line_plot, width = 8, height = 6)
 ggsave(file.path(plot_base_dir, "volcano_plot.png"), plot = volcano_plot, width = 8, height = 6)
