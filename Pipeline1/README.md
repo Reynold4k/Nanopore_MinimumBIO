@@ -339,7 +339,7 @@ module load r/4.4.0
 Rscript script.R
 ```
 
-If running successfully, you'll see:
+If running successfully, you'll find the plot in the path of "exp_base_path" and see:
 
 ![image](https://github.com/user-attachments/assets/f19b438f-63be-456b-b67c-76ca02b3641a)
 
