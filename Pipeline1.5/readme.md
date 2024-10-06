@@ -235,23 +235,18 @@ The following command illustrates how to intiate the environment and make a new 
 
 ## What you what to modify:
 
- 1.Change the line 12,13,14 to your/newly_created_library_for_R
-```bash
-#Please replace the z3546698 with your own zid when running, for example:
-mkdir /srv/scratch/z3546698/R_library
 
-```
 
 And then change the folder path of the Pipeline1.R in the lines 12,13,14 with a text editor of Analysis.R
 
-# 2.Change the line 17 EXPERIMENTAL_FOLDER to your/exp/fastq parent path
+## 1.Change the EXPERIMENTAL_FOLDER to your/exp/fastq parent path
 
 ```r
 # Set the experimental folder path
 EXPERIMENTAL_FOLDER <- "/mnt/d/Bait_Glue/VHL/MB012/TON/230827"
 ```
 
-# 3.Change the line 19 id_mapping to your/id_mapping_file, you could save the id_mapping file in your previous reference folder if you want to:
+## 2.Change the id_mapping to your/id_mapping_file, you could save the id_mapping file in your previous reference folder if you want to:
 
 ```r
 id_mapping <- read.table("path/to/your/reference/idmapping_2024_10_01.tsv", 
@@ -274,7 +269,6 @@ Rscript script.R
 ```
 
 
-![image](https://github.com/user-attachments/assets/1b616d91-ed8a-4f04-a898-c80ba191a47a)
 
 ### After you modified the path directory in the Analysis.R, run the R script through:
    
