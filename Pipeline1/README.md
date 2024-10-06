@@ -273,8 +273,8 @@ And then change the folder path of the Pipeline1.R in the lines 26, 27, 28
  
 ```r
 # The Path here should be in the same level as above Porechop_processing.pbs
-exp_base_path <- "/srv/scratch/z3546698/true/exp"
-control_base_path <- "/srv/scratch/z3546698/true/control"
+exp_base_path <- "/srv/scratch/z3546698/tutorial/Small_Molecule/JQ1/Co/240217"
+control_base_path <- "/srv/scratch/z3546698/tutorial/Small_Molecule/Biotin/Co/240217"
 
 ```
 
