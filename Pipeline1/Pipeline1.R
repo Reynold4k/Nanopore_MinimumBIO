@@ -30,6 +30,8 @@ control_base_path <- "/srv/scratch/z3546698/true/control"
 # Read GTF file
 gtf_file <- "/srv/scratch/z3546698/true/reference/Homo_sapiens.GRCh38.110.gtf"  # Please replace with the actual path
 
+install.packages("BiocManager")
+
 
 # List of required packages
 required_packages <- c(
