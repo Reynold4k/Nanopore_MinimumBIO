@@ -25,7 +25,7 @@
 
 dir.create("/srv/scratch/z3546698/R_library", recursive = TRUE)
 .libPaths("/srv/scratch/z3546698/R_library")
-install.packages("BiocManager", lib = "/srv/scratch/z3546698/true/R_library")
+install.packages("BiocManager", lib = "/srv/scratch/z3546698/R_library")
 
 # List of required packages
 required_packages <- c(
