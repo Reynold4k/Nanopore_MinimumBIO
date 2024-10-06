@@ -238,6 +238,41 @@ The pipeline produces the following outputs:
 
 ## step 4 Analysis of generated gene counts matrix: Updating 3 Paths in R and Bash Scripts
 
+**Set Up the Environment**: At the beginning of the script, add commands to load the required modules and set up a Conda environment. Follow these steps:
+
+    - **Load Python Module**: Load the desired version of Python. (This is only applied when using Katana)
+    ```bash
+    module load python/3.10.8
+    ```
+
+    - **Create the Conda Environment**: Create a Conda environment in your home directory.
+    ```bash
+    conda create -n my_conda python=3.10
+    ```
+    
+    If you're unsure about your current directory path, using the below command:
+
+    ```bash
+    pwd
+    ```
+    
+    Use the environment name from the directory where you want it:
+
+    ```bash
+    conda create --prefix /your/current/directory/my_conda python=3.10
+    ```
+
+    - **Activate the Conda Environment**: Activate the created Conda environment.
+    ```bash
+    conda activate my_conda
+    ```
+    Or, if you used a specific path to create the environment, you can activate it with:
+    ```bash
+    conda activate /your/current/directory/my_conda
+    ```
+
+
+
 In your R script, make sure that `exp_base_path` and `control_base_path` paths match the `FOLDER` path specified in the `porechop_preprocessing.sh` script. Below is an example of how you can configure these: 
 
 ```r
