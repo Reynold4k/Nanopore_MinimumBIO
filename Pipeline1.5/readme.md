@@ -272,8 +272,6 @@ id_mapping <- read.table("path/to/your/reference/idmapping_2024_10_01.tsv",
 Then run through the whole R scripts and check the result plots.
 
 ```bash
-conda install -c conda-forge bioconductor-biocmanager
-
 module load r/4.4.0
 
 Rscript script.R
