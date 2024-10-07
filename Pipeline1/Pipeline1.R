@@ -465,7 +465,6 @@ volcano_plot <- ggplot(results, aes(x = normalized_Growth_Rate, y = log_pvalue))
   labs(
     x = "Log10 Growth Rate",                 # x 轴标签
     y = "-log10(p-value)",            # y 轴标签
-    title = "Volcano Plot of Differential Gene Expression",  # 图标题
     color = "Gene Regulation",         # 图例标题
     size = "-log10(p-value)"          # 移除了大小说明
   ) +
@@ -473,11 +472,12 @@ volcano_plot <- ggplot(results, aes(x = normalized_Growth_Rate, y = log_pvalue))
             size = 3, vjust = -0.5, hjust = 0.5, check_overlap = TRUE) +  # 突出显示基因名称
   scale_size_continuous(range = c(2, 6)) +  # 调整点大小的范围
   theme(
-    plot.title = element_text(size = 14, face = "bold"),  # 标题设置
-    axis.title = element_text(size = 12),                 # 坐标轴标题设置
-    axis.text = element_text(size = 10),                   # 坐标轴文本大小设置
-    legend.title = element_text(size = 12),                # 图例标题设置
-    legend.text = element_text(size = 10)                  # 图例文本大小设置
+    plot.title = element_text(size = 14, face = "bold"), # Title size adjustment and bold
+    legend.position = "right",  # Adjust as needed
+    axis.title = element_text(size = 20),  # Axis title size
+    axis.text = element_text(size = 18),  # Axis text size
+    legend.title = element_text(size = 18),  # Legend title size
+    legend.text = element_text(size = 14)  # Legend text size
   )
 
 # Output paths
