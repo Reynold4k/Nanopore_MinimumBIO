@@ -24,11 +24,11 @@ module load minimap2/2.26
 
 # Define paths
 FASTQ_FOLDER=(
-    "/mnt/d/Bait_Glue/CRBN/glue/TON/240427"
-    "/mnt/d/Bait_Glue/CRBN/MB014/TON/230827"
-)
+    "/srv/scratch/z3546698/tutorial/Bait_Glue/VHL/MB015/TON/231124"
+    "/srv/scratch/z3546698/tutorial/Bait_Glue/VHL/No glue/TON/240427"
+)   
 
-REFERENCE="/mnt/d/Bait_Glue/TargetLibrary_cDNA.fasta"
+REFERENCE="/srv/scratch/z3546698/tutorial/reference/Ton.fa"
 
 # Define the pattern to match and replace
 PATTERN="^((?:.*?\n){3}).*?(GATCCGAATTC[ACGTN].*$)(\n.*)"
@@ -75,7 +75,7 @@ for folder in "${FASTQ_FOLDER[@]}"; do
         
             # Align reads to the reference genome with Minimap2 and create BAM file
             bam_file="${step2_dir}/aligned.bam"
-            minimap2 -ax map-ont "$REFERENCE" "$trimmed_file" | samtools view -Sb - > "$bam_file"
+            minimap2 -ax map-ont "$REFERENCE" "$seqprocessed_file" | samtools view -Sb - > "$bam_file"
 
             # Sort BAM file
             sorted_bam_file="${step2_dir}/aligned_sorted.bam"
@@ -159,7 +159,6 @@ for folder in "${FASTQ_FOLDER[@]}"; do
                 # Increment the counter
                 counter=$((counter + 1))
             done < "${step2_dir}/top_100_positions.txt"
-
         else
             echo "Necessary coverage file not found in $step2_dir. Skipping directory."
         fi
@@ -167,4 +166,3 @@ for folder in "${FASTQ_FOLDER[@]}"; do
 done
 
 echo "All directories processed."
-
