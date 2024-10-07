@@ -160,8 +160,6 @@ for folder in "${FASTQ_FOLDER[@]}"; do
                 counter=$((counter + 1))
             done < "${step2_dir}/top_100_positions.txt"
 
-            # Step 2: Initialize the output FASTA file
-            > "$output_fasta"  # Clear the output file
         else
             echo "Necessary coverage file not found in $step2_dir. Skipping directory."
         fi
