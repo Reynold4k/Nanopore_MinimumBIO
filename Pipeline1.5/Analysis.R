@@ -14,7 +14,6 @@ if (!dir.exists("~/R/libs")) dir.create("~/R/libs")
 install.packages("BiocManager", lib = "~/R/libs")
 install.packages("BiocManager")
 
-BiocManager::install(c("Matrix", "DelayedArray", "SummarizedExperiment", "rtracklayer", "DESeq2"))
 
 # Set the experimental folder path
 EXPERIMENTAL_FOLDER <- "/mnt/d/Bait_Glue/VHL/MB012/TON/230827"
