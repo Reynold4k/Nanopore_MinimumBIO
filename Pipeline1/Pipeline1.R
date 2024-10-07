@@ -34,9 +34,7 @@ options(repos = c(CRAN = "https://cran.r-project.org"))
 .libPaths(c("~/R/libs", .libPaths()))  
 if (!dir.exists("~/R/libs")) dir.create("~/R/libs")  
 install.packages("BiocManager", lib = "~/R/libs")
-install.packages("BiocManager")
 
-BiocManager::install(c("Matrix", "DelayedArray", "SummarizedExperiment", "rtracklayer", "DESeq2"))
 
 
 # List of required packages
