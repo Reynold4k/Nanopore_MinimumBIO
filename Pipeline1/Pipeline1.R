@@ -448,13 +448,22 @@ results$color_group <- ifelse(
 # Match gene names to results
 results$GeneName <- gene_info$GeneName[match(results$Gene, gene_info$GeneID)]
 
-# Filter for red and blue genes to highlight
 highlight_genes <- results %>%
   filter(color_group %in% c("Red", "Blue"))
 
+
+# Assume the average_cpm has already been computed for each gene
+average_cpm <- rowMeans(simplify2array(exp_cpm_normalized))  # Calculate average CPM for the experimental group
+
+# Convert the average CPM to log10 values and save to the results data frame
+results$log10_CPM <- log10(average_cpm + 1e-6)  # Add 1e-6 to avoid log10(0)
+
+# Use the absolute value of log10 CPM as the point size
+results$abs_log10_CPM <- abs(results$log10_CPM)  # Compute the absolute value of log10 CPM
+
 # Plot volcano plot
 volcano_plot <- ggplot(results, aes(x = normalized_Growth_Rate, y = log_pvalue)) +
-  geom_point(aes(color = color_group, size = log_pvalue), alpha = 0.6) +  # Use log_pvalue to control point size
+  geom_point(aes(color = color_group, size = abs_log10_CPM), alpha = 0.6) +  # Use absolute log10_CPM to control point size
   scale_color_manual(values = c("Red" = "red", 
                                 "Blue" = "blue", 
                                 "Not Significant" = "grey"),
@@ -466,7 +475,7 @@ volcano_plot <- ggplot(results, aes(x = normalized_Growth_Rate, y = log_pvalue))
     x = "Log10 Growth Rate",                 # x-axis label
     y = "-log10(p-value)",                   # y-axis label
     color = "Gene Regulation",                # Legend title
-    size = "-log10(p-value)"                 # Size legend
+    size = "Absolute Log10 CPM"              # Size legend
   ) +
   geom_text(data = highlight_genes, aes(label = GeneName),
             size = 3, vjust = -0.5, hjust = 0.5, check_overlap = TRUE) +  # Highlight gene names
@@ -478,7 +487,7 @@ volcano_plot <- ggplot(results, aes(x = normalized_Growth_Rate, y = log_pvalue))
     axis.text = element_text(size = 18),  # Axis text size
     legend.title = element_text(size = 18),  # Legend title size
     legend.text = element_text(size = 14)  # Legend text size
-  )
+  ) 
                            
 # Output paths
 plot_base_dir <- file.path(exp_base_path, "Routput")
