@@ -282,7 +282,6 @@ The pipeline produces the following outputs:
     ```
 
 
-
 In your R script, make sure that `exp_base_path` and `control_base_path` paths match the `FOLDER` path specified in the `porechop_preprocessing.sh` script. Below is an example of how you can configure these: 
 
 ```r
@@ -336,6 +335,7 @@ gtf_file <- "/path/to/your/directory/Homo_sapiens.GRCh38.112.gtf.gz"
 Then run through the whole R scripts and check the result plots.
 
 ```bash
+conda install -c conda-forge bioconductor-biocmanager
 
 module load r/4.4.0
 
