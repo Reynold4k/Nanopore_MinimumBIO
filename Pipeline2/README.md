@@ -124,6 +124,13 @@ For the pipeline2_1_PartB_pymol.pbs, you need to change:
 
 VISUAL_DIR="path to your potential_hit/visualization"  # Directory for visualizations
 
+#Or if you're using your personalized library, just specify it to your experimental folder to view the result faster
+
+#For example:
+VISUAL_DIR="/srv/scratch/z3546698/tutorial/Bait_Glue/VHL/MB015/TON/231124"  # Directory for visualizations
+
+
+
 GENOME_FASTA="Path to reference/hg38.fa"  # Reference FASTA file
 
 # Search the gene at uniprot website to check the right uniprot Id for each gene and edit:
