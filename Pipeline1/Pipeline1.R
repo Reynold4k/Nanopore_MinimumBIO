@@ -30,6 +30,12 @@ control_base_path <- "/srv/scratch/z3546698/true/control"
 # Read GTF file
 gtf_file <- "/srv/scratch/z3546698/true/reference/Homo_sapiens.GRCh38.110.gtf"  # Please replace with the actual path
 
+options(repos = c(CRAN = "https://cran.r-project.org"))
+.libPaths(c("~/R/libs", .libPaths()))  
+if (!dir.exists("~/R/libs")) dir.create("~/R/libs")  
+install.packages("BiocManager", lib = "~/R/libs")
+install.packages("BiocManager")
+
 install.packages("BiocManager")
 
 
