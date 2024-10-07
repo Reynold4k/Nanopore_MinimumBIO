@@ -36,7 +36,6 @@ if (!dir.exists("~/R/libs")) dir.create("~/R/libs")
 install.packages("BiocManager", lib = "~/R/libs")
 install.packages("BiocManager")
 
-install.packages("BiocManager")
 
 
 # List of required packages
