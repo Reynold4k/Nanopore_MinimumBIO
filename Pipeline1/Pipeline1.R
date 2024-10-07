@@ -35,8 +35,6 @@ options(repos = c(CRAN = "https://cran.r-project.org"))
 if (!dir.exists("~/R/libs")) dir.create("~/R/libs")  
 install.packages("BiocManager", lib = "~/R/libs")
 
-
-
 # List of required packages
 required_packages <- c(
   "GenomicRanges","rtracklayer", "ggplot2", "Rsubread", "DESeq2","edgeR", "dplyr","tidyr"
@@ -69,11 +67,14 @@ install_missing_packages <- function(packages) {
 install_missing_packages(required_packages)
 
 
-library(rtracklayer)
+library(Matrix)
+library(DelayedArray)
+library(MASS)
+library(mgcv)
+library(SummarizedExperiment)
 library(ggplot2)
-library(Rsubread)
 library(DESeq2)
-library(edgeR)
+library(rtracklayer)
 library(dplyr)
 library(tidyr)
 
@@ -81,8 +82,7 @@ library(tidyr)
 
 
 # Output paths
-plot_base_dir <- file.path(exp_base_path, "Routput")  # Construct path to Routput in the experiment directory
-
+plot_base_dir <- file.path(exp_base_path, "plots")  # Construct path to Routput in the experiment directory
 
 
 gtf_data <- import(gtf_file, format="gtf")
@@ -353,9 +353,6 @@ pca_plot <- ggplot(pca_data, aes(x = PC1, y = PC2, color = Group, shape = Timepo
   )
 
 
-
-
-
 library(ggplot2)
 
 # Define 20 colors
@@ -397,7 +394,6 @@ line_plot <- ggplot(filtered_long_df, aes(x = Timepoint, y = Difference, color =
   )
 
 
-
 first_timepoint <- timepoints[1]
 
 last_timepoint <- timepoints[length(timepoints)]
@@ -418,10 +414,18 @@ results <- data.frame(Gene=rownames(exp_LR), pvalue=NA)
 
 
 
+# Loop through each gene
 for (i in 1:nrow(exp_FR)) {
   # Extract expression values for each gene in first round and last round
   fr_values <- exp_FR[i, ]
   lr_values <- exp_LR[i, ]
+  
+  # Check for constant data
+  if (all(fr_values == fr_values[1]) && all(lr_values == lr_values[1])) {
+    warning(sprintf("Skipping constant data for gene: %s", rownames(exp_FR)[i]))
+    results$pvalue[i] <- NA  # Assign NA to p-value for constant data
+    next  # Skip to the next iteration
+  }
   
   # Perform unpaired t-test
   t_test_result <- t.test(fr_values, lr_values, paired = FALSE)
@@ -429,7 +433,6 @@ for (i in 1:nrow(exp_FR)) {
   # Extract and save the p-value
   results$pvalue[i] <- t_test_result$p.value
 }
-
 
 matching_genes <- intersect(rownames(differences_df_named), results$Gene)
 
@@ -498,31 +501,45 @@ differences_df_named <- differences_df_named[!is.na(differences_df_named$color_g
 highlight_genes <- differences_df_named %>%
   filter(color_group %in% c("Red", "Blue"))
 
-# Define a scaling function using a power transformation
+
+
+# Ensure no Inf values
+differences_df_named <- differences_df_named[is.finite(differences_df_named$Normalized_Growth_LR_FR), ]
+differences_df_named <- differences_df_named[is.finite(differences_df_named$log_pvalue), ]
+
+
+
 scale_size_adjust <- function(x) {
-  scale_min <- 0.1  # Small minimum size for near-zero values
-  scale_max <- 6   # Large maximum size for large values
-  power <- 4      # Power factor to intensify scaling
+  scale_min <- 0.1
+  scale_max <- 6
+  power <- 4
+
+  if (all(is.na(x))) {
+    return(rep(scale_min, length(x)))
+  }
   
-  # Normalize x between 0 and 1
-  norm_x <- (abs(x) - min(abs(x))) / (max(abs(x)) - min(abs(x)))
-  
-  # Use power transformation for scaling
+  # Ensure no infinite min/max
+  min_x <- min(x, na.rm = TRUE)
+  max_x <- max(x, na.rm = TRUE)
+  if (min_x == max_x) {
+    return(rep(scale_min, length(x)))
+  }
+
+  norm_x <- (x - min_x) / (max_x - min_x)
   scaled_size <- scale_min + (scale_max - scale_min) * (norm_x ^ power)
   return(scaled_size)
 }
 
-# Apply the function and plot
+
+# Set 'color_group' as factor to match with scale_color_manual levels
+differences_df_named$color_group <- factor(differences_df_named$color_group, levels = c("Red", "Blue", "Not Significant"))
+
 volcano_plot <- ggplot(differences_df_named, aes(x = Normalized_Growth_LR_FR, y = log_pvalue)) +
   geom_point(aes(color = color_group, size = scale_size_adjust(Normalized_Growth_LR_FR)), alpha = 1) +
   scale_color_manual(
     values = c("Red" = "red", 
                "Blue" = "blue",
-               "Not Significant" = "darkgrey"),
-    labels = c("Significantly Downregulated", 
-               "Not Significant", 
-               "Significantly Upregulated"),
-    guide = "none"  # hide this legend
+               "Not Significant" = "darkgrey")
   ) +
   theme_minimal() +
   labs(
@@ -530,19 +547,18 @@ volcano_plot <- ggplot(differences_df_named, aes(x = Normalized_Growth_LR_FR, y 
     y = "-log10(p-value)",
     title = paste("Volcano Plot of", exp_name),
     color = "Gene Regulation",
-    size = "Scaled Size"
+    size = "Effect Size"
   ) +
   geom_text(data = highlight_genes, aes(label = GeneName),
             size = 4, vjust = -0.5, hjust = 0.5, check_overlap = TRUE) +
   theme(
-    plot.title = element_text(size = 14, face = "bold"), # Title size adjustment and bold
+    plot.title = element_text(size = 14, face = "bold"),
     axis.title = element_text(size = 18),
     axis.text = element_text(size = 16),
     legend.title = element_text(size = 14),
     legend.text = element_text(size = 12)
   )
 
-                  
 # Output paths
 plot_base_dir <- file.path(exp_base_path, "Routput")
 
