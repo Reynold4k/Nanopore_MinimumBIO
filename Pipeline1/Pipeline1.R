@@ -395,66 +395,66 @@ line_plot <- ggplot(filtered_long_df, aes(x = Timepoint, y = Difference, color =
     legend.text = element_text(size = 14)  # Legend text size
   )
 
+# List all time points
+timepoints <- names(exp_cpm_normalized)  # Get a list of all time points from exp_cpm_normalized
 
-# 列出所有时间点
-timepoints <- names(exp_cpm_normalized)  # 从 exp_cpm_normalized 获取所有时间点的列表
-
-# 创建一个结果数据框以存储 p 值
+# Create a result data frame to store p-values
 results <- data.frame(Gene = rownames(exp_cpm_normalized[[1]]), pvalue = NA)
 
-# 遍历每个基因
+# Loop through each gene
 for (gene_index in 1:nrow(exp_cpm_normalized[[1]])) {
-  # 提取该基因在所有时间点的表达值
-  exp_values <- sapply(exp_cpm_normalized, function(x) x[gene_index, ])  # 从实验数据中提取
-  control_values <- sapply(control_cpm_normalized, function(x) x[gene_index, ])  # 从对照数据中提取
+  # Extract the expression values for this gene at all time points
+  exp_values <- sapply(exp_cpm_normalized, function(x) x[gene_index, ])  # Extract from experimental data
+  control_values <- sapply(control_cpm_normalized, function(x) x[gene_index, ])  # Extract from control data
   
-  # 执行非配对 t 检验
+  # Perform unpaired t-test
   t_test_result <- t.test(exp_values, control_values, paired = FALSE)
   
-  # 提取并保存 p 值
+  # Extract and save p-value
   results$pvalue[gene_index] <- t_test_result$p.value
 }
 
-# 将结果与原有的基因列表结合
+# Combine the results with the original gene list
 results$Gene <- rownames(exp_cpm_normalized[[1]])
 
-# 接下来，您可以进行显著性分析、计算生长率或生成火山图等
-# 例如：
+# Next, you can perform significance analysis, calculate growth rates, or generate volcano plots
+# For example:
 results$log_pvalue <- -log10(results$pvalue)
 
-# 计算生长率
+# Calculate growth rate
 results$Growth_Rate <- rowMeans(simplify2array(exp_cpm_normalized)) - rowMeans(simplify2array(control_cpm_normalized))
 
-# 对生长率进行 log10 转换
+# Log10 transformation for growth rate
 results$normalized_Growth_Rate <- ifelse(
-  results$Growth_Rate > 0,                       # 如果生长率为正
-  log10(results$Growth_Rate),                    # 直接使用 log10
-  -log10(-results$Growth_Rate + 1e-6)           # 对于负值，加1e-6以避免 log10(0) 的情况
+  results$Growth_Rate > 0,                       # If growth rate is positive
+  log10(results$Growth_Rate),                    # Use log10 directly
+  -log10(-results$Growth_Rate + 1e-6)           # For negative values, add a small constant to avoid log10(0) issues
 )
-# 计算 log_pvalue 以便在火山图中使用
+
+# Calculate log_pvalue for use in the volcano plot
 results$log_pvalue <- -log10(results$pvalue)
 
-# 创建 color_group 变量以标识显著的上调和下调基因
+# Create a color_group variable to indicate significantly upregulated and downregulated genes
 results$color_group <- ifelse(
   results$pvalue < 0.05,
   ifelse(
-    results$Growth_Rate > 0,   # 表达水平的上调
-    "Red",                    # 上调基因
-    "Blue"                    # 下调基因
+    results$Growth_Rate > 0,   # Upregulated gene
+    "Red",                    # Upregulated
+    "Blue"                    # Downregulated
   ),
-  "Not Significant"            # 不显著
+  "Not Significant"            # Not significant
 )
 
+# Match gene names to results
 results$GeneName <- gene_info$GeneName[match(results$Gene, gene_info$GeneID)]
 
-
-# 筛选出红色和蓝色的基因进行标记
+# Filter for red and blue genes to highlight
 highlight_genes <- results %>%
   filter(color_group %in% c("Red", "Blue"))
 
-# 绘制火山图
+# Plot volcano plot
 volcano_plot <- ggplot(results, aes(x = normalized_Growth_Rate, y = log_pvalue)) +
-  geom_point(aes(color = color_group, size = log_pvalue), alpha = 0.6) +  # 使用 log_pvalue 控制点的大小
+  geom_point(aes(color = color_group, size = log_pvalue), alpha = 0.6) +  # Use log_pvalue to control point size
   scale_color_manual(values = c("Red" = "red", 
                                 "Blue" = "blue", 
                                 "Not Significant" = "grey"),
@@ -463,14 +463,14 @@ volcano_plot <- ggplot(results, aes(x = normalized_Growth_Rate, y = log_pvalue))
                                 "Not Significant")) +
   theme_minimal() +
   labs(
-    x = "Log10 Growth Rate",                 # x 轴标签
-    y = "-log10(p-value)",            # y 轴标签
-    color = "Gene Regulation",         # 图例标题
-    size = "-log10(p-value)"          # 移除了大小说明
+    x = "Log10 Growth Rate",                 # x-axis label
+    y = "-log10(p-value)",                   # y-axis label
+    color = "Gene Regulation",                # Legend title
+    size = "-log10(p-value)"                 # Size legend
   ) +
   geom_text(data = highlight_genes, aes(label = GeneName),
-            size = 3, vjust = -0.5, hjust = 0.5, check_overlap = TRUE) +  # 突出显示基因名称
-  scale_size_continuous(range = c(2, 6)) +  # 调整点大小的范围
+            size = 3, vjust = -0.5, hjust = 0.5, check_overlap = TRUE) +  # Highlight gene names
+  scale_size_continuous(range = c(2, 6)) +  # Adjust the point size range
   theme(
     plot.title = element_text(size = 14, face = "bold"), # Title size adjustment and bold
     legend.position = "right",  # Adjust as needed
@@ -479,7 +479,7 @@ volcano_plot <- ggplot(results, aes(x = normalized_Growth_Rate, y = log_pvalue))
     legend.title = element_text(size = 18),  # Legend title size
     legend.text = element_text(size = 14)  # Legend text size
   )
-
+                           
 # Output paths
 plot_base_dir <- file.path(exp_base_path, "Routput")
 
