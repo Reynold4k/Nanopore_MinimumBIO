@@ -14,6 +14,7 @@ if (!dir.exists("~/R/libs")) dir.create("~/R/libs")
 install.packages("BiocManager", lib = "~/R/libs")
 install.packages("BiocManager")
 
+install.packages(c("Matrix", "DelayedArray", "MASS", "mgcv"))
 
 # Set the experimental folder path
 EXPERIMENTAL_FOLDER <- "/mnt/d/Bait_Glue/VHL/MB012/TON/230827"
