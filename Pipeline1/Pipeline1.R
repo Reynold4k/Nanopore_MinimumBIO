@@ -396,169 +396,88 @@ line_plot <- ggplot(filtered_long_df, aes(x = Timepoint, y = Difference, color =
   )
 
 
-first_timepoint <- timepoints[1]
+# 列出所有时间点
+timepoints <- names(exp_cpm_normalized)  # 从 exp_cpm_normalized 获取所有时间点的列表
 
-last_timepoint <- timepoints[length(timepoints)]
+# 创建一个结果数据框以存储 p 值
+results <- data.frame(Gene = rownames(exp_cpm_normalized[[1]]), pvalue = NA)
 
-differences_df_named$Growth_LR_FR <- differences_df_named[last_timepoint] - differences_df_named[first_timepoint]
-
-# Extract data for the first round & last round
-
-exp_FR <- exp_cpm_normalized[[first_timepoint]]
-
-exp_LR <- exp_cpm_normalized[[last_timepoint]]
-
-# Ensure data are columns of a matrix
-exp_FR <- as.matrix(exp_FR)
-exp_LR <- as.matrix(exp_LR)
-
-results <- data.frame(Gene=rownames(exp_LR), pvalue=NA)
-
-
-
-# Loop through each gene
-for (i in 1:nrow(exp_FR)) {
-  # Extract expression values for each gene in first round and last round
-  fr_values <- exp_FR[i, ]
-  lr_values <- exp_LR[i, ]
+# 遍历每个基因
+for (gene_index in 1:nrow(exp_cpm_normalized[[1]])) {
+  # 提取该基因在所有时间点的表达值
+  exp_values <- sapply(exp_cpm_normalized, function(x) x[gene_index, ])  # 从实验数据中提取
+  control_values <- sapply(control_cpm_normalized, function(x) x[gene_index, ])  # 从对照数据中提取
   
-  # Check for constant data
-  if (all(fr_values == fr_values[1]) && all(lr_values == lr_values[1])) {
-    warning(sprintf("Skipping constant data for gene: %s", rownames(exp_FR)[i]))
-    results$pvalue[i] <- NA  # Assign NA to p-value for constant data
-    next  # Skip to the next iteration
-  }
+  # 执行非配对 t 检验
+  t_test_result <- t.test(exp_values, control_values, paired = FALSE)
   
-  # Perform unpaired t-test
-  t_test_result <- t.test(fr_values, lr_values, paired = FALSE)
-  
-  # Extract and save the p-value
-  results$pvalue[i] <- t_test_result$p.value
+  # 提取并保存 p 值
+  results$pvalue[gene_index] <- t_test_result$p.value
 }
 
-matching_genes <- intersect(rownames(differences_df_named), results$Gene)
+# 将结果与原有的基因列表结合
+results$Gene <- rownames(exp_cpm_normalized[[1]])
 
-# Extract matching p-values
-matching_pvalues <- results$pvalue[results$Gene %in% matching_genes]
+# 接下来，您可以进行显著性分析、计算生长率或生成火山图等
+# 例如：
+results$log_pvalue <- -log10(results$pvalue)
 
-# Save matching p-values into differences_df_named
-differences_df_named$pvalue[rownames(differences_df_named) %in% matching_genes] <- matching_pvalues
+# 计算生长率
+results$Growth_Rate <- rowMeans(simplify2array(exp_cpm_normalized)) - rowMeans(simplify2array(control_cpm_normalized))
 
-
-differences_df_named$Growth_LR_FR <- differences_df_named[last_timepoint] - differences_df_named[first_timepoint]
-
-# Log transform the growth rate to manage outliers and improve distribution
-
-library(ggplot2)
-library(dplyr)
-                  
-epsilon <- 1e-6
-
-# Applying signed log transformation
-differences_df_named$Normalized_Growth_LR_FR <- ifelse(
-  differences_df_named$Growth_LR_FR > 0,
-  scale(log10(differences_df_named$Growth_LR_FR + 1)),
-  scale(-log10(-differences_df_named$Growth_LR_FR + 1))
+# 对生长率进行 log10 转换
+results$normalized_Growth_Rate <- ifelse(
+  results$Growth_Rate > 0,                       # 如果生长率为正
+  log10(results$Growth_Rate),                    # 直接使用 log10
+  -log10(-results$Growth_Rate + 1e-6)           # 对于负值，加1e-6以避免 log10(0) 的情况
 )
+# 计算 log_pvalue 以便在火山图中使用
+results$log_pvalue <- -log10(results$pvalue)
 
-
-differences_df_named$log_pvalue <- -log10(differences_df_named$pvalue)
-
-
-differences_df_named$color_group <- ifelse(
-  differences_df_named$pvalue < 0.05,
+# 创建 color_group 变量以标识显著的上调和下调基因
+results$color_group <- ifelse(
+  results$pvalue < 0.05,
   ifelse(
-    differences_df_named[[last_timepoint]] > 2 * differences_df_named[[first_timepoint]],
-    "Red",
-    ifelse(
-      differences_df_named[[last_timepoint]] < 0.5 * differences_df_named[[first_timepoint]], 
-      "Blue", 
-      "Not Significant"
-    )
+    results$Growth_Rate > 0,   # 表达水平的上调
+    "Red",                    # 上调基因
+    "Blue"                    # 下调基因
   ),
-  "Not Significant"
+  "Not Significant"            # 不显著
 )
 
-highlight_genes <- differences_df_named %>%
+results$GeneName <- gene_info$GeneName[match(results$Gene, gene_info$GeneID)]
+
+
+# 筛选出红色和蓝色的基因进行标记
+highlight_genes <- results %>%
   filter(color_group %in% c("Red", "Blue"))
 
-
-# Create the color_group variable under the new conditions.
-differences_df_named$color_group <- ifelse(
-  differences_df_named$pvalue < 0.05,
-  ifelse(
-    differences_df_named[[last_timepoint]] > 2 * differences_df_named[[first_timepoint]],
-    "Red",
-    ifelse(
-      differences_df_named[[last_timepoint]] < 0.5 * differences_df_named[[first_timepoint]], 
-      "Blue", 
-      "Not Significant"
-    )
-  ),
-  "Not Significant"
-)
-                  
-differences_df_named <- differences_df_named[!is.na(differences_df_named$color_group), ]
-
-highlight_genes <- differences_df_named %>%
-  filter(color_group %in% c("Red", "Blue"))
-
-
-
-# Ensure no Inf values
-differences_df_named <- differences_df_named[is.finite(differences_df_named$Normalized_Growth_LR_FR), ]
-differences_df_named <- differences_df_named[is.finite(differences_df_named$log_pvalue), ]
-
-
-
-scale_size_adjust <- function(x) {
-  scale_min <- 0.1
-  scale_max <- 6
-  power <- 4
-
-  if (all(is.na(x))) {
-    return(rep(scale_min, length(x)))
-  }
-  
-  # Ensure no infinite min/max
-  min_x <- min(x, na.rm = TRUE)
-  max_x <- max(x, na.rm = TRUE)
-  if (min_x == max_x) {
-    return(rep(scale_min, length(x)))
-  }
-
-  norm_x <- (x - min_x) / (max_x - min_x)
-  scaled_size <- scale_min + (scale_max - scale_min) * (norm_x ^ power)
-  return(scaled_size)
-}
-
-
-# Set 'color_group' as factor to match with scale_color_manual levels
-differences_df_named$color_group <- factor(differences_df_named$color_group, levels = c("Red", "Blue", "Not Significant"))
-
-volcano_plot <- ggplot(differences_df_named, aes(x = Normalized_Growth_LR_FR, y = log_pvalue)) +
-  geom_point(aes(color = color_group, size = scale_size_adjust(Normalized_Growth_LR_FR)), alpha = 1) +
-  scale_color_manual(
-    values = c("Red" = "red", 
-               "Blue" = "blue",
-               "Not Significant" = "darkgrey")
-  ) +
+# 绘制火山图
+volcano_plot <- ggplot(results, aes(x = normalized_Growth_Rate, y = log_pvalue)) +
+  geom_point(aes(color = color_group, size = log_pvalue), alpha = 0.6) +  # 使用 log_pvalue 控制点的大小
+  scale_color_manual(values = c("Red" = "red", 
+                                "Blue" = "blue", 
+                                "Not Significant" = "grey"),
+                     labels = c("Significantly Upregulated", 
+                                "Significantly Downregulated", 
+                                "Not Significant")) +
   theme_minimal() +
   labs(
-    x = "Growth Rate",
-    y = "-log10(p-value)",
-    title = paste("Volcano Plot of", exp_name),
-    color = "Gene Regulation",
-    size = "Effect Size"
+    x = "Log10 Growth Rate",                 # x 轴标签
+    y = "-log10(p-value)",            # y 轴标签
+    title = "Volcano Plot of Differential Gene Expression",  # 图标题
+    color = "Gene Regulation",         # 图例标题
+    size = "-log10(p-value)"          # 移除了大小说明
   ) +
   geom_text(data = highlight_genes, aes(label = GeneName),
-            size = 4, vjust = -0.5, hjust = 0.5, check_overlap = TRUE) +
+            size = 3, vjust = -0.5, hjust = 0.5, check_overlap = TRUE) +  # 突出显示基因名称
+  scale_size_continuous(range = c(2, 6)) +  # 调整点大小的范围
   theme(
-    plot.title = element_text(size = 14, face = "bold"),
-    axis.title = element_text(size = 18),
-    axis.text = element_text(size = 16),
-    legend.title = element_text(size = 14),
-    legend.text = element_text(size = 12)
+    plot.title = element_text(size = 14, face = "bold"),  # 标题设置
+    axis.title = element_text(size = 12),                 # 坐标轴标题设置
+    axis.text = element_text(size = 10),                   # 坐标轴文本大小设置
+    legend.title = element_text(size = 12),                # 图例标题设置
+    legend.text = element_text(size = 10)                  # 图例文本大小设置
   )
 
 # Output paths
