@@ -239,6 +239,16 @@ The pipeline produces the following outputs:
 ## step 4 Analysis of generated gene counts matrix: Updating 3 Paths in R and Bash Scripts
 
 **Set Up the Environment**: At the beginning of the script, add commands to load the required modules and set up a Conda environment. Follow these steps:
+    
+    - **Download miniconda**: 
+    ```bash
+    wget https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh
+    bash Miniconda3-latest-Linux-x86_64.sh
+    source ~/.bashrc
+    conda init
+    ```
+
+
 
     - **Load Python Module**: Load the desired version of Python. (This is only applied when using Katana)
     ```bash
