@@ -37,7 +37,9 @@ install.packages("BiocManager", lib = "~/R/libs")
 
 # List of required packages
 required_packages <- c(
-  "GenomicRanges","rtracklayer", "ggplot2", "Rsubread", "DESeq2","edgeR", "dplyr","tidyr"
+  "GenomicRanges", "rtracklayer", "ggplot2", "Rsubread",
+  "DESeq2", "edgeR", "dplyr", "tidyr", 
+  "Matrix", "DelayedArray", "MASS", "mgcv", "SummarizedExperiment"
 )
 
 # Function to check if a package is installed and install it if not
