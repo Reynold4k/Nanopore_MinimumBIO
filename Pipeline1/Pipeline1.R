@@ -36,6 +36,7 @@ if (!dir.exists("~/R/libs")) dir.create("~/R/libs")
 install.packages("BiocManager", lib = "~/R/libs")
 install.packages("BiocManager")
 
+install.packages(c("Matrix", "DelayedArray", "MASS", "mgcv"))
 
 
 # List of required packages
