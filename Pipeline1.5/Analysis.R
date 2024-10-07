@@ -15,6 +15,15 @@ install.packages("BiocManager")
 # Set the experimental folder path
 EXPERIMENTAL_FOLDER <- "/mnt/d/Bait_Glue/VHL/MB012/TON/230827"
 
+# Output paths
+plot_base_dir <- file.path(EXPERIMENTAL_FOLDER, "Routput")
+
+# Ensure the directory exists or create it
+if (!dir.exists(plot_base_dir)) {
+  dir.create(plot_base_dir, recursive = TRUE)
+}
+           
+
 id_mapping <- read.table("D:/Bait_Glue/idmapping_2024_10_01.tsv", 
                          header = TRUE, 
                          sep = "\t", 
