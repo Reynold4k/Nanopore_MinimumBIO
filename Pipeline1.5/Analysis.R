@@ -5,12 +5,15 @@
 # a volcano plot highlighting significant changes in gene expression between conditions.
 
 # What you what to modify:
-# 1.Change the line 13 path_lib to your/newly_created_library_for_R
-# 2.Change the line 16 EXPERIMENTAL_FOLDER to your/exp/fastq parent path
-# 3.Change the line 18 id_mapping to your/id_mapping_file
+# 1.Change the line 19 EXPERIMENTAL_FOLDER to your/exp/fastq parent path
+# 2.Change the line 30 id_mapping to your/id_mapping_file
 
-
+options(repos = c(CRAN = "https://cran.r-project.org"))
+.libPaths(c("~/R/libs", .libPaths()))  
+if (!dir.exists("~/R/libs")) dir.create("~/R/libs")  
+install.packages("BiocManager", lib = "~/R/libs")
 install.packages("BiocManager")
+
 
 # Set the experimental folder path
 EXPERIMENTAL_FOLDER <- "/mnt/d/Bait_Glue/VHL/MB012/TON/230827"
