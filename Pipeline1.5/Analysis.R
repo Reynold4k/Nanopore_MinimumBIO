@@ -16,7 +16,7 @@ install.packages("BiocManager")
 
 
 # Set the experimental folder path
-EXPERIMENTAL_FOLDER <- "/mnt/d/Bait_Glue/VHL/MB012/TON/230827"
+EXPERIMENTAL_FOLDER <- "/srv/scratch/z3546698/tutorial/Bait_Glue/VHL/MB002/TON/230819"
 
 # Output paths
 plot_base_dir <- file.path(EXPERIMENTAL_FOLDER, "Routput")
@@ -27,7 +27,7 @@ if (!dir.exists(plot_base_dir)) {
 }
            
 
-id_mapping <- read.table("D:/Bait_Glue/idmapping_2024_10_01.tsv", 
+id_mapping <- read.table("/srv/scratch/z3546698/tutorial/reference/idmapping_2024_10_01.tsv", 
                          header = TRUE, 
                          sep = "\t", 
                          stringsAsFactors = FALSE, 
@@ -37,7 +37,7 @@ id_mapping <- read.table("D:/Bait_Glue/idmapping_2024_10_01.tsv",
 
 # List of required packages
 required_packages <- c(
-  "GenomicRanges","rtracklayer", "ggplot2", "Rsubread", "DESeq2","edgeR", "dplyr","tidyr"
+  "GenomicRanges","rtracklayer", "ggplot2", "Rsubread", "DESeq2","edgeR", "dplyr","tidyr","readr"
 )
 
 # Function to check if a package is installed and install it if not
@@ -83,7 +83,6 @@ exp_name <- paste(rev(path_components)[1:3], collapse = "_")
 # Get all round directories
 round_dirs <- list.dirs(EXPERIMENTAL_FOLDER, full.names = TRUE, recursive = FALSE)
 
-# Initialize variable to store overall CPM for line plotting
 overall_CPM <- data.frame(Gene = character(), CPM = numeric(), Round = character(), stringsAsFactors = FALSE)
 
 # Loop through each round directory
@@ -98,8 +97,15 @@ for (round_dir in round_dirs) {
   # Read the differential coverage file without header
   df <- read.table(diff_coverage_file, header = FALSE, sep = "\t", stringsAsFactors = FALSE)
   
-  # Print the number of rows read
+  # Print the number of rows read and the first few lines to check the content
   print(paste("Number of rows read from", diff_coverage_file, ":", nrow(df)))
+  print(head(df))  # 打印前几行查看文件内容
+  
+  # Check if df has enough rows to set column names
+  if (nrow(df) < 2) {
+    warning(paste("Warning: Not enough data in", diff_coverage_file, ". Skipping."))
+    next  # If there's not enough data, skip
+  }
   
   # Set the last row as column names
   colnames(df) <- as.character(unlist(df[nrow(df), ]))
@@ -117,6 +123,9 @@ for (round_dir in round_dirs) {
   df <- df %>%
     mutate(across(-1, as.numeric))  # Convert all columns except the first one
   
+  # Check the structure of the dataframe
+  print(str(df))  # 打印数据框的结构以检查列名和数据类型
+  
   # Calculate totals for control and experimental
   total_control <- sum(df$Control_Coverage, na.rm = TRUE)
   total_exp <- sum(df$Experimental_Coverage, na.rm = TRUE)
@@ -127,15 +136,15 @@ for (round_dir in round_dirs) {
            CPM_EXP = (Experimental_Coverage / total_exp) * 1000000,
            Round = basename(round_dir))  # Add round information to the dataframe
   
-  # Check if df has the necessary columns before binding
-  if (!"X1" %in% names(df) || !"CPM_EXP" %in% names(df)) {
-    warning("Warning: Necessary columns 'X1' or 'CPM_EXP' are missing.")
+  # Check if appropriate columns are present before proceeding
+  if (!"Gene" %in% names(df) || !"CPM_EXP" %in% names(df)) {
+    warning("Warning: Necessary columns 'Gene' or 'CPM_EXP' are missing in the processed dataframe.")
     next  # Skip to next round if necessary columns are missing
   }
   
   # Prepare data for overall CPM line plot
   overall_CPM <- bind_rows(overall_CPM,
-                           data.frame(Gene = df$X1, CPM = df$CPM_EXP, Round = basename(round_dir))  # Use X1 as gene column if it is the first
+                           data.frame(Gene = df$Gene, CPM = df$CPM_EXP, Round = basename(round_dir))  # Assuming first column is 'Gene'
   )
   
   # Save updated dataframe
@@ -144,7 +153,8 @@ for (round_dir in round_dirs) {
   
   message(paste("Updated differential coverage saved to:", updated_file_path))
 }
-    
+
+
 
 df <- df %>%
   mutate(Gene_Match = sub("^([^_]*_[^_]*)_.*$", "\\1\\2", Gene))  
@@ -152,27 +162,25 @@ df <- df %>%
 # left connection with id_mapping
 df <- df %>%
   left_join(id_mapping, by = c("Gene_Match" = "From")) %>%
-  mutate(Gene = ifelse(is.na(Entry), Gene, 
-                       paste(Entry, sub("^[^_]*_[^_]*_", "", Gene), sep="_"))) 
+  mutate(Gene = ifelse(is.na(Entry.Name), Gene, 
+                       paste(Entry.Name, sub("^[^_]*_[^_]*_", "", Gene), sep="_"))) 
 
-# Extract the gene information
+# 提取第二个下划线前的内容
 overall_CPM <- overall_CPM %>%
   mutate(Gene_Match = sub("^([^_]*_[^_]*)_.*$", "\\1", Gene))  # 提取到第二个下划线前的内容
 
-# left connection with id_mapping
+# 使用 Gene_Match 列与 id_mapping 进行左连接
 overall_CPM <- overall_CPM %>%
   left_join(id_mapping, by = c("Gene_Match" = "From")) %>%
-  mutate(Gene = ifelse(is.na(Entry), Gene, 
-                       paste(Entry, sub("^[^_]*_[^_]*_", "", Gene), sep="_")))
-
-
+  mutate(Gene = ifelse(is.na(Entry.Name), Gene, 
+                       paste(Entry.Name, sub("^[^_]*_[^_]*_", "", Gene), sep="_")))
 
 # Select top 15 most variable genes based on absolute mean CPM
 top_genes <- overall_CPM %>%
   group_by(Gene) %>%
   summarise(mean_CPM = mean(CPM, na.rm = TRUE), .groups = 'drop') %>%
   arrange(desc(abs(mean_CPM))) %>%
-  slice_head(n = 15)  # Select top 15 based on the absolute value
+  slice_head(n = 10)  # Select top 15 based on the absolute value
 
 # Filter overall_CPM for top genes to plot
 top_genes_data <- overall_CPM %>%
@@ -197,7 +205,24 @@ line_plot <- ggplot(top_genes_data, aes(x = Round, y = CPM, group = Gene, color 
     legend.text = element_text(size = 14)   # Legend text size
   )
 
+
 ggsave(file.path(EXPERIMENTAL_FOLDER, "line_plot.png"), plot = line_plot, width = 8, height = 6)
+
+# Calculate log2foldchange and log10CPM for the last round's data
+df <- df %>%
+  mutate(
+    log2foldchange = log2(CPM_EXP / CPM_Control),
+    log10CPM = log10(abs(CPM_EXP - CPM_Control) + 1)  # 添加 +1 避免 log10(0)
+  ) %>%
+  # Delete the duplicated
+  filter(!is.infinite(log2foldchange) & !is.infinite(log10CPM)) %>%
+  mutate(
+    color = case_when(
+      log2foldchange < -1 ~ "blue",
+      log2foldchange > 1 ~ "red",
+      TRUE ~ "black"
+    )
+  )
 
 # Calculate log2foldchange and log10CPM for the last round's data
 df <- df %>%
@@ -239,3 +264,4 @@ volcano_plot <- ggplot(df, aes(x = log2foldchange, y = log10CPM)) +
   )
 
 ggsave(file.path(EXPERIMENTAL_FOLDER, "volcano_plot.png"), plot = volcano_plot, width = 8, height = 6)
+
