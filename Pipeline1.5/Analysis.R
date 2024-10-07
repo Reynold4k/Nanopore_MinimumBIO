@@ -37,7 +37,7 @@ id_mapping <- read.table("D:/Bait_Glue/idmapping_2024_10_01.tsv",
 
 # List of required packages
 required_packages <- c(
-  "BiocManager", "dplyr", "ggplot2", "readr"
+  "GenomicRanges","rtracklayer", "ggplot2", "Rsubread", "DESeq2","edgeR", "dplyr","tidyr"
 )
 
 # Function to check if a package is installed and install it if not
