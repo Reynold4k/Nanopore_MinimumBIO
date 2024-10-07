@@ -335,7 +335,6 @@ gtf_file <- "/path/to/your/directory/Homo_sapiens.GRCh38.112.gtf.gz"
 Then run through the whole R scripts and check the result plots.
 
 ```bash
-conda install -c conda-forge bioconductor-biocmanager
 
 module load r/4.4.0
 
