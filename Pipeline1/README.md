@@ -191,6 +191,20 @@ While trimming adapters from sequencing reads using Porechop, you may want to op
   # Standard output and errors
   --verbosity 1>> "$log_file" 2>> porechop_error.log
 
+
+### Before running, if you're having another known in-frame check sequence different from: GATCCGAATTCN
+
+Please replace the seqkit line in the porechop_preprocessing.sh with:
+
+```bash
+
+seqkit replace -p "^((?:.*?\n){3}).*?(your_in_frame_check_sequence)(\n.*)" -r '$1$2$3' -o "$seqprocessed_file" "$merged_file"
+
+For example:
+seqkit replace -p "^((?:.*?\n){3}).*?(GATCATTACTGAGCTATAGCTCATGCGGCCGC)(\n.*)" -r '$1$2$3' -o "$seqprocessed_file" "$merged_file"
+
+```
+
 ```bash 
 
 bash ./porechop_preprocessing.sh
