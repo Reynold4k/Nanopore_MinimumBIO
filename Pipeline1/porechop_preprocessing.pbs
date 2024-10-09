@@ -97,7 +97,7 @@ for FOLDER in "${FOLDERS[@]}"; do
       mkdir -p "$step1_dir"
       basename=$(basename "$trimmed_file" .fastq.gz)
       output_bam="$step1_dir/${basename}.bam"
-      bwa mem "$REFERENCE" "$trimmed_file" | samtools view -Sb - > "$output_bam"
+      bwa mem -t 24 "$REFERENCE" "$trimmed_file" | samtools view -Sb - > "$output_bam"
       echo "BAM file generated in step1 directory: $output_bam"
   done
 
