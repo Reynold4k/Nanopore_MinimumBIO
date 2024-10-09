@@ -37,8 +37,9 @@ To use a specific version of Rclone in your environment, you can list available 
 ## If you're using Katana UNSW, you can book an interactive CPU portal and then run the following command
 
 ```bash
-qsub -I -l select=1:ncpus=24:mem=64gb -l walltime=04:00:00
+qsub -I -l select=1:ncpus=64:mem=128gb -l walltime=04:00:00
 ```
+## Please Note! Ask for >100 Gb memory as this significantly speeds up the alignments
 
 
 **Reference and Annotation Files**:
