@@ -240,6 +240,8 @@ https://ioflood.com/blog/nano-linux-command/#:~:text=To%20use%20the%20nano%20com
     ```
    
 ### Step3 Analysis: Once you have executed the step3 above successfully, analyse it using the R script (Analysis.R) following command:
+
+## If you have a personalized library with gene names already existed in the reference file, please use "Analysis_withoutid.R"
    
 The following command illustrates how to intiate the environment and make a new R library, this is important!!!
 
