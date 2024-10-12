@@ -99,7 +99,7 @@ for (round_dir in round_dirs) {
   
   # Print the number of rows read and the first few lines to check the content
   print(paste("Number of rows read from", diff_coverage_file, ":", nrow(df)))
-  print(head(df))  # 打印前几行查看文件内容
+  print(head(df)) 
   
   # Check if df has enough rows to set column names
   if (nrow(df) < 2) {
@@ -124,7 +124,7 @@ for (round_dir in round_dirs) {
     mutate(across(-1, as.numeric))  # Convert all columns except the first one
   
   # Check the structure of the dataframe
-  print(str(df))  # 打印数据框的结构以检查列名和数据类型
+  print(str(df))  
   
   # Calculate totals for control and experimental
   total_control <- sum(df$Control_Coverage, na.rm = TRUE)
@@ -165,11 +165,11 @@ df <- df %>%
   mutate(Gene = ifelse(is.na(Gene.Names), Gene, 
                        paste(Gene.Names, sub("^[^_]*_[^_]*_", "", Gene), sep="_"))) 
 
-# 提取第二个下划线前的内容
+# extract the content before second underscore
 overall_CPM <- overall_CPM %>%
   mutate(Gene_Match = sub("^([^_]*_[^_]*)_.*$", "\\1", Gene))  # 提取到第二个下划线前的内容
 
-# 使用 Gene_Match 列与 id_mapping 进行左连接
+# Match the gene and find the exact gene names
 overall_CPM <- overall_CPM %>%
   left_join(id_mapping, by = c("Gene_Match" = "From")) %>%
   mutate(Gene = ifelse(is.na(Gene.Names), Gene, 
