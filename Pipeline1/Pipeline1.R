@@ -30,45 +30,6 @@ control_base_path <- "/srv/scratch/z3546698/true/control"
 # Read GTF file
 gtf_file <- "/srv/scratch/z3546698/true/reference/Homo_sapiens.GRCh38.110.gtf"  # Please replace with the actual path
 
-options(repos = c(CRAN = "https://cran.r-project.org"))
-.libPaths(c("~/R/libs", .libPaths()))  
-if (!dir.exists("~/R/libs")) dir.create("~/R/libs")  
-install.packages("BiocManager", lib = "~/R/libs")
-BiocManager::install(version = "3.19")
-
-# List of required packages
-required_packages <- c(
-  "GenomicRanges", "rtracklayer", "ggplot2", "Rsubread",
-  "DESeq2", "edgeR", "dplyr", "tidyr", 
-  "Matrix", "DelayedArray", "MASS", "mgcv", "SummarizedExperiment"
-)
-
-# Function to check if a package is installed and install it if not
-install_missing_packages <- function(packages) {
-  for (pkg in packages) {
-    if (!requireNamespace(pkg, quietly = TRUE)) {
-      if (pkg %in% rownames(installed.packages())) {
-        # If it's already installed just load it
-        library(pkg, character.only = TRUE)
-      } else {
-        # If it's not installed via Bioconductor, use install.packages for CRAN packages
-        if (pkg %in% c("ggplot2", "dplyr", "tidyr")) {
-          install.packages(pkg)
-        } else {
-          # Use BiocManager for Bioconductor packages
-          if (!requireNamespace("BiocManager", quietly = TRUE)) {
-            install.packages("BiocManager")
-          }
-          BiocManager::install(pkg)
-        }
-      }
-    }
-  }
-}
-
-# Check and install missing packages
-install_missing_packages(required_packages)
-
 
 library(Matrix)
 library(DelayedArray)
