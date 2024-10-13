@@ -6,7 +6,7 @@
 
 # What you what to modify:
 # 1.Change the line 19 EXPERIMENTAL_FOLDER to your/exp/fastq parent path
-# 2.Change the line 30 id_mapping to your/id_mapping_file
+# 2.Change the line 23 id_mapping to your/id_mapping_file
 
 
 # Load necessary libraries
