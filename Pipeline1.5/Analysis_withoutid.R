@@ -5,58 +5,12 @@
 # a volcano plot highlighting significant changes in gene expression between conditions.
 
 # What you what to modify:
-# 1.Change the line 19 EXPERIMENTAL_FOLDER to your/exp/fastq parent path
-
-
-options(repos = c(CRAN = "https://cran.r-project.org"))
-.libPaths(c("~/R/libs", .libPaths()))  
-if (!dir.exists("~/R/libs")) dir.create("~/R/libs")  
-install.packages("BiocManager", lib = "~/R/libs")
-install.packages("BiocManager")
+# 1.Change the line 12 EXPERIMENTAL_FOLDER to your/exp/fastq parent path
 
 
 # Set the experimental folder path
 EXPERIMENTAL_FOLDER <- "/srv/scratch/z3546698/tutorial/Bait_Glue/VHL/MB002/TON/230819"
            
-
-# Output paths
-plot_base_dir <- file.path(EXPERIMENTAL_FOLDER, "Routput")
-
-# Ensure the directory exists or create it
-if (!dir.exists(plot_base_dir)) {
-  dir.create(plot_base_dir, recursive = TRUE)
-}
-
-# List of required packages
-required_packages <- c(
-  "GenomicRanges", "rtracklayer", "ggplot2", "Rsubread", "DESeq2", "edgeR", "dplyr", "tidyr", "readr"
-)
-
-# Function to check if a package is installed and install it if not
-install_missing_packages <- function(packages) {
-  for (pkg in packages) {
-    if (!requireNamespace(pkg, quietly = TRUE)) {
-      if (pkg %in% rownames(installed.packages())) {
-        # If it's already installed just load it
-        library(pkg, character.only = TRUE)
-      } else {
-        # If it's not installed via Bioconductor, use install.packages for CRAN packages
-        if (pkg %in% c("ggplot2", "dplyr", "tidyr")) {
-          install.packages(pkg)
-        } else {
-          # Use BiocManager for Bioconductor packages
-          if (!requireNamespace("BiocManager", quietly = TRUE)) {
-            install.packages("BiocManager")
-          }
-          BiocManager::install(pkg)
-        }
-      }
-    }
-  }
-}
-
-# Check and install missing packages
-install_missing_packages(required_packages)
 
 # Load necessary libraries
 library(dplyr)
@@ -174,7 +128,6 @@ line_plot <- ggplot(top_genes_data, aes(x = Round, y = CPM, group = Gene, color 
   )
 
 
-ggsave(file.path(EXPERIMENTAL_FOLDER, "line_plot.png"), plot = line_plot, width = 8, height = 6)
 
 # Calculate log2foldchange and log10CPM for the last round's data
 df <- df %>%
@@ -231,4 +184,13 @@ volcano_plot <- ggplot(df, aes(x = log2foldchange, y = log10CPM)) +
     legend.text = element_text(size = 12)
   )
 
-ggsave(file.path(EXPERIMENTAL_FOLDER, "volcano_plot.png"), plot = volcano_plot, width = 8, height = 6)
+# Output paths
+plot_base_dir <- file.path(EXPERIMENTAL_FOLDER, "Routput")
+
+# Ensure the directory exists or create it
+if (!dir.exists(plot_base_dir)) {
+  dir.create(plot_base_dir, recursive = TRUE)
+}
+
+ggsave(file.path(plot_base_dir, "line_plot.png"), plot = line_plot, width = 8, height = 6)
+ggsave(file.path(plot_base_dir, "volcano_plot.png"), plot = volcano_plot, width = 8, height = 6)
