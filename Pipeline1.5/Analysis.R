@@ -13,6 +13,7 @@ options(repos = c(CRAN = "https://cran.r-project.org"))
 if (!dir.exists("~/R/libs")) dir.create("~/R/libs")  
 install.packages("BiocManager", lib = "~/R/libs")
 install.packages("BiocManager")
+BiocManager::install(version = "3.19")
 
 
 # Set the experimental folder path
