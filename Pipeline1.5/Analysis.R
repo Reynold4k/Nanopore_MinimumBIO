@@ -8,25 +8,17 @@
 # 1.Change the line 19 EXPERIMENTAL_FOLDER to your/exp/fastq parent path
 # 2.Change the line 30 id_mapping to your/id_mapping_file
 
-options(repos = c(CRAN = "https://cran.r-project.org"))
-.libPaths(c("~/R/libs", .libPaths()))  
-if (!dir.exists("~/R/libs")) dir.create("~/R/libs")  
-install.packages("BiocManager", lib = "~/R/libs")
-install.packages("BiocManager")
-BiocManager::install(version = "3.19")
+
+# Load necessary libraries
+library(dplyr)
+library(ggplot2)
+library(readr)
 
 
 # Set the experimental folder path
-EXPERIMENTAL_FOLDER <- "/srv/scratch/z3546698/tutorial/Bait_Glue/VHL/MB002/TON/230819"
+EXPERIMENTAL_FOLDER <- "/srv/scratch/z3546698/tutorial/Bait_Glue/VHL/MB015/TON/231124"
 
-# Output paths
-plot_base_dir <- file.path(EXPERIMENTAL_FOLDER, "Routput")
 
-# Ensure the directory exists or create it
-if (!dir.exists(plot_base_dir)) {
-  dir.create(plot_base_dir, recursive = TRUE)
-}
-           
 
 id_mapping <- read.table("/srv/scratch/z3546698/tutorial/reference/idmapping_2024_10_01.tsv", 
                          header = TRUE, 
@@ -36,41 +28,6 @@ id_mapping <- read.table("/srv/scratch/z3546698/tutorial/reference/idmapping_202
                          quote = "",  
                          comment.char = "") 
 
-# List of required packages
-required_packages <- c(
-  "GenomicRanges","rtracklayer", "ggplot2", "Rsubread", "DESeq2","edgeR", "dplyr","tidyr","readr"
-)
-
-# Function to check if a package is installed and install it if not
-install_missing_packages <- function(packages) {
-  for (pkg in packages) {
-    if (!requireNamespace(pkg, quietly = TRUE)) {
-      if (pkg %in% rownames(installed.packages())) {
-        # If it's already installed just load it
-        library(pkg, character.only = TRUE)
-      } else {
-        # If it's not installed via Bioconductor, use install.packages for CRAN packages
-        if (pkg %in% c("ggplot2", "dplyr", "tidyr")) {
-          install.packages(pkg)
-        } else {
-          # Use BiocManager for Bioconductor packages
-          if (!requireNamespace("BiocManager", quietly = TRUE)) {
-            install.packages("BiocManager")
-          }
-          BiocManager::install(pkg)
-        }
-      }
-    }
-  }
-}
-
-# Check and install missing packages
-install_missing_packages(required_packages)
-
-# Load necessary libraries
-library(dplyr)
-library(ggplot2)
-library(readr)
 
 
 
@@ -100,7 +57,7 @@ for (round_dir in round_dirs) {
   
   # Print the number of rows read and the first few lines to check the content
   print(paste("Number of rows read from", diff_coverage_file, ":", nrow(df)))
-  print(head(df)) 
+  print(head(df))  # 打印前几行查看文件内容
   
   # Check if df has enough rows to set column names
   if (nrow(df) < 2) {
@@ -163,18 +120,18 @@ df <- df %>%
 # left connection with id_mapping
 df <- df %>%
   left_join(id_mapping, by = c("Gene_Match" = "From")) %>%
-  mutate(Gene = ifelse(is.na(Gene.Names), Gene, 
-                       paste(Gene.Names, sub("^[^_]*_[^_]*_", "", Gene), sep="_"))) 
+  mutate(Gene = ifelse(is.na(Entry), Gene, 
+                       paste(Entry, sub("^[^_]*_[^_]*_", "", Gene), sep="_"))) 
 
-# extract the content before second underscore
+# 提取第二个下划线前的内容
 overall_CPM <- overall_CPM %>%
   mutate(Gene_Match = sub("^([^_]*_[^_]*)_.*$", "\\1", Gene))  # 提取到第二个下划线前的内容
 
-# Match the gene and find the exact gene names
+# 使用 Gene_Match 列与 id_mapping 进行左连接
 overall_CPM <- overall_CPM %>%
   left_join(id_mapping, by = c("Gene_Match" = "From")) %>%
-  mutate(Gene = ifelse(is.na(Gene.Names), Gene, 
-                       paste(Gene.Names, sub("^[^_]*_[^_]*_", "", Gene), sep="_")))
+  mutate(Gene = ifelse(is.na(Entry), Gene, 
+                       paste(Entry, sub("^[^_]*_[^_]*_", "", Gene), sep="_")))
 
 # Select top 15 most variable genes based on absolute mean CPM
 top_genes <- overall_CPM %>%
@@ -207,24 +164,6 @@ line_plot <- ggplot(top_genes_data, aes(x = Round, y = CPM, group = Gene, color 
   )
 
 
-ggsave(file.path(EXPERIMENTAL_FOLDER, "line_plot.png"), plot = line_plot, width = 8, height = 6)
-
-# Calculate log2foldchange and log10CPM for the last round's data
-df <- df %>%
-  mutate(
-    log2foldchange = log2(CPM_EXP / CPM_Control),
-    log10CPM = log10(abs(CPM_EXP - CPM_Control) + 1)  # 添加 +1 避免 log10(0)
-  ) %>%
-  # Delete the duplicated
-  filter(!is.infinite(log2foldchange) & !is.infinite(log10CPM)) %>%
-  mutate(
-    color = case_when(
-      log2foldchange < -1 ~ "blue",
-      log2foldchange > 1 ~ "red",
-      TRUE ~ "black"
-    )
-  )
-
 # Calculate log2foldchange and log10CPM for the last round's data
 df <- df %>%
   mutate(
@@ -253,7 +192,7 @@ volcano_plot <- ggplot(df, aes(x = log2foldchange, y = log10CPM)) +
   geom_text(data = label_df, aes(label = Gene),
             size = 4, vjust = -0.5, hjust = 0.5, check_overlap = TRUE) +
   labs(title = paste("Volcano Plot of", exp_name),
-    x = "Log2 Fold Change",
+       x = "Log2 Fold Change",
        y = "Log10 CPM") +
   theme_minimal() +
   theme(
@@ -264,4 +203,14 @@ volcano_plot <- ggplot(df, aes(x = log2foldchange, y = log10CPM)) +
     legend.text = element_text(size = 12)
   )
 
-ggsave(file.path(EXPERIMENTAL_FOLDER, "volcano_plot.png"), plot = volcano_plot, width = 8, height = 6)
+# Output paths
+plot_base_dir <- file.path(exp_base_path, "Routput")
+
+# Ensure the directory exists or create it
+if (!dir.exists(plot_base_dir)) {
+  dir.create(plot_base_dir, recursive = TRUE)
+}
+
+ggsave(file.path(plot_base_dir, "line_plot.png"), plot = line_plot, width = 8, height = 6)
+ggsave(file.path(plot_base_dir, "volcano_plot.png"), plot = volcano_plot, width = 8, height = 6)
+
