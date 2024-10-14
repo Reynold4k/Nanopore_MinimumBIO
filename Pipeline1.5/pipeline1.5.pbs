@@ -16,7 +16,6 @@
 # 1.Change the line 27 FASTQ_FOLDER to your/fastq/path
 # 2.Change the line 32 REFERENCE to your/reference/path
 
-#!/bin/bash
 module load porechop/0.2.4
 module load nanoplot/1.43.0
 module load samtools/1.20
