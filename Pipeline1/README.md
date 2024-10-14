@@ -306,8 +306,21 @@ gtf_file <- "/path/to/your/directory/Homo_sapiens.GRCh38.112.gtf.gz"
 Then run through the whole R scripts and check the result plots.
 
 ```bash
-
+#load r to a stable version has been passed the test
 module load r/4.4.0
+#To start R in the katana terminal
+R
+```
+
+```r
+#install packages in the R portal via commands:
+
+install.packages('gglpot2')
+install.packages('dplyr')
+install.packages('readr')
+```
+
+
 
 Rscript script.R
 ```
