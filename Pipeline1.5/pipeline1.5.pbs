@@ -16,6 +16,7 @@
 # 1.Change the line 31 FASTQ_FOLDER to your/fastq/path
 # 2.Change the line 36 REFERENCE to your/reference/path
 
+#!/bin/bash
 module load porechop/0.2.4
 module load nanoplot/1.43.0
 module load samtools/1.20
@@ -24,8 +25,8 @@ module load minimap2/2.26
 
 # Define paths
 FASTQ_FOLDER=(
-    "/srv/scratch/z3546698/tutorial/Bait_Glue/VHL/MB015/TON/231124"
     "/srv/scratch/z3546698/tutorial/Bait_Glue/VHL/No glue/TON/240427"
+    "/srv/scratch/z3546698/tutorial/Bait_Glue/VHL/MB015/TON/230827"
 )   
 
 REFERENCE="/srv/scratch/z3546698/tutorial/reference/Ton.fa"
@@ -131,16 +132,16 @@ for folder in "${FASTQ_FOLDER[@]}"; do
                 }
             }' "$coverage_file" > "${step2_dir}/positions.txt"
 
-            # Sort to get the top 100 genes by coverage
-            sort -k4,4nr "${step2_dir}/positions.txt" | head -n 100 > "${step2_dir}/top_100_positions.txt"
+            # Sort to get the top 1000 genes by coverage
+            sort -k4,4nr "${step2_dir}/positions.txt" | head -n 1000 > "${step2_dir}/top_1000_positions.txt"
 
-            # Now create BED files from the top 100 genes
+            # Now create BED files from the top 1000 genes
             visualization_dir="${step2_dir}/visualization"
             mkdir -p "$visualization_dir"  # Ensure visualization directory exists
 
             # Initialize a counter
             counter=0
-            max_bed_files=100
+            max_bed_files=1000
 
             while IFS=$'\t' read -r gene_id start end total_coverage; do
                 # Check if we've reached the maximum number of BED files
@@ -158,7 +159,7 @@ for folder in "${FASTQ_FOLDER[@]}"; do
 
                 # Increment the counter
                 counter=$((counter + 1))
-            done < "${step2_dir}/top_100_positions.txt"
+            done < "${step2_dir}/top_1000_positions.txt"
         else
             echo "Necessary coverage file not found in $step2_dir. Skipping directory."
         fi
