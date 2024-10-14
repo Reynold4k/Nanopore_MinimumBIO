@@ -120,8 +120,8 @@ df <- df %>%
 # left connection with id_mapping
 df <- df %>%
   left_join(id_mapping, by = c("Gene_Match" = "From")) %>%
-  mutate(Gene = ifelse(is.na(Entry), Gene, 
-                       paste(Entry, sub("^[^_]*_[^_]*_", "", Gene), sep="_"))) 
+  mutate(Gene = ifelse(is.na(Gene.Names), Gene, 
+                       paste(Gene.Names, sub("^[^_]*_[^_]*_", "", Gene), sep="_"))) 
 
 # 提取第二个下划线前的内容
 overall_CPM <- overall_CPM %>%
@@ -130,8 +130,8 @@ overall_CPM <- overall_CPM %>%
 # 使用 Gene_Match 列与 id_mapping 进行左连接
 overall_CPM <- overall_CPM %>%
   left_join(id_mapping, by = c("Gene_Match" = "From")) %>%
-  mutate(Gene = ifelse(is.na(Entry), Gene, 
-                       paste(Entry, sub("^[^_]*_[^_]*_", "", Gene), sep="_")))
+  mutate(Gene = ifelse(is.na(Gene.Names), Gene, 
+                       paste(Gene.Names, sub("^[^_]*_[^_]*_", "", Gene), sep="_")))
 
 # Select top 15 most variable genes based on absolute mean CPM
 top_genes <- overall_CPM %>%
