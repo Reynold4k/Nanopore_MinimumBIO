@@ -271,13 +271,21 @@ id_mapping <- read.table("path/to/your/reference/idmapping_2024_10_01.tsv",
 ```
 
 
-Then run through the whole R scripts and check the result plots.
+## 3.Load the R module at Katana and install packages that are not available:
 
 ```bash
 module load r/4.4.0
 
-Rscript script.R
+R
 ```
+
+```r
+install.packages('gglpot2')
+install.packages('dplyr')
+install.packages('readr')
+```
+### Answered "yes" to save workspace.
+### Then quit r q()
 
 
 
