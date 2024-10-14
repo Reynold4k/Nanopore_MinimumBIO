@@ -181,7 +181,7 @@ label_df <- df %>%
   arrange(desc(log10CPM)) %>%
   slice_head(n = 10)  # Top 20 by log10CPM among significant changes
 
-ggplot(df, aes(x = log2foldchange, y = log10CPM)) +
+volcano_plot <- ggplot(df, aes(x = log2foldchange, y = log10CPM)) +
   geom_point(aes(color = color), alpha = 0.5) +
   scale_color_identity() +  # Directly use specified colors
   geom_text(data = label_df, aes(label = Gene),
