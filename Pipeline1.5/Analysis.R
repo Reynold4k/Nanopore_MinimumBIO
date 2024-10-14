@@ -16,7 +16,7 @@ library(readr)
 
 
 # Set the experimental folder path
-EXPERIMENTAL_FOLDER <- "/srv/scratch/z3546698/tutorial/Bait_Glue/VHL/MB015/TON/231124"
+EXPERIMENTAL_FOLDER <- "/srv/scratch/z3546698/tutorial/Bait_Glue/VHL/MB015/TON/230827"
 
 
 
@@ -27,6 +27,11 @@ id_mapping <- read.table("/srv/scratch/z3546698/tutorial/reference/idmapping_202
                          fill = TRUE, 
                          quote = "",  
                          comment.char = "") 
+
+
+
+
+
 # Split the path into components
 path_components <- strsplit(EXPERIMENTAL_FOLDER, "/")[[1]]
 
@@ -115,8 +120,8 @@ df <- df %>%
 # left connection with id_mapping
 df <- df %>%
   left_join(id_mapping, by = c("Gene_Match" = "From")) %>%
-  mutate(Gene = ifelse(is.na(Gene.Names), Gene, 
-                       paste(Gene.Names, sub("^[^_]*_[^_]*_", "", Gene), sep="_"))) 
+  mutate(Gene = ifelse(is.na(Entry), Gene, 
+                       paste(Entry, sub("^[^_]*_[^_]*_", "", Gene), sep="_"))) 
 
 # 提取第二个下划线前的内容
 overall_CPM <- overall_CPM %>%
@@ -125,8 +130,8 @@ overall_CPM <- overall_CPM %>%
 # 使用 Gene_Match 列与 id_mapping 进行左连接
 overall_CPM <- overall_CPM %>%
   left_join(id_mapping, by = c("Gene_Match" = "From")) %>%
-  mutate(Gene = ifelse(is.na(Gene.Names), Gene, 
-                       paste(Gene.Names, sub("^[^_]*_[^_]*_", "", Gene), sep="_")))
+  mutate(Gene = ifelse(is.na(Entry), Gene, 
+                       paste(Entry, sub("^[^_]*_[^_]*_", "", Gene), sep="_")))
 
 # Select top 15 most variable genes based on absolute mean CPM
 top_genes <- overall_CPM %>%
@@ -175,16 +180,26 @@ df <- df %>%
     )
   )
 
-# Select top 10 genes to label by log10CPM where the color is either red or blue
-label_df <- df %>%
-  filter(color %in% c("red", "blue")) %>%
-  arrange(desc(log10CPM)) %>%
-  slice_head(n = 10)  # Top 20 by log10CPM among significant changes
+# Select top 10 genes by absolute log10CPM
+top_log10CPM <- df %>%
+  arrange(desc(abs(log10CPM))) %>%
+  slice_head(n = 10)
 
+# Select top 10 genes by absolute log2foldchange
+top_log2foldchange <- df %>%
+  arrange(desc(abs(log2foldchange))) %>%
+  slice_head(n = 10)
+
+# Combine both lists and remove duplicates
+label_df <- bind_rows(top_log10CPM, top_log2foldchange) %>%
+  distinct(Gene, .keep_all = TRUE)
+
+# Create the volcano plot
 volcano_plot <- ggplot(df, aes(x = log2foldchange, y = log10CPM)) +
   geom_point(aes(color = color), alpha = 0.5) +
   scale_color_identity() +  # Directly use specified colors
-  geom_text(data = label_df, aes(label = Gene),
+  geom_text(data = label_df %>% filter(color != "black"),     # Only keep genes that are not black
+            aes(label = Gene),
             size = 4, vjust = -0.5, hjust = 0.5, check_overlap = TRUE) +
   labs(title = paste("Volcano Plot of", exp_name),
        x = "Log2 Fold Change",
@@ -198,16 +213,6 @@ volcano_plot <- ggplot(df, aes(x = log2foldchange, y = log10CPM)) +
     legend.text = element_text(size = 12)
   )
 
-# Output paths
-plot_base_dir <- file.path(EXPERIMENTAL_FOLDER, "output")
 
-# Ensure the directory exists or create it
-if (!dir.exists(plot_base_dir)) {
-  dir.create(plot_base_dir, recursive = TRUE)
-}
-
-ggsave(file.path(plot_base_dir, "line_plot.png"), plot = line_plot, width = 8, height = 6)
-ggsave(file.path(plot_base_dir, "volcano_plot.png"), plot = volcano_plot, width = 8, height = 6)
-
-
-
+ggsave(file.path(EXPERIMENTAL_FOLDER, "line_plot.png"), plot = line_plot, width = 8, height = 6)
+ggsave(file.path(EXPERIMENTAL_FOLDER, "volcano_plot.png"), plot = volcano_plot, width = 8, height = 6)
