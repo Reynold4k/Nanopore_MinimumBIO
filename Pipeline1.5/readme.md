@@ -274,20 +274,21 @@ id_mapping <- read.table("path/to/your/reference/idmapping_2024_10_01.tsv",
 ## 3.Load the R module at Katana and install packages that are not available:
 
 ```bash
+#load r to a stable version has been passed the test
 module load r/4.4.0
-
+#To start R in the katana terminal
 R
 ```
 
 ```r
+#install packages in the R portal via commands:
+
 install.packages('gglpot2')
 install.packages('dplyr')
 install.packages('readr')
 ```
 ### Answered "yes" to save workspace.
 ### Then quit r q()
-
-
 
 ### After you modified the path directory in the Analysis.R, run the R script through:
    
