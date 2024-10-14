@@ -199,7 +199,7 @@ ggplot(df, aes(x = log2foldchange, y = log10CPM)) +
   )
 
 # Output paths
-plot_base_dir <- file.path(EXPERIMENTAL_FOLDER, "Routput")
+plot_base_dir <- file.path(EXPERIMENTAL_FOLDER, "output")
 
 # Ensure the directory exists or create it
 if (!dir.exists(plot_base_dir)) {
