@@ -16,7 +16,7 @@ library(readr)
 
 
 # Set the experimental folder path
-EXPERIMENTAL_FOLDER <- "/srv/scratch/z3546698/tutorial/Bait_Glue/VHL/MB015/TON/230827"
+EXPERIMENTAL_FOLDER <- "/srv/scratch/z3546698/tutorial/Small_Molecule/FK506/T7pep/240824"
 
 
 
