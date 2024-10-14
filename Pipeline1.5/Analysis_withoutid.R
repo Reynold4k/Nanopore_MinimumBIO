@@ -184,13 +184,7 @@ volcano_plot <- ggplot(df, aes(x = log2foldchange, y = log10CPM)) +
     legend.text = element_text(size = 12)
   )
 
-# Output paths
-plot_base_dir <- file.path(EXPERIMENTAL_FOLDER, "Routput")
 
-# Ensure the directory exists or create it
-if (!dir.exists(plot_base_dir)) {
-  dir.create(plot_base_dir, recursive = TRUE)
-}
 
-ggsave(file.path(plot_base_dir, "line_plot.png"), plot = line_plot, width = 8, height = 6)
-ggsave(file.path(plot_base_dir, "volcano_plot.png"), plot = volcano_plot, width = 8, height = 6)
+ggsave(file.path(EXPERIMENTAL_FOLDER, "line_plot.png"), plot = line_plot, width = 8, height = 6)
+ggsave(file.path(EXPERIMENTAL_FOLDER, "volcano_plot.png"), plot = volcano_plot, width = 8, height = 6)
