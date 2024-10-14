@@ -13,8 +13,8 @@
 
 
 # What you what to modify:
-# 1.Change the line 31 FASTQ_FOLDER to your/fastq/path
-# 2.Change the line 36 REFERENCE to your/reference/path
+# 1.Change the line 27 FASTQ_FOLDER to your/fastq/path
+# 2.Change the line 32 REFERENCE to your/reference/path
 
 #!/bin/bash
 module load porechop/0.2.4
