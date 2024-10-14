@@ -319,11 +319,14 @@ install.packages('gglpot2')
 install.packages('dplyr')
 install.packages('readr')
 ```
+### Answered "yes" to save workspace.
+### Then quit r q()
 
-
-
-Rscript script.R
-```
+### After you modified the path directory in the Analysis.R, run the R script through:
+   
+   ```bash
+    Rscript Analysis.R
+   ``` 
 
 If running successfully, you'll find the plot in the path of "exp_base_path" and see:
 
