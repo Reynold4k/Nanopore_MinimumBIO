@@ -30,9 +30,6 @@ Ensure your system meets the following requirements before running the pipeline:
 
 - **Operating System**: Linux or compatible environment.
 
-## Rclone Example
-
-To use a specific version of Rclone in your environment, you can list available versions and load the desired one as shown below:
 
 ## If you're using Katana UNSW, you can book an interactive CPU portal and then run the following command
 
@@ -48,6 +45,8 @@ qsub -I -l select=1:ncpus=64:mem=128gb -l walltime=04:00:00
 
 
 ## Setup Instructions
+
+## Sometimes the rclone mount would not be able to mount all the data correctly, just make sure that rclone mount is working properly.
 
 1. Clone the repository and copy the script into your working directory.
 For the data moving problems on Katana, please refere to: https://docs.restech.unsw.edu.au/
