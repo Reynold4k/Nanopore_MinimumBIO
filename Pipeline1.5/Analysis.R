@@ -149,8 +149,8 @@ top_genes_data$Gene <- factor(top_genes_data$Gene, levels = top_genes$Gene[order
 
 # Create the line plot only for the top 15 genes using CPM, with the legend ordered by mean CPM
 line_plot <- ggplot(top_genes_data, aes(x = Round, y = CPM, group = Gene, color = Gene)) +
-  geom_line() +
-  geom_point() +
+  geom_line(linewidth = 1.2) +  # Set line thickness  
+  geom_point(size = 3) +  # Set point size
   xlab("Round") +
   ylab("CPM") +
   theme(axis.text.x = element_text(angle = 90, hjust = 1)) +
