@@ -20,7 +20,7 @@ EXPERIMENTAL_FOLDER <- "/srv/scratch/z3546698/tutorial/Small_Molecule/FK506/T7pe
 
 
 
-id_mapping <- read.table("/srv/scratch/z3546698/tutorial/reference/idmapping_2024_10_01.tsv", 
+id_mapping <- read.table("D:/Bait_Glue/2024_10_15.tsv", 
                          header = TRUE, 
                          sep = "\t", 
                          stringsAsFactors = FALSE, 
