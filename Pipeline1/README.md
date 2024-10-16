@@ -327,6 +327,97 @@ install.packages('readr')
     Rscript Analysis.R
    ``` 
 
+# R Script Adjustment Guide
+
+This README provides instructions on adjusting the R script to modify PCA visualizations, color thresholds, and plot parameters for your RNA-seq data analysis. Follow these guidelines to customize your visual aspects effectively.
+
+## Adjusting PCA Plot Parameters
+
+To modify the appearance of the PCA plot, you can change various aesthetics and parameters.
+
+- **Point Size in PCA Plot**: Change the size of the points to improve visibility in the PCA visualization.
+  ```r
+  geom_point(size = 5) +  # Adjust the point size
+  ```
+
+- **Color and Shape Aesthetics**: You can define colors and shapes based on sample grouping or timepoints.
+  ```r
+  aes(color = Group, shape = Timepoint)  # Change aes mappings as needed
+  ```
+
+- **Theme and Labels**: Customize the overall look by modifying the theme and axis titles for better clarity.
+  ```r
+  labs(title = paste(exp_name),
+       x = "Principal Component 1",
+       y = "Principal Component 2") +
+  theme(
+    plot.title = element_text(size = 14, face = "bold"),
+    axis.title = element_text(size = 18),
+    axis.text = element_text(size = 16)
+  )
+  ```
+
+## Adjusting Color Thresholds
+
+To change the criteria for color coding based on differential expression, edit the `case_when()` function in the script. This function determines which genes are considered significantly upregulated or downregulated.
+
+### Color Assignment
+
+- **Threshold for Color Coding**: Adjust the following code to set different cutoffs for coloring genes based on their expression changes.
+  ```r
+  mutate(
+    color = case_when(
+      log2foldchange < -1 ~ "blue",    # Modify this threshold for down-regulation
+      log2foldchange > 1 ~ "red",      # Modify this threshold for up-regulation
+      TRUE ~ "black"                   # Default color for no significant change
+    )
+  )
+  ```
+
+## Adjusting Plot Parameters
+
+Adjusting plot aesthetics involves setting graphical parameters in ggplot functions. Here’s how you can change various aspects:
+
+### Line Plot Parameters
+
+- **Line and Point Size**: Change the `size` parameter in `geom_line()` and `geom_point()` to control how thick lines and how big the points appear in your line plots.
+  ```r
+  geom_line(size = 1.2)  # Increase or decrease for thicker or thinner lines
+  geom_point(size = 3)   # Adjust for larger or smaller points
+  ```
+
+- **Text and Aesthetic Themes**: Utilize the `theme()` function to modify text sizes and positioning according to your presentation needs.
+  ```r
+  theme(
+    axis.text.x = element_text(size = 18, angle = 90, hjust = 1),  # Adjust 'size' and 'angle'
+    plot.title = element_text(size = 14, face = "bold"),           # Modify 'size' for the title
+    axis.title = element_text(size = 20),                          # Change 'size' for axis titles
+    legend.title = element_text(size = 18),                        # Update 'size' for legend titles
+    legend.text = element_text(size = 14)                          # Set 'size' for legend text
+  )
+  ```
+
+### Volcano Plot Parameters
+
+- **Point Size and Alpha (Opacity)**: These are set in `geom_point()` where you can control the size and transparency of the points in the volcano plot.
+  ```r
+  geom_point(aes(color = color), alpha = 0.5, size = 5)  # Adjust 'size' and 'alpha'
+  ```
+
+- **Y-axis Limits and Theme**: Set y-axis limits using `ylim()` and adjust thematic elements using `theme_minimal()` and `theme()`.
+  ```r
+  ylim(1, 6)  # Modify y-axis bounds if necessary
+  theme_minimal() +
+  theme(
+    plot.title = element_text(size = 14, face = "bold"),
+    axis.title = element_text(size = 18),
+    axis.text = element_text(size = 24),
+    legend.title = element_text(size = 14),
+    legend.text = element_text(size = 12)
+  )
+  ```
+
+
 If running successfully, you'll find the plot in the path of "exp_base_path" and see:
 
 ![image](https://github.com/user-attachments/assets/55010a3a-9f57-4faf-9632-379250f51131)
