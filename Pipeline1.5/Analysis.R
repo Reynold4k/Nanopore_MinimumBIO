@@ -57,7 +57,7 @@ for (round_dir in round_dirs) {
   
   # Print the number of rows read and the first few lines to check the content
   print(paste("Number of rows read from", diff_coverage_file, ":", nrow(df)))
-  print(head(df))  # 打印前几行查看文件内容
+  print(head(df)) 
   
   # Check if df has enough rows to set column names
   if (nrow(df) < 2) {
@@ -123,11 +123,10 @@ df <- df %>%
   mutate(Gene = ifelse(is.na(Gene.Names), Gene, 
                        paste(Gene.Names, sub("^[^_]*_[^_]*_", "", Gene), sep="_"))) 
 
-# 提取第二个下划线前的内容
 overall_CPM <- overall_CPM %>%
-  mutate(Gene_Match = sub("^([^_]*_[^_]*)_.*$", "\\1", Gene))  # 提取到第二个下划线前的内容
+  mutate(Gene_Match = sub("^([^_]*_[^_]*)_.*$", "\\1", Gene))  
 
-# 使用 Gene_Match 列与 id_mapping 进行左连接
+
 overall_CPM <- overall_CPM %>%
   left_join(id_mapping, by = c("Gene_Match" = "From")) %>%
   mutate(Gene = ifelse(is.na(Gene.Names), Gene, 
@@ -210,7 +209,7 @@ line_plot <- ggplot(top_genes_data, aes(x = Round, y = CPM, group = Gene, color 
 df <- df %>%
   mutate(
     log2foldchange = log2(CPM_EXP / CPM_Control),
-    log10CPM = log10(abs(CPM_EXP - CPM_Control) + 1)  # 添加 +1 避免 log10(0)
+    log10CPM = log10(abs(CPM_EXP - CPM_Control) + 1)  
   ) %>%
   # Delete the duplicated
   filter(!is.infinite(log2foldchange) & !is.infinite(log10CPM)) %>%
