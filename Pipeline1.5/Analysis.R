@@ -152,7 +152,7 @@ line_plot <- ggplot(top_genes_data, aes(x = Round, y = CPM, group = Gene, color 
   #    - top_genes_data: This specifies the data frame used for the plot.
   #    - aes(...): Aesthetic mappings: 'Round' is mapped to the x-axis and 'CPM' (Counts Per Million) is mapped to the y-axis.
   #      Each 'Gene' is represented as a different color and grouped by 'Gene'.
-  
+  geom_line(size = 1.2) +  # Set line thickness  
   geom_line() +
   # 2. geom_line(): Adds lines connecting data points for each 'Gene', tracking progression across 'Round'.
   
