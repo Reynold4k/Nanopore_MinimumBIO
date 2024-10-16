@@ -187,27 +187,45 @@ df <- df %>%
     )
   )
 
-# Calculate log2foldchange and log10CPM for the last round's data
 df <- df %>%
+  # Use the dplyr `mutate()` function to add new columns or modify existing ones within the data frame `df`.
+
   mutate(
     log2foldchange = log2(CPM_EXP / CPM_Control),
-    log10CPM = log10(abs(CPM_EXP - CPM_Control) + 1)  # 添加 +1 避免 log10(0)
+    # Calculates the log2 fold change between two conditions: Experimental (CPM_EXP) and Control (CPM_Control).
+    # Logarithm base 2 is often used to examine relative changes in gene expression due to its symmetry for up and down regulations.
+
+    log10CPM = log10(abs(CPM_EXP - CPM_Control) + 1)
+    # Computes the log10 of the absolute difference between CPM_EXP and CPM_Control, plus one.
+    # The addition of +1 prevents taking log10(0), which is undefined.
   ) %>%
-  # Delete the duplicated
+  
   filter(!is.infinite(log2foldchange) & !is.infinite(log10CPM)) %>%
+  # Filters out any rows where log2foldchange or log10CPM are infinite.
+  # Infinite values can arise due to division by zero in log2foldchange calculation.
+  # Ensures that only finite, meaningful values are retained for further analysis.
+  
   mutate(
     color = case_when(
       log2foldchange < -1 ~ "blue",
+      # Assigns the color "blue" to genes with a log2 fold change less than -1.
+      # This typically indicates substantially down-regulated genes in the Experimental condition compared to Control.
+
       log2foldchange > 1 ~ "red",
+      # Assigns the color "red" to genes with a log2 fold change greater than 1.
+      # This usually denotes substantially up-regulated genes in the Experimental condition compared to Control.
+
       TRUE ~ "black"
+      # Default color is "black" for genes with log2 fold changes between -1 and 1.
+      # These genes are considered to have insignificant or no differential expression.
     )
   )
 
-# Select top 10 genes to label by log10CPM where the color is either red or blue
+# Select top 30 genes to label by log10CPM where the color is either red or blue
 label_df <- df %>%
   filter(color %in% c("red", "blue")) %>%
   arrange(desc(log10CPM)) %>%
-  slice_head(n = 10)  # Top 20 by log10CPM among significant changes
+  slice_head(n = 30)  # Top 30 by log10CPM among significant changes
 
 volcano_plot <- ggplot(df, aes(x = log2foldchange, y = log10CPM)) +
   # 1. ggplot(): Initializes a ggplot object for plotting.
