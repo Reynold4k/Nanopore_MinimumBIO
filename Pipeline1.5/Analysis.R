@@ -196,22 +196,59 @@ label_df <- bind_rows(top_log10CPM, top_log2foldchange) %>%
 
 # Create the volcano plot
 volcano_plot <- ggplot(df, aes(x = log2foldchange, y = log10CPM)) +
-  geom_point(aes(color = color), alpha = 0.5) +
-  scale_color_identity() +  # Directly use specified colors
-  geom_text(data = label_df %>% filter(color != "black"),     # Only keep genes that are not black
-            aes(label = Gene),
+  # 1. ggplot(): Initializes a ggplot object for plotting.
+  #    - df: The dataframe containing the data to be plotted.
+  #    - aes(...): Aesthetic mappings, defining 'log2foldchange' as the x variable and 'log10CPM' as the y variable for the plot's axes.
+  
+  geom_point(aes(color = color), alpha = 0.5, size = 5) +
+  # 2. geom_point(...): Adds a layer for plotting points.
+  #    - color = color: Maps the 'color' column in the data to the color of the points.
+  #    - alpha = 0.5: Sets the transparency level of the points (0 is fully transparent, 1 is fully opaque).
+  #    - size = 5: Increases the size of each point, using ggplot's size scale.
+  
+  scale_color_identity() +
+  # 3. scale_color_identity(): Uses the exact colors specified in the 'color' aesthetic without scaling.
+  
+  geom_text(data = label_df, aes(label = Gene),
             size = 4, vjust = -0.5, hjust = 0.5, check_overlap = TRUE) +
+  # 4. geom_text(...): Adds text labels to each point.
+  #    - data = label_df: Uses a separate dataframe for the labels, typically a subset of points.
+  #    - aes(label = Gene): Specifies that the text for each label should come from the 'Gene' column.
+  #    - size = 4: Sets the size of the text labels.
+  #    - vjust = -0.5: Vertically adjusts text to be slightly above the point.
+  #    - hjust = 0.5: Horizontally centers the text on the point.
+  #    - check_overlap = TRUE: Ensures that text labels do not overlap, omits some labels if needed.
+  
   labs(title = paste("Volcano Plot of", exp_name),
-       x = "Log2 Fold Change",
-       y = "Log10 CPM") +
+       x = "Log_2 Fold Change",
+       y = "Log_10 CPM") +
+  # 5. labs(...): Modifies the plot labels such as the title and axis labels.
+  #    - title: The plot title, dynamically combines "Volcano Plot of" with the variable 'exp_name'.
+  #    - x: The label for the x-axis.
+  #    - y: The label for the y-axis.
+  
+  ylim(1, 6) +
+  # 6. ylim(1, 6): Sets the limits for the y-axis between 1 and 6.
+  #    - Values outside this range will not be plotted on the y-axis.
+  
   theme_minimal() +
+  # 7. theme_minimal(): Applies a minimalistic theme with clean, simple grid lines and no background shading.
+  
   theme(
     plot.title = element_text(size = 14, face = "bold"),
     axis.title = element_text(size = 18),
-    axis.text = element_text(size = 16),
+    axis.text = element_text(size = 24),
     legend.title = element_text(size = 14),
     legend.text = element_text(size = 12)
   )
+# 8. theme(...): Customizes text and theme elements.
+#    - plot.title: Sets the style of the plot title, with size 14 and bold text.
+#    - axis.title: Sets the size of the axis titles, size 18.
+#    - axis.text: Sets the size of the axis tick labels, making them very large at size 24.
+#    - legend.title: Sets the size of the legend title text, size 14.
+#    - legend.text: Sets the size of the legend item text, size 12.
+
+
 
 
 ggsave(file.path(EXPERIMENTAL_FOLDER, "line_plot.png"), plot = line_plot, width = 8, height = 6)
