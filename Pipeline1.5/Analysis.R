@@ -195,7 +195,7 @@ label_df <- bind_rows(top_log10CPM, top_log2foldchange) %>%
 
 # Create the volcano plot
 volcano_plot <- ggplot(df, aes(x = log2foldchange, y = log10CPM)) +
-  geom_point(aes(color = color), alpha = 0.5) +
+  geom_point(aes(color = color), alpha = 0.5, size = 4) +
   scale_color_identity() +  # Directly use specified colors
   geom_text(data = label_df %>% filter(color != "black"),     # Only keep genes that are not black
             aes(label = Gene),
