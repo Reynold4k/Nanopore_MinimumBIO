@@ -149,19 +149,61 @@ top_genes_data$Gene <- factor(top_genes_data$Gene, levels = top_genes$Gene[order
 
 # Create the line plot only for the top 15 genes using CPM, with the legend ordered by mean CPM
 line_plot <- ggplot(top_genes_data, aes(x = Round, y = CPM, group = Gene, color = Gene)) +
+  # 1. ggplot(...): Initializes a ggplot object for plotting.
+  #    - top_genes_data: This specifies the data frame used for the plot.
+  #    - aes(...): Aesthetic mappings: 'Round' is mapped to the x-axis and 'CPM' (Counts Per Million) is mapped to the y-axis.
+  #      Each 'Gene' is represented as a different color and grouped by 'Gene'.
+  
   geom_line() +
+  # 2. geom_line(): Adds lines connecting data points for each 'Gene', tracking progression across 'Round'.
+  
   geom_point() +
+  # 3. geom_point(): Adds points at each data position on top of the lines, making individual data points visually distinct.
+  
   xlab("Round") +
+  # 4. xlab("Round"): Sets the label for the x-axis to "Round".
+  
   ylab("CPM") +
-  theme(axis.text.x = element_text(angle = 90, hjust = 1)) +
+  # 5. ylab("CPM"): Sets the label for the y-axis to "CPM", which stands for counts per million, a common normalization form in RNA-seq data.
+  
+  theme_minimal() +
+  # 6. theme_minimal(): Applies a minimal theme to the plot, providing a clean, uncluttered aesthetic with simple grid lines.
+  
   theme(
-    plot.title = element_text(size = 14, face = "bold"), # Title size adjustment and bold
-    legend.position = "right",  # Adjust as needed
-    axis.title = element_text(size = 20),  # Axis title size
-    axis.text = element_text(size = 18),  # Axis text size
-    legend.title = element_text(size = 18),  # Legend title size
-    legend.text = element_text(size = 14)   # Legend text size
+    axis.text.x = element_text(angle = 90, hjust = 1),
+    # 7. axis.text.x = element_text(angle = 90, hjust = 1):
+    #    - Rotates x-axis text by 90 degrees to improve readability when there are many levels.
+    #    - hjust = 1 right-aligns the text, useful when text is rotated.
+    
+    plot.title = element_text(size = 14, face = "bold"),
+    # 8. plot.title: Sets the size of the plot title text to 14 and makes it bold for emphasis.
+    
+    legend.position = "right",
+    # 9. legend.position = "right": Positions the legend on the right side of the plot for easy access and readability.
+    
+    axis.title = element_text(size = 20),
+    # 10. axis.title: Sets the text size of both x and y-axis titles to 20, enhancing their prominence.
+    
+    axis.text = element_text(size = 18),
+    # 11. axis.text: Sets the text size for axis labels (tick marks) to 18 for ease of reading.
+    
+    legend.title = element_text(size = 18),
+    # 12. legend.title: Configures the legend title text size to 18, ensuring it is easily readable.
+    
+    legend.text = element_text(size = 14),
+    # 13. legend.text: Sets the size of the text in the legend entries to 14, maintaining clarity.
+    
+    # Set transparent backgrounds
+    panel.background = element_rect(fill = NA, color = NA),
+    # 14. panel.background: Removes the background fill and border from the plot's main panel, making it transparent.
+    
+    plot.background = element_rect(fill = NA, color = NA),
+    # 15. plot.background: Removes the background fill and border from the entire plot area, enabling full transparency.
+    
+    legend.background = element_rect(fill = NA, color = NA)
+    # 16. legend.background: Makes the background behind the legend transparent, removing any fill or border.
   )
+
 
 
 # Calculate log2foldchange and log10CPM for the last round's data
