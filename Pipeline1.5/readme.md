@@ -295,19 +295,76 @@ install.packages('readr')
    ```bash
     Rscript Analysis.R
    ``` 
-### Expected Output
+# R Script Adjustment Guide
 
-The output of the `Compare.pbs` script will include:
-- A `differential_coverage.txt` file, which contains the gene IDs, control coverage, experimental coverage, and the calculated differences.
-- A horizontal bar plot image saved in a specified output directory, visually representing the differences in coverage between the experimental and control groups.
+This README provides instructions on adjusting the R script to modify plot appearances and color determination criteria for your differential coverage data analysis. It guides you on which parts of the code to edit to achieve desired changes.
 
-### Interpreting the Output Results
+## Adjusting Plot Appearance
 
-- **differential_coverage.txt**: This file contains the following columns:
-  - **Gene**: The identifier for each gene analyzed.
-  - **Control_Coverage**: The coverage value for the control group.
-  - **Experimental_Coverage**: The coverage value for the experimental group.
-  - **Difference**: The difference in coverage values between the experimental and control groups.
+To modify the visual aspects of your plots, you can tweak various aesthetic parameters in your ggplot2 calls:
+
+### Line Plot Appearance
+
+- **Line and Point Size**: Adjust the `geom_line()` and `geom_point()` functions to change the thickness of the lines and size of the points.
+  ```r
+  geom_line(size = 1.2)  # Modify 'size' for line thickness
+  geom_point(size = 3)   # Modify 'size' for point size
+  ```
+
+- **Text and Theme**: You can alter font sizes and styles using the `theme()` function. This includes axis text, titles, and legend configuration.
+  ```r
+  theme(
+    axis.text.x = element_text(size = 18, angle = 90, hjust = 1),  # Adjust 'size' and 'angle' for x-axis text
+    plot.title = element_text(size = 14, face = "bold"),           # Adjust 'size' for plot titles
+    axis.title = element_text(size = 20),                          # Adjust 'size' for axis titles
+    legend.title = element_text(size = 18),                        # Adjust 'size' for legend titles
+    legend.text = element_text(size = 14)                          # Adjust 'size' for legend text
+  )
+  ```
+
+### Volcano Plot Appearance
+
+- **Point Size and Transparency**: To change point size and transparency on the volcano plot, modify the appropriate parameters in `geom_point()`.
+  ```r
+  geom_point(aes(color = color), alpha = 0.5, size = 5)  # Adjust 'size' for point size and 'alpha' for transparency
+  ```
+
+- **Theme and Axis Limits**: For consistent styling, use `theme()` to manage text sizes and style. Use `ylim()` to adjust y-axis bounds.
+  ```r
+  ylim(1, 6)  # Adjust y-axis limits as needed
+  theme_minimal() +
+  theme(
+    plot.title = element_text(size = 14, face = "bold"),
+    axis.title = element_text(size = 18),
+    axis.text = element_text(size = 24),
+    legend.title = element_text(size = 14),
+    legend.text = element_text(size = 12)
+  )
+  ```
+
+## Adjusting Color Determination
+
+- **Color Assignment Based on Fold Change**: The code uses `case_when()` to determine colors based on log2 fold change. Adjust thresholds to meet different significance levels.
+  ```r
+  mutate(
+    color = case_when(
+      log2foldchange < -1 ~ "blue",    # Threshold for 'blue'
+      log2foldchange > 1 ~ "red",      # Threshold for 'red'
+      TRUE ~ "black"                   # Default to 'black'
+    )
+  )
+  ```
+
+## Saving Plots
+
+- **Image Dimensions**: Modify the `ggsave()` function to adjust dimensions of saved plots by changing the `width` and `height` parameters.
+  ```r
+  ggsave(file.path(EXPERIMENTAL_FOLDER, "line_plot.png"), plot = line_plot, width = 8, height = 6)  # Adjust 'width' and 'height'
+  ggsave(file.path(EXPERIMENTAL_FOLDER, "volcano_plot.png"), plot = volcano_plot, width = 8, height = 6)  # Adjust 'width' and 'height'
+  ```
+
+By following these instructions, you can effectively customize the plots in your R script to better fit your analytical needs and presentation requirements.
+
 ![image](https://github.com/user-attachments/assets/0179be74-56a4-4577-8207-5dbf1be378d2)
 
 ![volcano_plot](https://github.com/user-attachments/assets/d70d1959-62a4-426c-a840-0de4fa5e4c46)
