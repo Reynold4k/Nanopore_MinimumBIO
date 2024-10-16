@@ -179,15 +179,15 @@ df <- df %>%
     )
   )
 
-# Select top 10 genes by absolute log10CPM
+# Select top 30 genes by absolute log10CPM
 top_log10CPM <- df %>%
   arrange(desc(abs(log10CPM))) %>%
-  slice_head(n = 10)
+  slice_head(n = 30)
 
-# Select top 10 genes by absolute log2foldchange
+# Select top 30 genes by absolute log2foldchange
 top_log2foldchange <- df %>%
   arrange(desc(abs(log2foldchange))) %>%
-  slice_head(n = 10)
+  slice_head(n = 30)
 
 # Combine both lists and remove duplicates
 label_df <- bind_rows(top_log10CPM, top_log2foldchange) %>%
