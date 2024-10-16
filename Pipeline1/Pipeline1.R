@@ -23,12 +23,13 @@
 # 2.Change the line 31 ANNOTATION to your/ANNOTATION/path
 
 # Define paths
-exp_base_path <- "/srv/scratch/z3546698/true/exp"
-control_base_path <- "/srv/scratch/z3546698/true/control"
+exp_base_path <- "/srv/scratch/z3546698/tutorial/Small_Molecule/JQ1/Co/240217"
+control_base_path <- "/srv/scratch/z3546698/tutorial/Small_Molecule/Biotin/Co/240511"
 
 
 # Read GTF file
-gtf_file <- "/srv/scratch/z3546698/true/reference/Homo_sapiens.GRCh38.110.gtf"  # Please replace with the actual path
+gtf_file <- "/srv/scratch/z3546698/tutorial/reference/Homo_sapiens.GRCh38.110.gtf"  # Please replace with the actual path
+
 
 
 library(Matrix)
