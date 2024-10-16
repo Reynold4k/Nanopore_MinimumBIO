@@ -16,7 +16,7 @@ library(readr)
 
 
 # Set the experimental folder path
-EXPERIMENTAL_FOLDER <- "/srv/scratch/z3546698/tutorial/Small_Molecule/FK506/T7pep/240824"
+EXPERIMENTAL_FOLDER <- "D:/exp"
 
 
 
@@ -146,16 +146,14 @@ top_genes_data <- overall_CPM %>%
 # Reorder the Gene levels based on mean CPM for plotting
 top_genes_data$Gene <- factor(top_genes_data$Gene, levels = top_genes$Gene[order(top_genes$mean_CPM, decreasing = TRUE)])
 
-# Create the line plot only for the top 15 genes using CPM, with the legend ordered by mean CPM
 line_plot <- ggplot(top_genes_data, aes(x = Round, y = CPM, group = Gene, color = Gene)) +
   # 1. ggplot(...): Initializes a ggplot object for plotting.
   #    - top_genes_data: This specifies the data frame used for the plot.
   #    - aes(...): Aesthetic mappings: 'Round' is mapped to the x-axis and 'CPM' (Counts Per Million) is mapped to the y-axis.
   #      Each 'Gene' is represented as a different color and grouped by 'Gene'.
-
   geom_line(linewidth = 1.2) +  # Set line thickness  
   geom_point(size = 3) +  # Set point size
-
+  
   geom_line() +
   # 2. geom_line(): Adds lines connecting data points for each 'Gene', tracking progression across 'Round'.
   
@@ -216,7 +214,7 @@ df <- df %>%
     # 1. Calculate the log2 fold change:
     #    - CPM_EXP / CPM_Control: Computes the ratio of counts per million (CPM) between Experimental and Control conditions.
     #    - log2(...): Takes the base-2 logarithm of the ratio. This transformation is symmetrical for values >1 and <1, making it intuitive for interpreting up and down regulation.
-
+    
     log10CPM = log10(abs(CPM_EXP - CPM_Control) + 1)
     # 2. Calculate log10 CPM difference:
     #    - abs(CPM_EXP - CPM_Control): Computes the absolute difference between CPM values of Experimental and Control to avoid negative values.
@@ -228,27 +226,27 @@ df <- df %>%
   # 3. Remove infinite values:
   #    - filter(...): Excludes any rows where `log2foldchange` or `log10CPM` are infinite.
   #    - This typically occurs when dividing by zero or encountering missing values, ensuring that subsequent analyses are performed only on finite, meaningful values.
-
+  
   mutate(
     color = case_when(
       log2foldchange < -1 ~ "blue",
       # 4. Assign colors based on fold change:
       #    - log2foldchange < -1: Assigns "blue" to indicate significant down-regulation, where the expression is higher in the Control than in the Experimental condition.
-
+      
       log2foldchange > 1 ~ "red",
       #    - log2foldchange > 1: Assigns "red" to represent significant up-regulation, where the expression is higher in the Experimental than in the Control condition.
-
+      
       TRUE ~ "black"
       #    - TRUE: Assigns "black" when conditions above aren't met, indicating no significant regulation (change is between -1 and 1 in log2 fold change).
     )
   )
 
-# Select top 30 genes by absolute log10CPM
+# Select top 10 genes by absolute log10CPM
 top_log10CPM <- df %>%
   arrange(desc(abs(log10CPM))) %>%
   slice_head(n = 30)
 
-# Select top 30 genes by absolute log2foldchange
+# Select top 10 genes by absolute log2foldchange
 top_log2foldchange <- df %>%
   arrange(desc(abs(log2foldchange))) %>%
   slice_head(n = 30)
@@ -316,3 +314,5 @@ volcano_plot <- ggplot(df, aes(x = log2foldchange, y = log10CPM)) +
 
 ggsave(file.path(EXPERIMENTAL_FOLDER, "line_plot.png"), plot = line_plot, width = 8, height = 6)
 ggsave(file.path(EXPERIMENTAL_FOLDER, "volcano_plot.png"), plot = volcano_plot, width = 8, height = 6)
+
+
