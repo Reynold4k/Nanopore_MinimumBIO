@@ -205,19 +205,38 @@ line_plot <- ggplot(top_genes_data, aes(x = Round, y = CPM, group = Gene, color 
 
 
 
-# Calculate log2foldchange and log10CPM for the last round's data
 df <- df %>%
+  # Start with the existing data frame `df` and apply a series of transformations using the pipe operator `%>%`.
+  
   mutate(
     log2foldchange = log2(CPM_EXP / CPM_Control),
-    log10CPM = log10(abs(CPM_EXP - CPM_Control) + 1)  
+    # 1. Calculate the log2 fold change:
+    #    - CPM_EXP / CPM_Control: Computes the ratio of counts per million (CPM) between Experimental and Control conditions.
+    #    - log2(...): Takes the base-2 logarithm of the ratio. This transformation is symmetrical for values >1 and <1, making it intuitive for interpreting up and down regulation.
+
+    log10CPM = log10(abs(CPM_EXP - CPM_Control) + 1)
+    # 2. Calculate log10 CPM difference:
+    #    - abs(CPM_EXP - CPM_Control): Computes the absolute difference between CPM values of Experimental and Control to avoid negative values.
+    #    - +1: Prevents taking the logarithm of zero, which is undefined. Add 1 to shift the scale.
+    #    - log10(...): Takes the base-10 logarithm of the adjusted CPM difference, scaling the data for better visualization and interpretation.
   ) %>%
-  # Delete the duplicated
+  
   filter(!is.infinite(log2foldchange) & !is.infinite(log10CPM)) %>%
+  # 3. Remove infinite values:
+  #    - filter(...): Excludes any rows where `log2foldchange` or `log10CPM` are infinite.
+  #    - This typically occurs when dividing by zero or encountering missing values, ensuring that subsequent analyses are performed only on finite, meaningful values.
+
   mutate(
     color = case_when(
       log2foldchange < -1 ~ "blue",
+      # 4. Assign colors based on fold change:
+      #    - log2foldchange < -1: Assigns "blue" to indicate significant down-regulation, where the expression is higher in the Control than in the Experimental condition.
+
       log2foldchange > 1 ~ "red",
+      #    - log2foldchange > 1: Assigns "red" to represent significant up-regulation, where the expression is higher in the Experimental than in the Control condition.
+
       TRUE ~ "black"
+      #    - TRUE: Assigns "black" when conditions above aren't met, indicating no significant regulation (change is between -1 and 1 in log2 fold change).
     )
   )
 
