@@ -87,7 +87,7 @@ for (round_dir in round_dirs) {
   
   # Prepare data for overall CPM line plot
   overall_CPM <- bind_rows(overall_CPM,
-                           data.frame(Gene = df$Gene, CPM = df$CPM_EXP, Round = basename(round_dir))  # Assuming first column is 'Gene'
+                           data.frame(Gene = df$Gene, CPM = df$CPM_EXP - df$CPM_Control, Round = basename(round_dir))  
   )
   
   # Save updated dataframe
