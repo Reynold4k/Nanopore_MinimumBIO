@@ -230,7 +230,7 @@ label_df <- df %>%
   arrange(desc(log10CPM)) %>%
   slice_head(n = 30)  # Top 30 by log10CPM among significant changes
 
-ggplot(df, aes(x = log2foldchange, y = log10CPM)) +
+volcano_plot <- ggplot(df, aes(x = log2foldchange, y = log10CPM)) +
   # 1. ggplot(): Initializes a ggplot object for plotting.
   #    - df: The dataframe containing the data to be plotted.
   #    - aes(...): Aesthetic mappings, defining 'log2foldchange' as the x variable and 'log10CPM' as the y variable for the plot's axes.
