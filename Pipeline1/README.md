@@ -312,23 +312,22 @@ R
 ```
 
 ```r
-# Ensure you have the latest BiocManager package
+# Updating Bioconductor and all necessary packages
 if (!requireNamespace("BiocManager", quietly = TRUE)) {
     install.packages("BiocManager")
 }
 
-BiocManager::install(version = "devel")  # Check for the latest Bioconductor version
+BiocManager::install(version = "devel")  # Obtain latest version if not already
 
-
+# CRAN packages
 install.packages(c("lifecycle", "pillar", "vctrs", "glue", "gtable", "scales", "curl", "httr", "XML", "bitops"))
 
-# Install packages from CRAN
 install.packages(c("Matrix", "MASS", "mgcv", "ggplot2", "dplyr", "tidyr"))
 
+# Bioconductor packages
 BiocManager::install(c("GenomeInfoDb", "GenomicRanges", "Biostrings", "Rsamtools", "XML"))
-
-# Install packages from Bioconductor
 BiocManager::install(c("DelayedArray", "SummarizedExperiment", "DESeq2", "rtracklayer"))
+
 ```
 
 ### Answered "yes" to save workspace.
