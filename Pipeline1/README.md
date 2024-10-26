@@ -321,7 +321,6 @@ if (!requireNamespace("BiocManager", quietly = TRUE)) {
 install.packages(c("Matrix", "MASS", "mgcv", "ggplot2", "dplyr", "tidyr"))
 
 # Bioconductor packages
-BiocManager::install(c("GenomeInfoDb", "GenomicRanges", "Biostrings", "Rsamtools"))
 BiocManager::install(c("DelayedArray", "SummarizedExperiment", "DESeq2", "rtracklayer"))
 
 ```
