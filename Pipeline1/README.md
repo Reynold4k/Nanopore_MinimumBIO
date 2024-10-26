@@ -312,12 +312,18 @@ R
 ```
 
 ```r
-#install packages in the R portal via commands:
+# Ensure you have the latest BiocManager package
+if (!requireNamespace("BiocManager", quietly = TRUE)) {
+    install.packages("BiocManager")
+}
 
-install.packages('gglpot2')
-install.packages('dplyr')
-install.packages('readr')
+# Install packages from CRAN
+install.packages(c("Matrix", "MASS", "mgcv", "ggplot2", "dplyr", "tidyr"))
+
+# Install packages from Bioconductor
+BiocManager::install(c("DelayedArray", "SummarizedExperiment", "DESeq2", "rtracklayer"))
 ```
+
 ### Answered "yes" to save workspace.
 ### Then quit r q()
 
