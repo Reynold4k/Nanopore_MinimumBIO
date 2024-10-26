@@ -31,6 +31,17 @@ The software I recommend you to use is VS Code, you could download it via:https:
 
 So let's start!
 
+### At the beginning, if your fastq files are in compressed format having a ".gz" at the end of file name, you need to depress them first:
+
+```bash
+#change /path/to/your/parent/folder to your parent folder having compressed files
+find /path/to/your/parent/folder -type f -name '*.gz' -exec gunzip {} \;
+
+```
+
+Please note, this command would integrate the whole folder and depress any compressed files matched
+
+
 To run the `pipeline1.5.pbs` script, follow these steps:
 
 1. **Open the Script**: Open the file `pipeline1.5.pbs` in a text editor, if you're using Katana, you could also open the script in the VS Code.
