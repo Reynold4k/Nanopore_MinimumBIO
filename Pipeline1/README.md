@@ -319,6 +319,11 @@ if (!requireNamespace("BiocManager", quietly = TRUE)) {
 
 BiocManager::install(version = "devel")  # Obtain latest version if not already
 
+install.packages("curl")
+install.packages("jsonlite")
+install.packages("httr")
+
+
 # CRAN packages
 install.packages(c("lifecycle", "pillar", "vctrs", "glue", "gtable", "scales", "curl", "httr", "XML", "bitops"))
 
