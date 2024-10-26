@@ -306,11 +306,6 @@ Then run through the whole R scripts and check the result plots.
 
 ```bash
 
-#Please replace the z3546698 to you UID
-rm -rf /home/z3546698/R/x86_64-pc-linux-gnu-library/4.4/00LOCK-*  # Remove any lock directories
-rm -rf /home/z3546698/R/x86_64-pc-linux-gnu-library/4.4/00LOCK-glue
-
-
 #load r to a stable version has been passed the test
 module load r/4.4.0
 #To start R in the katana terminal
@@ -322,16 +317,6 @@ R
 if (!requireNamespace("BiocManager", quietly = TRUE)) {
     install.packages("BiocManager")
 }
-
-BiocManager::install(version = "devel")  # Obtain latest version if not already
-
-install.packages("curl")
-install.packages("jsonlite")
-install.packages("httr")
-
-
-# CRAN packages
-install.packages(c("lifecycle", "pillar", "vctrs", "glue", "gtable", "scales", "curl", "httr", "XML", "bitops"))
 
 install.packages(c("Matrix", "MASS", "mgcv", "ggplot2", "dplyr", "tidyr"))
 
