@@ -317,6 +317,8 @@ if (!requireNamespace("BiocManager", quietly = TRUE)) {
     install.packages("BiocManager")
 }
 
+BiocManager::install(version = "devel")  # Check for the latest Bioconductor version
+
 
 install.packages(c("lifecycle", "pillar", "vctrs", "glue", "gtable", "scales", "curl", "httr", "XML", "bitops"))
 
