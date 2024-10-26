@@ -317,8 +317,13 @@ if (!requireNamespace("BiocManager", quietly = TRUE)) {
     install.packages("BiocManager")
 }
 
+
+install.packages(c("lifecycle", "pillar", "vctrs", "glue", "gtable", "scales", "curl", "httr", "XML", "bitops"))
+
 # Install packages from CRAN
 install.packages(c("Matrix", "MASS", "mgcv", "ggplot2", "dplyr", "tidyr"))
+
+BiocManager::install(c("GenomeInfoDb", "GenomicRanges", "Biostrings", "Rsamtools", "XML"))
 
 # Install packages from Bioconductor
 BiocManager::install(c("DelayedArray", "SummarizedExperiment", "DESeq2", "rtracklayer"))
