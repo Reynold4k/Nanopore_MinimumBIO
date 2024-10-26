@@ -308,6 +308,7 @@ Then run through the whole R scripts and check the result plots.
 
 #Please replace the z3546698 to you UID
 rm -rf /home/z3546698/R/x86_64-pc-linux-gnu-library/4.4/00LOCK-*  # Remove any lock directories
+rm -rf /home/z3546698/R/x86_64-pc-linux-gnu-library/4.4/00LOCK-glue
 
 
 #load r to a stable version has been passed the test
