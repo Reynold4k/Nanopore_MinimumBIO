@@ -17,26 +17,18 @@ This document describes the Pipeline1 processing pipeline, which automates the a
 Important!! When running the processing and analysis scripts, you're supposed to change the working directorys first, and follow the step-to-step instructions.
 
 ## Features
-
-1. **Trimming**: Utilizes Porechop for removing adapters from sequencing reads.
-2. **Quality Control**: Leverages NanoPlot for assessing read quality.
-3. **Alignment**: Aligns reads to a reference genome using BWA.
-4. **Sorting and Deduplication**: Sorts and marks duplicate reads using Samtools.
-5. **Gene Feature Counting**: Uses featureCounts for quantifying gene expression.
+1. **In-Frame Check**: Utilizes Seqkit for only keeping the sequence in frame and removing all other (backwards/out of frame)sequences.
+2. **Trimming**: Utilizes Porechop for removing adapters from sequencing reads.
+3. **Quality Control**: Leverages NanoPlot for assessing read quality.
+4. **Alignment**: Aligns reads to a reference genome using BWA.
+5. **Sorting and Deduplication**: Sorts and marks duplicate reads using Samtools.
+6. **Gene Feature Counting**: Uses featureCounts for quantifying gene expression.
 
 ## Prerequisites
 
 Ensure your system meets the following requirements before running the pipeline:
 
 - **Operating System**: Linux or compatible environment.
-
-
-## If you're using Katana UNSW, you can book an interactive CPU portal and then run the following command
-
-```bash
-qsub -I -l select=1:ncpus=64:mem=128gb -l walltime=04:00:00
-```
-## Please Note! Ask for >100 Gb memory as this significantly speeds up the alignments
 
 
 **Reference and Annotation Files**:
