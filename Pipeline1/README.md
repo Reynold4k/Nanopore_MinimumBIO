@@ -109,7 +109,14 @@ Make sure to decompress (.gz) files if needed and adjust the path accordingly.
 
 
 
-### Usage Instruction
+### Script Usage Instruction
+
+## Action 0 Installation of required modules
+
+```bash
+
+```
+
 
 Set the input and reference data paths in the script:
 
