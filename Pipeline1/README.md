@@ -26,12 +26,12 @@ Ensure your system meets the following requirements before running the pipeline:
 
 - **Operating System**: Linux or compatible environment.
 
-- **For Windows Users**: Ubuntu from microsoft store is highly recommended:
+# For Windows Users Ubuntu from microsoft store is highly recommended:
 - You could also obtain this software via: https://ubuntu.com/
 
 ![image](https://github.com/user-attachments/assets/9b400296-fc30-4dbd-929c-7c9bdafaf438)
 
-# Guide for Windows Users Transitioning to Ubuntu
+## Guide for Windows Users Transitioning to Ubuntu
 
 ## Understanding File Paths
 - **Path Delimiters:**  
@@ -75,11 +75,11 @@ Ensure your system meets the following requirements before running the pipeline:
   Tools like `rsync` can be invaluable for maintaining backups in Ubuntu.
 
 
-- - **For Mac Users**: Click the Launchpad icon in the Dock, type Terminal in the search field, then click Terminal.
+# For Mac Users Click the Launchpad icon in the Dock, type Terminal in the search field, then click Terminal.
   - In the Finder , open the /Applications/Utilities folder, then double-click Terminal.
 
     
-# Beginner's Guide to Using Terminal and Command Line on macOS
+## Beginner's Guide to Using Terminal and Command Line on macOS
 
 ## Introduction to Terminal
 - **Accessing Terminal:**  
