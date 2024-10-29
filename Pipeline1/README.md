@@ -76,7 +76,7 @@ Ensure your system meets the following requirements before running the pipeline:
 
 
 # For Mac Users Click the Launchpad icon in the Dock, type Terminal in the search field, then click Terminal.
-  - In the Finder , open the /Applications/Utilities folder, then double-click Terminal.
+# In the Finder , open the /Applications/Utilities folder, then double-click Terminal.
 
     
 ## Beginner's Guide to Using Terminal and Command Line on macOS
