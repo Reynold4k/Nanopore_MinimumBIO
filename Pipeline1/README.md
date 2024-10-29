@@ -30,6 +30,124 @@ Ensure your system meets the following requirements before running the pipeline:
 
 - **Operating System**: Linux or compatible environment.
 
+- **For Windows Users**: Ubuntu from microsoft store is highly recommended:
+- You could also obtain this software via: https://ubuntu.com/
+
+- ![image](https://github.com/user-attachments/assets/bbf8a51f-5a68-474f-82de-835dda22556a)
+
+# Guide for Windows Users Transitioning to Ubuntu
+
+## Understanding File Paths
+- **Path Delimiters:**  
+  Unlike Windows, which uses backslashes (`\`) for file paths, Ubuntu utilizes forward slashes (`/`).  
+  Example: `C:\Users\YourName\Documents` becomes `/home/YourName/Documents` in Ubuntu.
+
+- **Case Sensitivity:**  
+  File and directory names in Ubuntu are case-sensitive.  
+  `Documents`, `documents`, and `DOCUMENTS` are considered different directories.
+
+## Home Directory
+- On Ubuntu, your personal files are stored in the home directory, typically located at `/home/YourName`. 
+  This is similar to `C:\Users\YourName` on Windows.
+
+## Accessing Drives
+- Windows drives (C:, D:, etc.) are mounted in the `/mnt` or `/media` directory in Ubuntu.  
+  For example, your C: drive might be accessible under `/mnt/c`.
+
+## Hidden Files and Directories
+- Files and folders prefixed with a dot (`.`) in Ubuntu are hidden by default.  
+  To view them in the file manager, press `Ctrl + H`.
+
+## Permissions
+- Ubuntu enforces file permissions more strictly than Windows.  
+  You might need to modify permissions using commands like `chmod` or change the owner with `chown` for certain tasks.
+
+## Using the Terminal
+- The terminal is a powerful tool in Ubuntu, used for a variety of tasks.  
+  Get familiar with basic commands like `ls` (list), `cd` (change directory), and `cp` (copy).
+
+## Installing Software
+- Unlike Windows, software in Ubuntu is often installed via package managers like `apt` (Advanced Package Tool).  
+  You might also use software repositories like the Ubuntu Software Center.
+
+## File Extensions
+- Ubuntu does not rely on file extensions to identify file types as strictly as Windows.  
+  It often determines the file type by its content.
+
+## Backup Your Data
+- Before making any major changes, always ensure your data is backed up.  
+  Tools like `rsync` can be invaluable for maintaining backups in Ubuntu.
+
+
+- - **For Mac Users**: Click the Launchpad icon in the Dock, type Terminal in the search field, then click Terminal.
+  - In the Finder , open the /Applications/Utilities folder, then double-click Terminal.
+    
+# Beginner's Guide to Using Terminal and Command Line on macOS
+
+## Introduction to Terminal
+- **Accessing Terminal:**  
+  Terminal is a built-in application in macOS, found under `Applications > Utilities > Terminal`.
+
+- **Basic Interface:**  
+  Terminal provides a command line interface where you can type commands to perform various tasks.
+
+## Navigating the File System
+- **Current Directory:**
+  - Use `pwd` to print the current working directory.
+
+- **Listing Files and Directories:**  
+  - Use `ls` to list files and directories.  
+  - Use `ls -la` to include hidden files and detailed information.
+
+- **Changing Directory:**  
+  - Use `cd [directory_name]` to navigate to a different directory.  
+  - Use `cd ..` to go up one directory level.
+
+## Managing Files and Directories
+- **Creating Directories:**  
+  - Use `mkdir [directory_name]` to create a new directory.
+
+- **Creating Files:**  
+  - Use `touch [file_name]` to create a new, empty file.
+
+- **Copying Files:**  
+  - Use `cp [source] [destination]` to copy files or directories.
+
+- **Moving/Renaming Files:**  
+  - Use `mv [source] [destination]` to move or rename files.
+
+- **Deleting Files and Directories:**  
+  - Use `rm [file_name]` to delete files.  
+  - Use `rm -r [directory_name]` to delete directories and their contents.
+
+## Editing Files
+- **Using Nano Editor:**  
+  - Use `nano [file_name]` to edit files directly in Terminal.
+
+## Permissions
+- **Changing Permissions:**  
+  - Use `chmod [permissions] [file_name]` to change file or directory permissions.
+
+- **Changing Ownership:**  
+  - Use `chown [user] [file_name]` to change file ownership.
+
+## Searching and Finding Files
+- **Search with grep:**  
+  - Use `grep [search_term] [file_name]` to search for a term within a file.
+
+- **Finding Files:**  
+  - Use `find [directory] -name [file_name]` to search for files by name.
+
+## Useful Tips
+- **Auto-Completion:**  
+  - Use the `Tab` key to auto-complete file and directory names.
+
+- **Command History:**  
+  - Use the `Up` and `Down` arrow keys to cycle through command history.
+
+- **Canceling Commands:**  
+  - Use `Ctrl + C` to cancel an ongoing command or process.
+
 
 **Reference and Annotation Files**:
 - Reference genome in FASTA format (e.g., `hg38.fa`).
@@ -40,20 +158,13 @@ Ensure your system meets the following requirements before running the pipeline:
 
 ## Sometimes the rclone mount would not be able to mount all the data correctly, just make sure that rclone mount is working properly.
 
-1. Clone the repository and copy the script into your working directory.
-For the data moving problems on Katana, please refere to: https://docs.restech.unsw.edu.au/
-
    
-2. Download hg38 reference and annotation files via:
+## Download hg38 reference and annotation files via:
 
 ```bash
 
-mkdir -p /path/to/reference
-cd /path/to/reference
 wget https://hgdownload.soe.ucsc.edu/goldenPath/hg38/bigZips/hg38.fa.gz
 gunzip hg38.fa.gz
-module load bwa/0.7.17
-
 ```
 
 ## Index your reference fasta files, this step must be conducted on your current portal to continue the next step
@@ -66,6 +177,8 @@ If you want to use a different reference genome for the `bwa index` command inst
 ```bash
 
 bwa index /path/to/your/reference_genome.fa
+
+#For example:
 bwa index GRCh37.fa
 
 ```
