@@ -33,7 +33,7 @@ Ensure your system meets the following requirements before running the pipeline:
 - **For Windows Users**: Ubuntu from microsoft store is highly recommended:
 - You could also obtain this software via: https://ubuntu.com/
 
-- ![image](https://github.com/user-attachments/assets/bbf8a51f-5a68-474f-82de-835dda22556a)
+![image](https://github.com/user-attachments/assets/9b400296-fc30-4dbd-929c-7c9bdafaf438)
 
 # Guide for Windows Users Transitioning to Ubuntu
 
@@ -81,6 +81,7 @@ Ensure your system meets the following requirements before running the pipeline:
 
 - - **For Mac Users**: Click the Launchpad icon in the Dock, type Terminal in the search field, then click Terminal.
   - In the Finder , open the /Applications/Utilities folder, then double-click Terminal.
+
     
 # Beginner's Guide to Using Terminal and Command Line on macOS
 
