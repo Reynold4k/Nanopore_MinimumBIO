@@ -12,10 +12,6 @@
 
 # Pipeline1
 
-This document describes the Pipeline1 processing pipeline, which automates the analysis of sequencing data. It covers tasks like trimming, quality control, alignment, sorting, marking duplicates, and generating gene counts using various bioinformatics tools. The script is meant to be run on compatible systems, specifically on Linux environments or platforms like UNSW's Katana. This guide will help users customize the script as needed and understand where outputs are generated.
-
-Important!! When running the processing and analysis scripts, you're supposed to change the working directorys first, and follow the step-to-step instructions.
-
 ## Features
 1. **In-Frame Check**: Utilizes Seqkit for only keeping the sequence in frame and removing all other (backwards/out of frame)sequences.
 2. **Trimming**: Utilizes Porechop for removing adapters from sequencing reads.
