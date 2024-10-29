@@ -22,19 +22,41 @@
 
 
 ## Setup Instructions
-
-## Sometimes the rclone mount would not be able to mount all the data correctly, just make sure that rclone mount is working properly.
-
    
-## Download hg38 reference and annotation files via:
+## Step1 Download genome reference via:
+Genome reference file is used for alignment from your sequence files to the reference.
+
+Here's an illustration of downloading and decompressing hg38 human reference genome:
 
 ```bash
+# Install the wget module
+pip install wget
+# Or
+apt install wget
 
+# Download the human reference genome file: hg38.fa
 wget https://hgdownload.soe.ucsc.edu/goldenPath/hg38/bigZips/hg38.fa.gz
+
+#Install the gunzip decompressor:
+pip install gunzip
+
+# Decompress the human reference genome file
 gunzip hg38.fa.gz
+
 ```
 
-## Index your reference fasta files, this step must be conducted on your current portal to continue the next step
+## Step2 Index your reference fasta files, the successful implement of this step would ensure you won't meet errors in the later steps
+
+It usually takes you a while.
+
+```bash
+#Download BWA software via:
+apt install bwa
+
+#Index using BWA
+bwa index hg38.fa
+```
+
 If you want to use a different reference genome for the `bwa index` command instead of `hg38.fa`, you can follow these steps:
 
 1. **Download or Prepare Your Reference Genome**: First, ensure that you have the FASTA file for the reference genome you'd like to use. This could be any genome such as `mm10.fa` (mouse), `GRCh37.fa` (older human reference), or even a custom genome assembly. The file should be in FASTA format, which usually has a `.fa` or `.fasta` extension.
@@ -62,9 +84,10 @@ wget http://ftp.ensembl.org/pub/release-110/gtf/homo_sapiens/Homo_sapiens.GRCh38
 
 **Decompress the GTF File**:
 
-
 ```bash
+
 gunzip Homo_sapiens.GRCh38.110.gtf.gz
+
 ```
 ### Note: You can download GTF files for other species from the Ensembl FTP server or UCSC Genome Browser.
 ### Below are examples of how to find the corresponding paths:
@@ -90,8 +113,8 @@ Make sure to decompress (.gz) files if needed and adjust the path accordingly.
 
 Set the input and reference data paths in the script:
 
-## Step1 Modify the preprocessing script(e.g. porechop_preprocessing.sh)
-Do the same modification to the pod5 files processing scripts
+## Action 1 Modify the preprocessing script(e.g. porechop_preprocessing.sh)
+Do the same modification to the pod5 files processing scripts.
 
 For fastq files: porechop_preprocessing.pbs
 For Pod5 files: pod5_preprocessing_with_genecounts.pbs
@@ -103,6 +126,13 @@ If you aren't sure about your location, you can print your location just by runn
 ```bash
 pwd
 ```
+
+You may have different ways of opening the script:
+1. Nano the_name_of_the_script
+Please check this link to know more about Nano command: https://ioflood.com/blog/nano-linux-command/#:~:text=To%20use%20the%20nano%20command,will%20create%20it%20for%20you
+  
+2. Directly use text editor to open via system operation portal
+Use Control + S to save your script aftering editing
 
 ```bash
 # What you need to modify:
@@ -120,7 +150,7 @@ FOLDER="/mnt/d/Small_Molecule/Biotin/T7MB-2/240421"  # Path to input experiments
 
 
 
-## Step2 Update gene reference and annotation file path in the pre processing script
+## Action 2 Update gene reference and annotation file path in the pre processing script
 
 - **Update the `REFERENCE` and `annotation` paths**: Point these to your reference genome and annotation files, respectively.
 
@@ -133,7 +163,9 @@ Ensure your directory structure allows the script to find input files and output
 
 
 
-## Step3 Save the edited script and execute script
+## Action 3 Save the edited script and execute script
+
+Use
 
 - **Execute the scripts for their corresponding data
 
