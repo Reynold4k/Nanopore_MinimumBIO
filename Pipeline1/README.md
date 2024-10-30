@@ -30,8 +30,6 @@ Here's an illustration of downloading and decompressing hg38 human reference gen
 
 ```bash
 # Install the wget module
-pip install wget
-# Or
 apt install wget
 
 # Download the human reference genome file: hg38.fa
@@ -114,6 +112,15 @@ Make sure to decompress (.gz) files if needed and adjust the path accordingly.
 ## Action 0 Installation of required modules
 
 ```bash
+#Porechop
+apt install porechop
+
+#Nanoplot
+pip install NanoPlot
+
+#Samtools
+apt install samtools
+
 
 
 ```
