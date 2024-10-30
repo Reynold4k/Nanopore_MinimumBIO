@@ -155,8 +155,8 @@ Use Control + S to save your script aftering editing
 
 ```bash
 # What you need to modify:
-# 1.Change the line 25 FOLDER to your/pod5/path
-# 2.Change the line 26 REFERENCE to your/reference/path
+# 1.Change the line 19 FOLDER to your/pod5/path
+# 2.Change the line 25 REFERENCE to your/reference/path
 # 3.Change the line 27 ANNOTATION to your/ANNOTATION/path
 
 
