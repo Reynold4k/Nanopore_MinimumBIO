@@ -235,6 +235,8 @@ If run successfully, you'll see:
 
 
 Quality Control Outputs: Assumes NanoPlot produces a directory for quality control results and checks for this directory.
+(For details, please refer to the Nanoplot github page for the explanation of different plots:https://github.com/wdecoster/NanoPlot)
+
 BAM Files: Validates the existence of BAM files in step1 directories.
 Sorted and Marked BAM Files: Checks for sorted and marked BAM files in step2 directories.
 FeatureCounts Outputs: Confirms the presence of expression count files in step3 directories."
