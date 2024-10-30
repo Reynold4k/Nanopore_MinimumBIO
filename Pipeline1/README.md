@@ -121,7 +121,11 @@ pip install NanoPlot
 #Samtools
 apt install samtools
 
+#Subread
+apt install subread
 
+#Seqkit
+apt install seqkit
 
 ```
 
