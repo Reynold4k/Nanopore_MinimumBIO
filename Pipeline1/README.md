@@ -135,8 +135,8 @@ Set the input and reference data paths in the script:
 ## Action 1 Modify the preprocessing script(e.g. porechop_preprocessing.sh)
 Do the same modification to the pod5 files processing scripts.
 
-For fastq files: porechop_preprocessing.pbs
-For Pod5 files: pod5_preprocessing_with_genecounts.pbs
+For fastq files: porechop_preprocessing.sh
+For Pod5 files: pod5_preprocessing_with_genecounts.sh
 
 
 - **Modify the `FOLDER` variable**: Set it to the directory containing your sequencing files.
@@ -234,7 +234,70 @@ If run successfully, you'll see:
 
 ## Action 4 Analysis of generated gene counts matrix: Updating 3 Paths in R and Bash Scripts
 
-1.Change the  to your exp and control folders
+## Introduction to R and RStudio
+
+R is a powerful programming language and software environment used for statistical computing and graphics. It's popular among statisticians and data scientists for data analysis and visualization. RStudio is an integrated development environment (IDE) that enhances the R programming experience.
+
+### How to Download and Install R and RStudio
+
+### Step 1: Download and Install R
+
+1. **Visit the CRAN Website:**
+   - Go to the [CRAN R Project website](https://cran.r-project.org/).
+
+2. **Choose Your Operating System:**
+   - Click on the link for your operating system (Windows, macOS, or Linux).
+
+3. **Download R:**
+   - Follow the link to download the latest version of R for your OS.
+   - **For Windows:** Click "Download R for Windows" and then "base" for the installer.
+   - **For macOS:** Click on the "R-4.x.x.pkg" (version number may vary).
+
+4. **Install R:**
+   - Run the downloaded installer and follow the installation steps.
+
+### Step 2: Download and Install RStudio
+
+1. **Visit the RStudio Website:**
+   - Go to the [RStudio Download page](https://www.rstudio.com/products/rstudio/download/).
+
+2. **Choose RStudio Desktop:**
+   - Click the "Download" button for RStudio Desktop (Open Source License).
+
+3. **Download RStudio:**
+   - Choose the installer for your operating system and download it.
+
+4. **Install RStudio:**
+   - Run the installer and follow the instructions to install RStudio.
+
+### Step 3: Getting Started with R and RStudio
+
+1. **Open RStudio:**
+   - Launch RStudio from your applications folder or start menu.
+
+2. **Familiarize Yourself with the Interface:**
+   - RStudio's interface is divided into multiple panes: console, script editor, environment/history, and files/plots/packages/help. Explore these to understand their functions.
+
+3. **Write Your First R Script:**
+   - In the script editor, type: `print("Hello, World!")`.
+   - Run the script using the "Run" button or press `Ctrl + Enter` (Cmd + Enter on macOS).
+
+4. **Explore R Packages:**
+   - Extend R's functionality by installing packages with: `install.packages("package_name")`.
+
+5. **Learn R Basics:**
+   - Get started with R's basic data structures like vectors, matrices, data frames, and lists, and learn basic operations such as loops and functions.
+
+## Additional Resources
+
+- **R Documentation:** The official [R Documentation](https://www.rdocumentation.org/) is comprehensive and detailed.
+- **Online Courses:** Platforms like Coursera, edX, and DataCamp offer structured R courses.
+- **Communities and Forums:** Engage with communities on Stack Overflow or Reddit for help and support.
+
+
+## After you downloaded Rstudio and installed R:
+
+1.Change the to your exp and control folders
 In your R scripts, make sure that `exp_base_path` and `control_base_path` paths match the formats of `FOLDER` path specified in the `porechop_preprocessing.sh` script. Below is an example of how you can configure these: 
 
 ```r
@@ -245,6 +308,7 @@ control_base_path <- "/mnt/d/Small_Molecule/JQ1/T7MB-2/240421"
 ```
 
 2.Change the  ANNOTATION to your/ANNOTATION/path
+
 ```r
 gtf_file <- "/path/to/your/directory/Homo_sapiens.GRCh38.112.gtf.gz"
 # Note: You can download GTF files for other species from the Ensembl FTP server or UCSC Genome Browser.
@@ -260,9 +324,7 @@ gtf_file <- "/path/to/your/directory/Homo_sapiens.GRCh38.112.gtf.gz"
 # Visit the UCSC Genome Browser downloads section: http://hgdownload.soe.ucsc.edu/downloads.html
 ```
 
-# R analysis part:
-
-Then run through the whole R scripts and check the result plots.
+3. R analysis part:
 
 ```r
 # Updating Bioconductor and all necessary packages
@@ -277,7 +339,7 @@ BiocManager::install(c("DelayedArray", "SummarizedExperiment", "DESeq2", "rtrack
 
 ```
 
-### After you modified the path directory in the Analysis.R, run the R script through:
+### After you modified the path directory in the Analysis.R, run the R script in the linux portal(if windows users using Ubuntu, mac users using terminal, please refer to the guideline in the main menu) through:
    
    ```bash
     Rscript Analysis.R
@@ -285,7 +347,6 @@ BiocManager::install(c("DelayedArray", "SummarizedExperiment", "DESeq2", "rtrack
 
 # R Script Adjustment Guide
 
-This README provides instructions on adjusting the R script to modify PCA visualizations, color thresholds, and plot parameters for your RNA-seq data analysis. Follow these guidelines to customize your visual aspects effectively.
 
 ## Adjusting PCA Plot Parameters
 
