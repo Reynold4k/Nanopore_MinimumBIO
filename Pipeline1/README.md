@@ -297,7 +297,7 @@ R is a powerful programming language and software environment used for statistic
 
 ## After you downloaded Rstudio and installed R:
 
-1.Change the to your exp and control folders
+Step A. Change the to your exp and control folders
 In your R scripts, make sure that `exp_base_path` and `control_base_path` paths match the formats of `FOLDER` path specified in the `porechop_preprocessing.sh` script. Below is an example of how you can configure these: 
 
 ```r
@@ -307,7 +307,7 @@ control_base_path <- "/mnt/d/Small_Molecule/JQ1/T7MB-2/240421"
 
 ```
 
-2.Change the  ANNOTATION to your/ANNOTATION/path
+Step B. Change the  ANNOTATION to your/ANNOTATION/path
 
 ```r
 gtf_file <- "/path/to/your/directory/Homo_sapiens.GRCh38.112.gtf.gz"
@@ -324,7 +324,7 @@ gtf_file <- "/path/to/your/directory/Homo_sapiens.GRCh38.112.gtf.gz"
 # Visit the UCSC Genome Browser downloads section: http://hgdownload.soe.ucsc.edu/downloads.html
 ```
 
-3. R analysis part:
+Step C. R analysis part:
 
 ```r
 # Updating Bioconductor and all necessary packages
@@ -344,6 +344,46 @@ BiocManager::install(c("DelayedArray", "SummarizedExperiment", "DESeq2", "rtrack
    ```bash
     Rscript Analysis.R
    ``` 
+### If you prefer to manually run R scripts using RStudio instead of the command line, follow these steps:
+
+1. **Open RStudio:**
+
+   - Launch RStudio from your applications folder or start menu.
+
+2. **Create a New Script File:**
+
+   - Click on `File` > `New File` > `R Script` to open a new script editor.
+
+3. **Copy and Paste the Code:**
+
+   - Copy your R script content (from `Analysis.R` or another file) and paste it into this new script editor.
+
+4. **Save the Script:**
+
+   - Save the script by selecting `File` > `Save` or pressing `Ctrl + S` (`Cmd + S` on macOS). Name the file appropriately, such as `MyAnalysis.R`.
+
+5. **Run the Script:**
+
+   - **Step A: Check Environment and Dependencies:**
+
+     - Ensure all necessary packages are installed. Install any missing packages using:
+       ```r
+       install.packages("package_name")
+       ```
+
+   - **Step B: Execute Code Lines or Chunks:**
+
+     - To run specific lines or sections of the script, highlight the desired code portion and press `Ctrl + Enter` (`Cmd + Enter` on macOS), or click the "Run" button in the script editor toolbar.
+
+   - **Step C: Run the Entire Script:**
+
+     - To execute the entire script at once, click `Source` at the top-right of the script editor, or use the shortcut `Ctrl + Shift + S` (`Cmd + Shift + S` on macOS).
+
+6. **View Results:**
+
+   - Outputs from your script are shown in the console pane at the bottom of RStudio. Review this pane for any messages or errors and adjust your code as necessary.
+
+
 
 # R Script Adjustment Guide
 
