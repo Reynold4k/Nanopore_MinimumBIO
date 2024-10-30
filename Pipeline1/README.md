@@ -324,7 +324,7 @@ gtf_file <- "/path/to/your/directory/Homo_sapiens.GRCh38.112.gtf.gz"
 # Visit the UCSC Genome Browser downloads section: http://hgdownload.soe.ucsc.edu/downloads.html
 ```
 
-Step C. R analysis part:
+Step C. Packages installation:
 
 ```r
 # Updating Bioconductor and all necessary packages
@@ -368,7 +368,10 @@ BiocManager::install(c("DelayedArray", "SummarizedExperiment", "DESeq2", "rtrack
 
      - Ensure all necessary packages are installed. Install any missing packages using:
        ```r
-       install.packages("package_name")
+       install.packages(c("Matrix", "MASS", "mgcv", "ggplot2", "dplyr", "tidyr"))
+
+       # Bioconductor packages
+       BiocManager::install(c("DelayedArray", "SummarizedExperiment", "DESeq2", "rtracklayer"))
        ```
 
    - **Step B: Execute Code Lines or Chunks:**
