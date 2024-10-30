@@ -131,5 +131,5 @@ for FOLDER in "${FOLDERS[@]}"; do
       echo "Combined feature counts for $r_group are in: $output_counts"
   done
 
-  echo "All preprocessing done for folder $FOLDER. Please check the sequencing quality and expression counts reports!"
+  echo "All preprocessing done for folder $FOLDER. Please check the sequencing quality reports and existence of expression counts matrix file!"
 done
