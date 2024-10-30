@@ -10,18 +10,10 @@
 # This pipeline integrates essential preprocessing steps to ensure that the data is of high quality and ready for comprehensive genomic analyses.
 
 # What you need to modify:
-# 1.Change the line 25 FOLDER to your/fastq/path
-# 2.Change the line 26 REFERENCE to your/reference/path
+# 1.Change the line 19 FOLDER to your/fastq/path
+# 2.Change the line 25 REFERENCE to your/reference/path
 # 3.Change the line 27 ANNOTATION to your/ANNOTATION/path
 
-
-# Modules
-module load porechop/0.2.4
-module load nanoplot/1.43.0
-module load bwa/0.7.17
-module load samtools/1.20
-module load subread/2.0.2
-module load seqkit/2.5.1  
 
 # Define paths for multiple folder processing
 FOLDERS=(
@@ -29,7 +21,9 @@ FOLDERS=(
     "/srv/scratch/z3546698/tutorial/Small_Molecule/JQ1/Co/240217"
     # Add more directories as needed
 )
+
 REFERENCE="/srv/scratch/z3546698/tutorial/reference/hg38.fa"
+
 ANNOTATION="/srv/scratch/z3546698/tutorial/reference/Homo_sapiens.GRCh38.110.gtf"
 
 for FOLDER in "${FOLDERS[@]}"; do
