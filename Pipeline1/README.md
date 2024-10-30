@@ -231,6 +231,16 @@ If run successfully, you'll see:
 ![image](https://github.com/user-attachments/assets/208572f3-bbff-4e30-acc2-107beacb8476)
 
 
+### Output
+
+
+Quality Control Outputs: Assumes NanoPlot produces a directory for quality control results and checks for this directory.
+BAM Files: Validates the existence of BAM files in step1 directories.
+Sorted and Marked BAM Files: Checks for sorted and marked BAM files in step2 directories.
+FeatureCounts Outputs: Confirms the presence of expression count files in step3 directories."
+
+
+
 
 ## Action 4 Analysis of generated gene counts matrix: Updating 3 Paths in R and Bash Scripts
 
