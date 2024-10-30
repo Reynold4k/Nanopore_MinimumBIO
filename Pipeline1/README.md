@@ -323,15 +323,10 @@ gtf_file <- "/path/to/your/directory/Homo_sapiens.GRCh38.112.gtf.gz"
 # Visit the UCSC Genome Browser downloads section: http://hgdownload.soe.ucsc.edu/downloads.html
 ```
 
+# R analysis part:
 
 Then run through the whole R scripts and check the result plots.
 
-```bash
-
-#load r to a stable version has been passed the test
-module load r/4.4.0
-R
-```
 
 ```r
 # Updating Bioconductor and all necessary packages
