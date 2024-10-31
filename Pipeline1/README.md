@@ -348,6 +348,18 @@ gtf_file <- "/path/to/your/directory/Homo_sapiens.GRCh38.112.gtf.gz"
 
 Step C. Packages installation:
 
+Open the linux portal and type:
+
+```bash
+# To install R
+sudo apt install r-base
+
+# To open R
+R
+```
+
+Inside the R terminal you opened when typing R, run the following installation:
+
 ```r
 # Updating Bioconductor and all necessary packages
 if (!requireNamespace("BiocManager", quietly = TRUE)) {
