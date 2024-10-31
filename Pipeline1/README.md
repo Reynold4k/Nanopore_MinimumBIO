@@ -373,6 +373,19 @@ BiocManager::install(c("DelayedArray", "SummarizedExperiment", "DESeq2", "rtrack
 
 ```
 
+Update all/some/none? [a/s/n]: a
+
+### !!! Answer a to make sure all your packages are up-to-date
+
+If you never installed packages in your PC, it would take a while to install everything, be patient.
+
+Then quit R via, enter yes to save the workspace:
+
+```r
+
+
+```
+
 ### After you modified the path directory in the Analysis.R, run the R script in the linux portal(if windows users using Ubuntu, mac users using terminal, please refer to the guideline in the main menu) through:
    
    ```bash
