@@ -369,7 +369,7 @@ if (!requireNamespace("BiocManager", quietly = TRUE)) {
 install.packages(c("Matrix", "MASS", "mgcv", "ggplot2", "dplyr", "tidyr"))
 
 # Bioconductor packages
-BiocManager::install(c("DelayedArray", "SummarizedExperiment", "DESeq2", "rtracklayer", "EdgeR"))
+BiocManager::install(c("DelayedArray", "SummarizedExperiment", "DESeq2", "rtracklayer", "edgeR"))
 
 ```
 
