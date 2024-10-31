@@ -147,6 +147,15 @@ If you aren't sure about your location, you can print your location just by runn
 pwd
 ```
 
+For windows users only, you may need to convert the script format if you meet errors like "command not found":
+
+```bash
+
+dos2unix porechop_preprocessing.sh
+
+```
+
+
 You may have different ways of opening the script:
 1. Nano the_name_of_the_script
 Please check this link to know more about Nano command: https://ioflood.com/blog/nano-linux-command/#:~:text=To%20use%20the%20nano%20command,will%20create%20it%20for%20you
