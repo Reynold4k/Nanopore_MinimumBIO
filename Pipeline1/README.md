@@ -127,6 +127,7 @@ apt install subread
 #Seqkit
 apt install seqkit
 
+apt install nano
 ```
 
 
