@@ -379,10 +379,10 @@ Update all/some/none? [a/s/n]: a
 
 If you never installed packages in your PC, it would take a while to install everything, be patient.
 
-Then quit R via, enter yes to save the workspace:
+Then quit R via, enter yes to save the workspace via:
 
 ```r
-
+q()
 
 ```
 
