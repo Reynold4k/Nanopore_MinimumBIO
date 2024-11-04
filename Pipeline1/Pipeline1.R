@@ -22,13 +22,14 @@
 # 1.Change the line 26 and 27 to your exp and control folders
 # 2.Change the line 31 ANNOTATION to your/ANNOTATION/path
 
+
 # Define paths
-exp_base_path <- "/srv/scratch/z3546698/tutorial/Small_Molecule/JQ1/Co/240217"
-control_base_path <- "/srv/scratch/z3546698/tutorial/Small_Molecule/Biotin/Co/240511"
+exp_base_path <- "/mnt/d/241018_exp/"
+control_base_path <- "/mnt/d/241018_control/"
 
 
 # Read GTF file
-gtf_file <- "/srv/scratch/z3546698/tutorial/reference/Homo_sapiens.GRCh38.110.gtf"  # Please replace with the actual path
+gtf_file <- "/mnt/d/hg38/Homo_sapiens.GRCh38.112.gtf"  # Please replace with the actual path
 
 
 
@@ -88,7 +89,7 @@ path_components <- strsplit(exp_base_path, "/")[[1]]
 
 # Extract the last three components
 exp_name <- paste(rev(path_components)[1:3], collapse = "_")
-                  
+
 # Get list of directories for each path
 exp_dirs <- list_dirs(exp_base_path)
 control_dirs <- list_dirs(control_base_path)
@@ -430,9 +431,9 @@ volcano_plot <- ggplot(results, aes(x = normalized_Growth_Rate, y = log_pvalue))
   scale_color_manual(values = c("Red" = "red", 
                                 "Blue" = "blue", 
                                 "Not Significant" = "grey"),
-                     labels = c("Significantly Upregulated", 
-                                "Significantly Downregulated", 
-                                "Not Significant")) +
+                     labels = c("Significantly Downregulated", 
+                                "Not Significant", 
+                                "Significantly Upregulated")) +
   theme_minimal() +
   labs(
     x = "Log10 Growth Rate",                 # x-axis label
@@ -451,7 +452,7 @@ volcano_plot <- ggplot(results, aes(x = normalized_Growth_Rate, y = log_pvalue))
     legend.title = element_text(size = 18),  # Legend title size
     legend.text = element_text(size = 14)  # Legend text size
   ) 
-                           
+
 # Output paths
 plot_base_dir <- file.path(exp_base_path, "Routput")
 
@@ -459,9 +460,10 @@ plot_base_dir <- file.path(exp_base_path, "Routput")
 if (!dir.exists(plot_base_dir)) {
   dir.create(plot_base_dir, recursive = TRUE)
 }
-                  
+
 
 # After creating plots, ensure you save them into the existing directory
 ggsave(file.path(plot_base_dir, "pca_plot.png"), plot = pca_plot, width = 8, height = 6)
 ggsave(file.path(plot_base_dir, "line_plot.png"), plot = line_plot, width = 8, height = 6)
 ggsave(file.path(plot_base_dir, "volcano_plot.png"), plot = volcano_plot, width = 8, height = 6)
+
