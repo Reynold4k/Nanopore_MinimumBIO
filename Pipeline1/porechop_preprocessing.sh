@@ -13,18 +13,23 @@
 # 1.Change the line 19 FOLDER to your/fastq/path
 # 2.Change the line 25 REFERENCE to your/reference/path
 # 3.Change the line 27 ANNOTATION to your/ANNOTATION/path
+# 4.Change the line 32 PROTEIN_DB to your/makeblastdb/protein/database/path
+
 
 
 # Define paths for multiple folder processing
 FOLDERS=(
-    "/srv/scratch/z3546698/tutorial/Small_Molecule/Biotin/Co/240511"
-    "/srv/scratch/z3546698/tutorial/Small_Molecule/JQ1/Co/240217"
-    # Add more directories as needed
+    "/mnt/d/241018_exp/"
+    "/mnt/d/241018_control/"
 )
 
-REFERENCE="/srv/scratch/z3546698/tutorial/reference/hg38.fa"
 
-ANNOTATION="/srv/scratch/z3546698/tutorial/reference/Homo_sapiens.GRCh38.110.gtf"
+REFERENCE="/mnt/d/hg38/hg38.fa"
+
+ANNOTATION="/mnt/d/hg38/Homo_sapiens.GRCh38.112.gtf"
+
+# Path to the pre-built human protein BLAST database
+PROTEIN_DB="/mnt/d/human_proteome_db"
 
 for FOLDER in "${FOLDERS[@]}"; do
   echo "Trimming starts using Porechop in folder $FOLDER......"
@@ -32,7 +37,7 @@ for FOLDER in "${FOLDERS[@]}"; do
   find "$FOLDER" -type d -name "R*" | while IFS= read -r dir; do
       echo "Processing directory: $dir"
 
-      # Define output merged file path
+      # Define output merged and processed file paths
       merged_file="$dir/all_sequences.fastq.gz"
       seqprocessed_file="$dir/all_sequences_processed.fastq.gz"
 
@@ -84,14 +89,37 @@ for FOLDER in "${FOLDERS[@]}"; do
 
   echo "Quality Control finished........"
 
-  echo "Alignment and BAM file generation in progress......."
+  echo "BLASTx in-frame check in progress......."
   find "$FOLDER" -type f -path "*/step1/*_trimmed.fastq.gz" | while read -r trimmed_file; do
       dir=$(dirname "$trimmed_file")
       step1_dir="${dir}/../step1"
+      blast_output_dir="${dir}/../blastx_results"
+      mkdir -p "$blast_output_dir"
+      output_blast="${blast_output_dir}/$(basename "${trimmed_file%.fastq.gz}_blastx.txt")"
+
+      # Run BLASTx for in-frame checking
+      zcat "$trimmed_file" | seqtk seq -A - | \
+      blastx -db "$PROTEIN_DB" -out "$output_blast" -outfmt 6 -evalue 1e-3
+
+      echo "BLASTx output saved to $output_blast"
+
+      # Extract matching sequence IDs and filter the FASTQ file
+      awk '{print $1}' "$output_blast" | sort | uniq > "${blast_output_dir}/matched_ids.txt"
+      seqtk subseq "$trimmed_file" "${blast_output_dir}/matched_ids.txt" > "${dir}/all_filtered_sequences.fastq.gz"
+      echo "Filtered sequences saved to ${dir}/all_filtered_sequences.fastq.gz"
+  done
+
+  echo "BLASTx in-frame check finished......."
+
+  # Continue with further steps, such as alignment, only for filtered files
+  echo "Alignment and BAM file generation in progress......."
+  find "$FOLDER" -type f -path "*/all_filtered_sequences.fastq.gz" | while read -r filtered_file; do
+      dir=$(dirname "$filtered_file")
+      step1_dir="${dir}/../step1"
       mkdir -p "$step1_dir"
-      basename=$(basename "$trimmed_file" .fastq.gz)
+      basename=$(basename "$filtered_file" .fastq.gz)
       output_bam="$step1_dir/${basename}.bam"
-      bwa mem -t 24 "$REFERENCE" "$trimmed_file" | samtools view -Sb - > "$output_bam"
+      bwa mem -t 24 "$REFERENCE" "$filtered_file" | samtools view -Sb - > "$output_bam"
       echo "BAM file generated in step1 directory: $output_bam"
   done
 
