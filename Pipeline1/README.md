@@ -22,7 +22,15 @@
 
 
 ## Setup Instructions
-   
+
+## Please note, if you encounter any error when installing packages in the further steps, please add "sudo" to the very front of your installation command.
+
+For example:
+
+```bash
+sudo apt install wget
+```
+
 ## Step1 Download genome reference via:
 Genome reference file is used for alignment from your sequence files to the reference.
 
@@ -104,7 +112,44 @@ Example path for Danio rerio: "/path/to/your/directory/danRer11.refGene.gtf.gz"
 
 Make sure to decompress (.gz) files if needed and adjust the path accordingly.
 
+## Step3 Download the human protein database for conducting in-frame check for your fastq files against interested database
 
+This protein database is downloaded for constructing the database for the usage of in-frame check.
+
+## !! Please secure and save all the reference, annotation and protein database files in the folder you could confidently find their paths.
+
+
+### Downloading from UniProt
+
+UniProt provides comprehensive sequence datasets of proteins. Here’s how to download and set up the human protein database for BLAST:
+
+#### Get the Dataset
+
+Use `wget` to fetch the FASTA file of all proteins from UniProt:
+
+```bash
+wget ftp://ftp.uniprot.org/pub/databases/uniprot/current_release/knowledgebase/complete/uniprot_sprot.fasta.gz
+```
+
+### Filter for Human Proteins
+
+After downloading, filter for human entries if the dataset contains multiple species. This can be done using:
+
+```bash
+zcat uniprot_sprot.fasta.gz | grep -A 1 '^>.*OS=Homo sapiens' > human_proteins.fasta
+```
+
+### Unzip and Prepare for BLAST
+Unzip the compressed file and format it for use with BLAST:
+```bash
+gunzip uniprot_sprot.fasta.gz
+
+#Install blast module on your pc for blast usage
+apt-get install ncbi-blast+
+
+makeblastdb -in human_proteins.fasta -dbtype prot -out human_proteome_db
+
+```
 
 
 ### Script Usage Instruction
