@@ -13,9 +13,9 @@
 # Pipeline1
 
 ## Features
-1. **In-Frame Check**: Utilizes Seqkit for only keeping the sequence in frame and removing all other (backwards/out of frame)sequences.
-2. **Trimming**: Utilizes Porechop for removing adapters from sequencing reads.
-3. **Quality Control**: Leverages NanoPlot for assessing read quality.
+1. **Trimming**: Utilizes Porechop for removing adapters from sequencing reads.
+2. **Quality Control**: Leverages NanoPlot for assessing read quality.
+3. **In-Frame Check**: Utilizes blastx for only keeping the sequence in frame and removing all other (backwards/out of frame)sequences.
 4. **Alignment**: Aligns reads to a reference genome using BWA.
 5. **Sorting and Deduplication**: Sorts and marks duplicate reads using Samtools.
 6. **Gene Feature Counting**: Uses featureCounts for quantifying gene expression.
