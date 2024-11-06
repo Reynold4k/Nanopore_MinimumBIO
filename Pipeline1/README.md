@@ -555,7 +555,7 @@ Adjusting plot aesthetics involves setting graphical parameters in ggplot functi
   ```r
   #change the number 3 to your interested number you like
   results <- results %>%
-  filter(abs_log10_CPM >= 3)  # remove rows that log10CPM is less than 3 which means CPM less than 1000
+   filter(abs_log10_CPM >= 3)  # remove rows that log10CPM is less than 3 which means CPM less than 1000
   ```
 
 
