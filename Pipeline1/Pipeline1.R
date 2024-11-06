@@ -23,6 +23,7 @@
 # 2.Change the line 31 ANNOTATION to your/ANNOTATION/path
 
 
+
 # Define paths
 exp_base_path <- "/mnt/d/241018_exp/"
 control_base_path <- "/mnt/d/241018_control/"
@@ -412,46 +413,59 @@ results$color_group <- ifelse(
 # Match gene names to results
 results$GeneName <- gene_info$GeneName[match(results$Gene, gene_info$GeneID)]
 
+
+
+# Assuming average_cpm has already been computed
+exp_last_round <- exp_cpm_normalized[[length(exp_cpm_normalized)]]
+exp_first_round <- exp_cpm_normalized[[1]]
+
+#Optional: Background Substraction
+control_last_round <- control_cpm_normalized[[length(control_cpm_normalized)]]
+control_first_round <- control_cpm_normalized[[1]]
+
+#Optional: Background Substraction
+average_cpm <- rowMeans((exp_last_round - control_last_round) - (exp_first_round - control_first_round))
+
+# Convert to log10 values and save to results
+results$log10_CPM <- log10(average_cpm + 1e-6)  # Add a pseudocount to avoid log10(0)
+
+results$abs_log10_CPM <- abs(results$log10_CPM)
+
+# Filter highlight_genes to include only those with corresponding points in results
+results <- results %>%
+  filter(Gene %in% results$Gene & 
+           !is.na(normalized_Growth_Rate) & 
+           !is.na(abs_log10_CPM) & 
+           !is.na(color_group) & 
+           !is.na(log_pvalue))
+
+
+results <- results %>%
+  filter(abs_log10_CPM >= 3)  # remove rows that log10CPM is less than 3 which means CPM less than 1000
+
+# Define highlight_genes based on color_group
 highlight_genes <- results %>%
   filter(color_group %in% c("Red", "Blue"))
 
 
-# Assume the average_cpm has already been computed for each gene
-average_cpm <- rowMeans(simplify2array(exp_cpm_normalized))  # Calculate average CPM for the experimental group
-
-# Convert the average CPM to log10 values and save to the results data frame
-results$log10_CPM <- log10(average_cpm + 1e-6)  # Add 1e-6 to avoid log10(0)
-
-# Use the absolute value of log10 CPM as the point size
-results$abs_log10_CPM <- abs(results$log10_CPM)  # Compute the absolute value of log10 CPM
-
-# Plot volcano plot
+# Plot the volcano plot
 volcano_plot <- ggplot(results, aes(x = normalized_Growth_Rate, y = log_pvalue)) +
-  geom_point(aes(color = color_group, size = abs_log10_CPM), alpha = 0.6) +  # Use absolute log10_CPM to control point size
-  scale_color_manual(values = c("Red" = "red", 
-                                "Blue" = "blue", 
-                                "Not Significant" = "grey"),
-                     labels = c("Significantly Downregulated", 
-                                "Not Significant", 
-                                "Significantly Upregulated")) +
+  geom_point(aes(color = color_group, size = abs_log10_CPM), alpha = 0.6) +
+  scale_color_manual(values = c("Red" = "red", "Blue" = "blue", "Not Significant" = "grey"),
+                     labels = c("Significantly Downregulated", "Not Significant", "Significantly Upregulated")) +
   theme_minimal() +
-  labs(
-    x = "Log10 Growth Rate",                 # x-axis label
-    y = "-log10(p-value)",                   # y-axis label
-    color = "Gene Regulation",                # Legend title
-    size = "Absolute Log10 CPM"              # Size legend
-  ) +
-  geom_text(data = highlight_genes, aes(label = GeneName),
-            size = 3, vjust = -0.5, hjust = 0.5, check_overlap = TRUE) +  # Highlight gene names
-  scale_size_continuous(range = c(2, 6)) +  # Adjust the point size range
-  theme(
-    plot.title = element_text(size = 14, face = "bold"), # Title size adjustment and bold
-    legend.position = "right",  # Adjust as needed
-    axis.title = element_text(size = 20),  # Axis title size
-    axis.text = element_text(size = 18),  # Axis text size
-    legend.title = element_text(size = 18),  # Legend title size
-    legend.text = element_text(size = 14)  # Legend text size
-  ) 
+  labs(x = "Log10 Growth Rate", y = "-log10(p-value)", color = "Gene Regulation", size = "Absolute Log10 CPM") +
+  geom_text(data = highlight_genes, 
+            aes(label = ifelse(!is.na(GeneName) & GeneName != "", GeneName, Gene)), 
+            size = 3, vjust = -0.5, hjust = 0.5, check_overlap = TRUE) +
+  scale_size_continuous(range = c(2, 6)) +
+  theme(plot.title = element_text(size = 14, face = "bold"),
+        legend.position = "right",
+        axis.title = element_text(size = 20),
+        axis.text = element_text(size = 18),
+        legend.title = element_text(size = 18),
+        legend.text = element_text(size = 14))
+
 
 # Output paths
 plot_base_dir <- file.path(exp_base_path, "Routput")
