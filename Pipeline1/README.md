@@ -551,6 +551,14 @@ Adjusting plot aesthetics involves setting graphical parameters in ggplot functi
 
 ### Volcano Plot Parameters
 
+- **Threshold of CPM**: There're CPM calculated in the gene count matrix and only log10CPM is recorded in the final dataframe.
+  ```r
+  #change the number 3 to your interested number you like
+  results <- results %>%
+  filter(abs_log10_CPM >= 3)  # remove rows that log10CPM is less than 3 which means CPM less than 1000
+  ```
+
+
 - **Point Size and Alpha (Opacity)**: These are set in `geom_point()` where you can control the size and transparency of the points in the volcano plot.
   ```r
   geom_point(aes(color = color), alpha = 0.5, size = 5)  # Adjust 'size' and 'alpha'
