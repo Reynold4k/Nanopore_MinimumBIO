@@ -173,7 +173,7 @@ https://ioflood.com/blog/nano-linux-command/#:~:text=To%20use%20the%20nano%20com
     Use the environment name from the directory where you want it:
 
     ```bash
-    conda create --prefix /your/current/directory/my_conda python=3.10
+    conda create --prefix my_conda python=3.10
     ```
 
     - **Activate the Conda Environment**: Activate the created Conda environment.
@@ -259,11 +259,11 @@ https://ioflood.com/blog/nano-linux-command/#:~:text=To%20use%20the%20nano%20com
    ```
 
 2. **Modify Paths**:
-    - Change **Line 25**: Locate the line that defines `EXPERIMENTAL_FOLDER` and replace it with the path to your experimental group's FASTQ parent folder. For example:
+    - Change EXPERIMENTAL_FOLDER: Locate the line that defines `EXPERIMENTAL_FOLDER` and replace it with the path to your experimental group's FASTQ parent folder. For example:
       ```bash
       EXPERIMENTAL_FOLDER="/path/to/your/exp/fastq"
       ```
-    - Change **Line 26**: Locate the line that defines `CONTROL_FOLDER` and replace it with the path to your control group's FASTQ parent folder. For example:
+    - Change CONTROL_FOLDER: Locate the line that defines `CONTROL_FOLDER` and replace it with the path to your control group's FASTQ parent folder. For example:
       ```bash
       CONTROL_FOLDER="/path/to/your/control/fastq"
       ```
@@ -273,23 +273,17 @@ https://ioflood.com/blog/nano-linux-command/#:~:text=To%20use%20the%20nano%20com
 
 3. **Execute the Script**: Once you have modified the paths, save the file and submit it to your job scheduler. For example, use the following command:
 
-### Highly recommended!!!
     ```bash
-    #If you did book any CPU, directly run:
     bash ./compare.sh
     ```
-   
-### Step3 Analysis: Once you have executed the step3 above successfully, analyse it using the R script (Analysis.R) following command:
 
-## If you have a personalized library with gene names already existed in the reference file, please use "Analysis_withoutid.R"
-   
-The following command illustrates how to intiate the environment and make a new R library, this is important!!!
 
+   
+### Part3 Analysis: Once you have executed the scripts above successfully, analyse it using the R script (Analysis.R) following command:
+
+## If you have a personalized library with gene names already existed in the reference file, please use "Analysis_withoutidmapping.R"
+   
 ## What you what to modify:
-
-
-
-And then change the folder path of the Pipeline1.R in the lines 12,13,14 with a text editor of Analysis.R
 
 ## 1.Change the EXPERIMENTAL_FOLDER to your/exp/fastq parent path
 
@@ -299,6 +293,8 @@ EXPERIMENTAL_FOLDER <- "/mnt/d/Bait_Glue/VHL/MB012/TON/230827"
 ```
 
 ## 2.Change the id_mapping to your/id_mapping_file, you could save the id_mapping file in your previous reference folder if you want to:
+
+Please note, "Analysis_withoutidmapping.R" does not require the id_mapping object below:
 
 ```r
 id_mapping <- read.table("path/to/your/reference/idmapping_2024_10_01.tsv", 
@@ -311,14 +307,10 @@ id_mapping <- read.table("path/to/your/reference/idmapping_2024_10_01.tsv",
 ```
 
 
-## 3.Load the R module at Katana and install packages that are not available:
+## 3.Install the R packages that are not available:
 
-```bash
-#load r to a stable version has been passed the test
-module load r/4.4.0
-#To start R in the katana terminal
-R
-```
+Open R shell or Rstudio, you can find guideline here:
+https://education.rstudio.com/learn/beginner/
 
 ```r
 #install packages in the R portal via commands:
@@ -327,14 +319,22 @@ install.packages('gglpot2')
 install.packages('dplyr')
 install.packages('readr')
 ```
-### Answered "yes" to save workspace.
-### Then quit r q()
+### If you're using R shell(similar to commanline), remeber that:
 
-### After you modified the path directory in the Analysis.R, run the R script through:
+You open R in commanline via the command:
+```r
+R
+```
+
+Answered "yes" to save workspace.
+Then quit r q()
+
+### After you modified the path directory in the Analysis.R, run the R script directly in the R studio or through:
    
    ```bash
     Rscript Analysis.R
-   ``` 
+   ```
+
 # R Script Adjustment Guide
 
 This README provides instructions on adjusting the R script to modify plot appearances and color determination criteria for your differential coverage data analysis. It guides you on which parts of the code to edit to achieve desired changes.
