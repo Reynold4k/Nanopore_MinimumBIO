@@ -13,29 +13,26 @@
 
 
 # What you what to modify:
-# 1.Change the line 27 FASTQ_FOLDER to your/fastq/path
-# 2.Change the line 32 REFERENCE to your/reference/path
+# 1.Change the line 22 FASTQ_FOLDER to your/fastq/path
+# 2.Change the line 27 REFERENCE to your/reference/path
+# 3.Change the line 30 PROTEIN_DB to your/generated/protein/blast/database
 
 
-
-
-
-
-
-
-# Define paths
+# Define paths, you could add on personalized paths as many as you want:
 FASTQ_FOLDER=(
-    "/srv/scratch/z3546698/tutorial/Bait_Glue/VHL/No glue/TON/240427"
-    "/srv/scratch/z3546698/tutorial/Bait_Glue/VHL/MB015/TON/230827"
+    "/mnt/d/241004_exp/"
+    "/mnt/d/241004_control/"
 )   
 
-REFERENCE="/srv/scratch/z3546698/tutorial/reference/Ton.fa"
+REFERENCE="/mnt/d/hg38/Ton.fa"
+
+# Path to the pre-built human protein BLAST database
+PROTEIN_DB="/mnt/d/human_proteome_db"
 
 # Define the pattern to match and replace
 PATTERN="^((?:.*?\n){3}).*?(GATCCGAATTC[ACGTN].*$)(\n.*)"
 
 for folder in "${FASTQ_FOLDER[@]}"; do
-    # Iterate over directories like R0, R1, etc.
     find "$folder" -mindepth 1 -maxdepth 1 -type d -name "R*" | while IFS= read -r sample_dir; do
         echo "Processing directory: $sample_dir"
         
@@ -51,7 +48,6 @@ for folder in "${FASTQ_FOLDER[@]}"; do
         merged_file="${step1_dir}/all_sequences.fastq.gz"
         find "$sample_dir" -type f -name "*.fastq.gz" -print0 | xargs -0 cat > "$merged_file"
 
-        # Check if the merge was successful
         if [ -s "$merged_file" ]; then
             echo "Files successfully merged into $merged_file."
 
@@ -64,7 +60,7 @@ for folder in "${FASTQ_FOLDER[@]}"; do
             trimmed_file="${step1_dir}/all_trimmed.fastq.gz"
             log_file="$step1_dir/porechop.log"
             porechop -i "$seqprocessed_file" -o "$trimmed_file" -t 24 > "$log_file" 2>&1
-            
+
             # Remove the original FASTQ files after processing, excluding files starting with 'all'
             find "$sample_dir" -type f -name "*.fastq.gz" ! -name "all*.fastq.gz" -delete
             echo "Original FASTQ files deleted from directory: $sample_dir (excluding 'all' prefixed files)"
@@ -73,19 +69,32 @@ for folder in "${FASTQ_FOLDER[@]}"; do
             quality_control_dir="${sample_dir}/quality_control"
             mkdir -p "$quality_control_dir"
             NanoPlot --fastq "$trimmed_file" --outdir "${quality_control_dir}/"
+
+            # BLASTx in-frame checking 
+            blast_output_dir="${sample_dir}/blastx_results"
+            mkdir -p "$blast_output_dir"
+            output_blast="${blast_output_dir}/$(basename "${trimmed_file%.fastq.gz}_blastx.txt")"
+            zcat "$trimmed_file" | seqtk seq -A - | \
+            blastx -db "$PROTEIN_DB" -out "$output_blast" -outfmt 6 -evalue 1e-3
+            echo "BLASTx output saved to $output_blast."
+
+            # Extract matching sequence IDs and filter the FASTQ file
+            awk '{print $1}' "$output_blast" | sort | uniq > "${blast_output_dir}/matched_ids.txt"
+            seqtk subseq "$trimmed_file" "${blast_output_dir}/matched_ids.txt" > "${step1_dir}/all_filtered_sequences.fastq.gz"
+            echo "Filtered sequences saved to ${step1_dir}/all_filtered_sequences.fastq.gz"
         
-            # Align reads to the reference genome with Minimap2 and create BAM file
+            # Align reads to reference genome with Minimap2 and create BAM file for filtered sequences
             bam_file="${step2_dir}/aligned.bam"
-            minimap2 -ax map-ont "$REFERENCE" "$seqprocessed_file" | samtools view -Sb - > "$bam_file"
+            minimap2 -ax map-ont "$REFERENCE" "${step1_dir}/all_filtered_sequences.fastq.gz" | samtools view -Sb - > "$bam_file"
 
             # Sort BAM file
             sorted_bam_file="${step2_dir}/aligned_sorted.bam"
             samtools sort -o "$sorted_bam_file" "$bam_file"
-        
+
             # Calculate coverage
             coverage_file="${step2_dir}/coverage.txt"
             samtools depth "$sorted_bam_file" > "$coverage_file"
-            
+
             echo "Finished processing directory: $sample_dir. Results saved in step1 and step2."
         else
             echo "Merging failed for directory: $sample_dir. Skipping processing."
@@ -100,11 +109,9 @@ for folder in "${FASTQ_FOLDER[@]}"; do
         
         # Paths for necessary files
         coverage_file="${step2_dir}/coverage.txt"
-        output_bed="${step2_dir}/positions.bed"
 
         # Check if the coverage file exists before proceeding
         if [ -f "$coverage_file" ]; then
-            
             echo "Preparing positions in new range format..."
 
             # Prepare ranges from coverage and generate positions.txt with coverage values
@@ -118,11 +125,11 @@ for folder in "${FASTQ_FOLDER[@]}"; do
                     if (position < positions[key][1]) {
                         positions[key][1] = position;  # Update minimum start
                     }
-                    positions[key][2] = position;      # Update to current position (end)
-                    positions[key][3] += coverage;     # Accumulate coverage
+                    positions[key][2] = position;  # Update to current position (end)
+                    positions[key][3] += coverage;  # Accumulate coverage
                 } else {
                     positions[key][1] = position;  # Initialize min start
-                    positions[key][2] = position;  # Initialize min end
+                    positions[key][2] = position;  # Initialize end
                     positions[key][3] = coverage;  # Initialize coverage
                 }
             } END {
@@ -137,14 +144,13 @@ for folder in "${FASTQ_FOLDER[@]}"; do
 
             # Now create BED files from the top 1000 genes
             visualization_dir="${step2_dir}/visualization"
-            mkdir -p "$visualization_dir"  # Ensure visualization directory exists
+            mkdir -p "$visualization_dir"
 
             # Initialize a counter
             counter=0
             max_bed_files=1000
 
             while IFS=$'\t' read -r gene_id start end total_coverage; do
-                # Check if we've reached the maximum number of BED files
                 if [ "$counter" -ge "$max_bed_files" ]; then
                     echo "Reached maximum of $max_bed_files BED files. Stopping."
                     break
@@ -157,7 +163,6 @@ for folder in "${FASTQ_FOLDER[@]}"; do
                 echo -e "$gene_id\t$start\t$end" > "$bed_file"
                 echo "Created BED file for $gene_id at $bed_file"
 
-                # Increment the counter
                 counter=$((counter + 1))
             done < "${step2_dir}/top_1000_positions.txt"
         else
