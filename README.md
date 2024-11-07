@@ -4,6 +4,7 @@
 **Email**: [z3546698@ad.unsw.edu.au]  
 **Date**: 04/Sep/2024
 
+
 ### If you don't have a personalized or targeted reference genome file, please go through:
 
 ## <span style="color: red;">Pipeline1 & 2</span>
@@ -24,6 +25,12 @@ Ensure your system meets the following requirements before running the pipeline:
 - You could also obtain this software via: https://ubuntu.com/
 
 ![image](https://github.com/user-attachments/assets/9b400296-fc30-4dbd-929c-7c9bdafaf438)
+
+## If you didn't install python ever on your PC, install NOW after you read the Linux instructions below!!
+Type the command below in your linux portal
+```bash
+sudo apt install python3
+```
 
 ## Guide for Windows Users Transitioning to Ubuntu
 
@@ -145,6 +152,7 @@ Ensure your system meets the following requirements before running the pipeline:
 - Gene annotation file in GTF format (e.g., `hg38.ensGene.gtf`).
 
 # Beginner's Guide to Essential Linux Commands
+
 
 ## Introduction to the Terminal
 - **Accessing the Terminal:**  
