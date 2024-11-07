@@ -16,11 +16,12 @@
 # 1.Change the line 27 FASTQ_FOLDER to your/fastq/path
 # 2.Change the line 32 REFERENCE to your/reference/path
 
-module load porechop/0.2.4
-module load nanoplot/1.43.0
-module load samtools/1.20
-module load seqkit/2.5.1 
-module load minimap2/2.26
+
+
+
+
+
+
 
 # Define paths
 FASTQ_FOLDER=(
