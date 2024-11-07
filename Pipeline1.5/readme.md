@@ -34,6 +34,13 @@ apt install minimap2
 
 or otherwisely:
 ```bash
+
+# Install bc
+apt install bc
+
+# Install Python, if you didn't:
+sudo apt install python3
+
 # Install the wget module
 apt install wget
 
