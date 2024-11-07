@@ -9,8 +9,8 @@
 
 
 # Set the experimental folder path
-EXPERIMENTAL_FOLDER <- "/srv/scratch/z2123888/FKBP1B/WDB001/TON/241004"
-           
+EXPERIMENTAL_FOLDER <- "D:/241004_exp/"
+
 # Load necessary libraries
 library(dplyr)
 library(ggplot2)
@@ -38,7 +38,7 @@ for (round_dir in round_dirs) {
   
   # Read the differential coverage file without header
   df <- read.table(diff_coverage_file, header = FALSE, sep = "\t", stringsAsFactors = FALSE)
-
+  
   # Print the number of rows read and the first few lines to check the content
   print(paste("Number of rows read from", diff_coverage_file, ":", nrow(df)))
   print(head(df))  # Print the first few rows to check file content
@@ -94,6 +94,27 @@ for (round_dir in round_dirs) {
   write.table(df, updated_file_path, sep = "\t", col.names = TRUE, row.names = FALSE, quote = FALSE)
   
   message(paste("Updated differential coverage saved to:", updated_file_path))
+}
+
+# Check for unique values in the Round column
+unique_rounds <- unique(overall_CPM$Round)
+
+# If there is only one unique round
+if (length(unique_rounds) == 1) {
+  original_round <- unique_rounds[1]  # Get the only round
+  
+  # Modify the round by subtracting one from the second character
+  modified_round <- paste0(
+    substr(original_round, 1, 1),  # "R"
+    as.character(as.integer(substr(original_round, 2, 2)) - 1)  # Subtract 1 from the number
+  )
+  
+  # Create new rows for each existing row with CPM set to 0
+  new_rows <- overall_CPM %>%
+    mutate(CPM = 0, Round = modified_round)
+  
+  # Append the new rows to overall_CPM
+  overall_CPM <- bind_rows(overall_CPM, new_rows)
 }
 
 # Select top 11 most variable genes based on absolute mean CPM
@@ -174,7 +195,7 @@ volcano_plot <- ggplot(df, aes(x = log2foldchange, y = log10CPM)) +
   geom_text(data = label_df, aes(label = Gene),
             size = 4, vjust = -0.5, hjust = 0.5, check_overlap = TRUE) +
   labs(title = paste("Volcano Plot of", exp_name),
-    x = "Log2 Fold Change",
+       x = "Log2 Fold Change",
        y = "Log10 CPM") +
   theme_minimal() +
   theme(
