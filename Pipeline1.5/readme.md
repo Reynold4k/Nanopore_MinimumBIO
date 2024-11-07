@@ -371,6 +371,12 @@ To modify the visual aspects of your plots, you can tweak various aesthetic para
 
 ### Volcano Plot Appearance
 
+- **Filtering threshold of log10CPM**: change the number to your interested threshold, 3 means 10^3 = 1000.
+```r
+df <- df %>%
+  filter(log10CPM >= 3)
+```
+
 - **Point Size and Transparency**: To change point size and transparency on the volcano plot, modify the appropriate parameters in `geom_point()`.
   ```r
   geom_point(aes(color = color), alpha = 0.5, size = 5)  # Adjust 'size' for point size and 'alpha' for transparency
