@@ -158,11 +158,15 @@ df <- df %>%
     )
   )
 
+df <- df %>%
+  filter(log10CPM >= 3)
+
 # Select top 10 genes to label by log10CPM where the color is either red or blue
 label_df <- df %>%
   filter(color %in% c("red", "blue")) %>%
   arrange(desc(log10CPM)) %>%
   slice_head(n = 100)  # Top 20 by log10CPM among significant changes
+
 
 volcano_plot <- ggplot(df, aes(x = log2foldchange, y = log10CPM)) +
   geom_point(aes(color = color), alpha = 0.5) +
