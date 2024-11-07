@@ -21,6 +21,12 @@ These scripts provides an automated workflow for bioinformatics research, signif
 
 pipeline1.5.pbs -> Compare.pbs -> Analysis.R
 
+### Step 0: Installation of several modules you would need to use in the later steps
+```bash
+
+```
+
+
 ### Step 1: Modifying and Executing `pipeline1.5.pbs`
 
 Function introduction: Pipeline1.5.pbs is the script which goes through the working path you specified in the script, you need to edit and modify the working path in the script before running, please note, if you're using Katana, you would need to load several modules coz Katana is not able to remember the modules you used before——not like your local PC, but don't worry the stable versions of these modules have been comprehensive definied in the very begining of each script you would go through.
