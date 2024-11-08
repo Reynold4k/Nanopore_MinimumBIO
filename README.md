@@ -30,6 +30,8 @@ Ensure your system meets the following requirements before running the pipeline:
 Type the command below in your linux portal
 ```bash
 sudo apt install python3
+
+sudo apt install r-base
 ```
 
 ## Guide for Windows Users Transitioning to Ubuntu
