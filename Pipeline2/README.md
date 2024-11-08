@@ -79,10 +79,13 @@ apt-get install bedtools
 
 
 ## A quick implementation:
-### (If you're using a personalized library, please skip PartA and use Pipeline2_1.5.sh and then Pipeline2_1_PartB_pymol.sh, and you may find your bed files in the visualization folder)
+### (If you're using a personalized library, please skip PartA and PartB and use Pipeline2_1.5.sh and then Pipeline2_1_PartB_pymol.sh, and you may find your bed files in the visualization folder)
 
 ### For example:/srv/scratch/z3546698/tutorial/Bait_Glue/VHL/MB015/TON/231124/R1/step2/visualization
 
+# PartA
+
+# Pipeline 1
 ## After setting up the environment and libraries in the stepD, you need to change several directories setting in the script: pipeline2_1_PartA.sh
 
 ```bash
@@ -123,8 +126,21 @@ BED_FILE="Path to your selected gene bed file/FKBP1C_Hit_all_trimmed_sorted_merg
 
 bash ./pipeline2_1_PartB.sh
 ```
+# Pipeline 1.5
 
-## Then some operations are also required for part B_pymol:
+## What you need to modify:
+1.Change the line 15 GENOME_FASTA to your/reference/path
+```bash
+GENOME_FASTA="/mnt/c/Users/70921/OneDrive/Desktop/reference/T7-Pep_Ref_93nt.fasta" # Reference FASTA file
+```
+2.Change the line 16 BED_FILE to your/bed/path
+```bash
+# Define files and directories
+BED_FILE="/mnt/d/Bait_Glue/VHL/MB012/TON/230827/R1/visualization/NP_006156.2_2.bed"  # BED file
+```
+
+# PartB
+# Then both pipeline1 and pipeline1.5 are supposed to take some operations are also required for part B_pymol:
 
 For the pipeline2_1_PartB_pymol.sh, you need to change:
 
