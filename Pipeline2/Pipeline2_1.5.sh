@@ -8,6 +8,7 @@
 
 # What you need to modify:
 # 1.Change the line 15 GENOME_FASTA to your/reference/path
+
 # 2.Change the line 16 BED_FILE to your/bed/path
 
 # Define files and directories
