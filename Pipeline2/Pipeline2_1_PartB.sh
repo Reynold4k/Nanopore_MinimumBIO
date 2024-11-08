@@ -10,13 +10,13 @@
 # which are crucial for downstream biological analysis and interpretation of functional genomic elements.
 
 # What you need to modify:
+
 # 1.Change the line 22 GENOME_FASTA to your/path/to/reference
+
 # 2.Change the line 23 BED_FILE to your/path/to/exp/potential_hit/gene_Hit_all_trimmed_sorted_merged.bed file
 
 
-# Load required modules
-module load samtools/1.20
-module load bedtools2/2.30.0  
+
 
 # Define files and directories
 GENOME_FASTA="/srv/scratch/z3546698/true/reference/hg38.fa"  # Reference FASTA file
