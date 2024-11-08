@@ -7,7 +7,7 @@
 # allowing researchers to focus on particular genes of interest, manage raw data complexity, and enhance sequence accuracy with assembly strategies.
 
 # What you need to modify:
-# 1.Change the line 25 PARENT_DIR to your/path/to/exp/R3/step2
+# 1.Change the line 25 PARENT_DIR to your/path/to/exp/last_round/step2
 # 2.Change the line 31 REFERENCE to your/reference/path
 # 3.Change the line 32 ANNOTATION to your/ANNOTATION/path
 
