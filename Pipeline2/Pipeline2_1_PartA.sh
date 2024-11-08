@@ -1,24 +1,24 @@
 #!/bin/bash
 
+
 # This script automates the analysis and visualization of potential genomic hits from RNA sequencing data focused on specific genes.
 # It is structured to process BAM files to extract regions of interest, convert these into FASTQ files, and perform a genome assembly
 # using Canu for possible error correction. The process includes extracting hit regions from annotation files, converting data formats,
 # and visualizing coverage. Overall, this pipeline is designed to facilitate gene-specific analyses within high-throughput datasets,
 # allowing researchers to focus on particular genes of interest, manage raw data complexity, and enhance sequence accuracy with assembly strategies.
 
+
+
 # What you need to modify:
 # 1.Change the line 25 PARENT_DIR to your/path/to/exp/last_round/step2
+
 # 2.Change the line 31 REFERENCE to your/reference/path
+
 # 3.Change the line 32 ANNOTATION to your/ANNOTATION/path
 
 
 
-module load samtools/1.20
-module load seqkit/2.5.1                      
-module load canu/2.2
-module load bedtools2/2.30.0  
-module load r/4.4.0
-module load blast-plus/2.12.0 
+
 
 # Paths to directories and files
 # Base directory path; modify this line to change the directory structure
