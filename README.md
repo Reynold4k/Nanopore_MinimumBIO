@@ -31,6 +31,7 @@ Type the command below in your linux portal
 ```bash
 sudo apt install python3
 
+#Together with a bonus R installation command:
 sudo apt install r-base
 ```
 
