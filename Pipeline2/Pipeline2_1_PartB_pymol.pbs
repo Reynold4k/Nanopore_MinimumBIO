@@ -11,14 +11,14 @@
 
 
 # What you need to modify:
+
 # 1.Change the line 24 VISUAL_DIR to your/path/to/exp/potential_hit/visualization
 # 2.Change the line 27 GENOME_FASTA to your/path/to/reference
 # 3.Change the line 28 BED_FILE to your/path/to/exp/potential_hit/gene_Hit_all_trimmed_sorted_merged.bed file
 # 4.Change the line 32 UNIPROT_ID to your gene's uniprot id
 # 5.Do not change the last part of the sample directory! Change the line 35 PDB_PATH to your/path/to/alphafold database/UP000005640_9606_HUMAN_v4/AF-${UNIPROT_ID}-F1-model_v4.pdb
 
-# Load necessary modules
-module load blast-plus/2.12.0 
+
 
 # Define the output directory
 VISUAL_DIR="/srv/scratch/z3546698/true/exp/potential_hit/visualization"  # Directory for visualizations
