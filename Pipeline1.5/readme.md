@@ -29,7 +29,7 @@ pipeline1.5.sh -> Compare.sh -> Analysis.R
 If you've went through the pipeline1, then you only need to run:
 ```bash
 #Install minimap2
-apt install minimap2
+sudo apt install minimap2
 ```
 
 or otherwisely:
