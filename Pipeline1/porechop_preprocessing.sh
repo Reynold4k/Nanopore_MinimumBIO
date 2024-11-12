@@ -99,7 +99,7 @@ for FOLDER in "${FOLDERS[@]}"; do
 
       # Run BLASTx for in-frame checking
       zcat "$trimmed_file" | seqtk seq -A - | \
-      blastx -db "$PROTEIN_DB" -out "$output_blast" -outfmt 6 -evalue 1e-3
+      blastx -db "$PROTEIN_DB" -out "$output_blast" -outfmt 6 -evalue 1e-3 -num_threads 24
 
       echo "BLASTx output saved to $output_blast"
 
