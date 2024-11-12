@@ -158,21 +158,22 @@ makeblastdb -in human_proteins.fasta -dbtype prot -out human_proteome_db
 
 ```bash
 #Porechop
-apt install porechop
+sudo apt install porechop
 
 #Nanoplot
-pip install NanoPlot
+sudo pip install NanoPlot
 
 #Samtools
-apt install samtools
+sudo apt install samtools
 
 #Subread
-apt install subread
+sudo apt install subread
 
 #Seqkit
-apt install seqkit
+sudo apt install seqkit
 
-apt install nano
+#Nano
+sudo apt install nano
 ```
 
 
