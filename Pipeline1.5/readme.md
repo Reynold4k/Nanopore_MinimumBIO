@@ -34,7 +34,7 @@ source ~/miniconda3/bin/activate
 conda init
 
 #Environment
-conda create --name myenv python=3.9
+conda create --name myenv python=3.12
 conda activate myenv
 
 #Install minimap2
