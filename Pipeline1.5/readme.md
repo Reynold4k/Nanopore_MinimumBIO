@@ -36,36 +36,36 @@ or otherwisely:
 ```bash
 
 # Install bc
-apt install bc
+sudo apt install bc
 
 # Install Python, if you didn't:
 sudo apt install python3
 
 # Install the wget module
-apt install wget
+sudo apt install wget
 
 #Install the gunzip decompressor:
-pip install gunzip
+sudo pip install gunzip
 
 #bwa
-apt install bwa
+sudo apt install bwa
 
 #Porechop
-apt install porechop
+sudo apt install porechop
 
 #Nanoplot
-pip install NanoPlot
+sudo pip install NanoPlot
 
 #Samtools
-apt install samtools
+sudo apt install samtools
 
 #Subread
-apt install subread
+sudo apt install subread
 
 #Seqkit
-apt install seqkit
+sudo apt install seqkit
 
-apt install nano
+sudo apt install nano
 ```
 
 In-frame check requires a protein database, here're the preparation steps:
