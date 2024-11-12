@@ -28,6 +28,10 @@ pipeline1.5.sh -> Compare.sh -> Analysis.R
 
 If you've went through the pipeline1, then you only need to run:
 ```bash
+#Environment
+conda create --name myenv python=3.9
+conda activate myenv
+
 #Install minimap2
 sudo apt install minimap2
 ```
