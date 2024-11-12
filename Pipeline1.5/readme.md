@@ -28,6 +28,11 @@ pipeline1.5.sh -> Compare.sh -> Analysis.R
 
 If you've went through the pipeline1, then you only need to run:
 ```bash
+wget https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh
+bash Miniconda3-latest-Linux-x86_64.sh
+source ~/miniconda3/bin/activate
+conda init
+
 #Environment
 conda create --name myenv python=3.9
 conda activate myenv
