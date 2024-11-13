@@ -155,6 +155,10 @@ makeblastdb -in human_proteins.fasta -dbtype prot -out human_proteome_db
 ### Script Usage Instruction
 
 ## Action 0 Installation of required modules
+```bash
+conda activate myenv
+```
+
 
 ```bash
 #Porechop
