@@ -156,11 +156,17 @@ makeblastdb -in human_proteins.fasta -dbtype prot -out human_proteome_db
 
 ## Action 0 Installation of required modules
 ```bash
+sudo apt install python3-xyz
+
+python3 -m myenv
+
 conda activate myenv
 ```
 
 
 ```bash
+
+
 #Porechop
 sudo apt install porechop
 
