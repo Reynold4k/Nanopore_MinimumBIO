@@ -18,10 +18,10 @@
 # 3.Change the line 30 PROTEIN_DB to your/generated/protein/blast/database
 
 
-# Define paths, you could add on personalized paths as many as you want:
+
 FASTQ_FOLDER=(
-    "/mnt/d/241004_exp/"
-    "/mnt/d/241004_control/"
+    "/mnt/d/A_FKBP1B/No_glue/TON/241004"
+    "/mnt/d/A_FKBP1B/WDB001/TON/241004"
 )   
 
 REFERENCE="/mnt/d/hg38/Ton.fa"
@@ -56,11 +56,6 @@ for folder in "${FASTQ_FOLDER[@]}"; do
             seqkit replace -p "$PATTERN" -r '$1$2$3' -o "$seqprocessed_file" "$merged_file"
             echo "Sequences processed by seqkit and output to $seqprocessed_file."
 
-            # Perform trimming
-            trimmed_file="${step1_dir}/all_trimmed.fastq.gz"
-            log_file="$step1_dir/porechop.log"
-            porechop -i "$seqprocessed_file" -o "$trimmed_file" -t 24 > "$log_file" 2>&1
-
             # Remove the original FASTQ files after processing, excluding files starting with 'all'
             find "$sample_dir" -type f -name "*.fastq.gz" ! -name "all*.fastq.gz" -delete
             echo "Original FASTQ files deleted from directory: $sample_dir (excluding 'all' prefixed files)"
@@ -68,19 +63,19 @@ for folder in "${FASTQ_FOLDER[@]}"; do
             # Quality control using NanoPlot
             quality_control_dir="${sample_dir}/quality_control"
             mkdir -p "$quality_control_dir"
-            NanoPlot --fastq "$trimmed_file" --outdir "${quality_control_dir}/"
+            NanoPlot --fastq "$seqprocessed_file" --outdir "${quality_control_dir}/"
 
             # BLASTx in-frame checking 
             blast_output_dir="${sample_dir}/blastx_results"
             mkdir -p "$blast_output_dir"
-            output_blast="${blast_output_dir}/$(basename "${trimmed_file%.fastq.gz}_blastx.txt")"
-            zcat "$trimmed_file" | seqtk seq -A - | \
+            output_blast="${blast_output_dir}/$(basename "${seqprocessed_file%.fastq.gz}_blastx.txt")"
+            zcat "$seqprocessed_file" | seqtk seq -A - | \
             blastx -db "$PROTEIN_DB" -out "$output_blast" -outfmt 6 -evalue 1e-3
             echo "BLASTx output saved to $output_blast."
 
             # Extract matching sequence IDs and filter the FASTQ file
             awk '{print $1}' "$output_blast" | sort | uniq > "${blast_output_dir}/matched_ids.txt"
-            seqtk subseq "$trimmed_file" "${blast_output_dir}/matched_ids.txt" > "${step1_dir}/all_filtered_sequences.fastq.gz"
+            seqtk subseq "$seqprocessed_file" "${blast_output_dir}/matched_ids.txt" > "${step1_dir}/all_filtered_sequences.fastq.gz"
             echo "Filtered sequences saved to ${step1_dir}/all_filtered_sequences.fastq.gz"
         
             # Align reads to reference genome with Minimap2 and create BAM file for filtered sequences
