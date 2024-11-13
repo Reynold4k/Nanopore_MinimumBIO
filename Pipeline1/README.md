@@ -166,6 +166,9 @@ sudo apt install porechop
 
 #Nanoplot
 sudo pip install NanoPlot
+#OR
+conda install -c bioconda nanoplot
+
 
 #Samtools
 sudo apt install samtools
