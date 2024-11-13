@@ -170,6 +170,10 @@ cd Porechop
 python3 setup.py install
 porechop -h
 
+#Seqtk
+git clone https://github.com/lh3/seqtk.git;
+cd seqtk; make
+
 #Nanoplot
 sudo pip install NanoPlot
 #OR
