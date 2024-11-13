@@ -15,12 +15,10 @@
 # 3.Change the line 27 ANNOTATION to your/ANNOTATION/path
 # 4.Change the line 32 PROTEIN_DB to your/makeblastdb/protein/database/path
 
-
-
 # Define paths for multiple folder processing
 FOLDERS=(
-    "/mnt/d/241018_exp/"
-    "/mnt/d/241018_control/"
+    "/mnt/d/A_FKBP1B/No_glue/YB/241004"
+    "/mnt/d/A_FKBP1B/WDB001/YB/241004"
 )
 
 
@@ -28,11 +26,13 @@ REFERENCE="/mnt/d/hg38/hg38.fa"
 
 ANNOTATION="/mnt/d/hg38/Homo_sapiens.GRCh38.112.gtf"
 
+
+
 # Path to the pre-built human protein BLAST database
 PROTEIN_DB="/mnt/d/human_proteome_db"
 
 for FOLDER in "${FOLDERS[@]}"; do
-  echo "Trimming starts using Porechop in folder $FOLDER......"
+  echo "Merging and processing files in folder $FOLDER......"
 
   find "$FOLDER" -type d -name "R*" | while IFS= read -r dir; do
       echo "Processing directory: $dir"
@@ -64,22 +64,16 @@ for FOLDER in "${FOLDERS[@]}"; do
 
           find "$dir" -type f \( -name "*.fastq" -o -name "*.fastq.gz" \) ! -name "all_sequences*.fastq.gz" -delete
 
-          # Create step1 directory
+          # Create step1 directory for the processed file
           step1_dir="$dir/step1"
           mkdir -p "$step1_dir"
-          output_file="$step1_dir/all_trimmed.fastq.gz"
-          log_file="$step1_dir/porechop.log"
-
-          # Run Porechop
-          porechop -i "$seqprocessed_file" -o "$output_file" -t 24 > "$log_file" 2>&1
-          echo "Trimmed $seqprocessed_file -> $output_file"
-          echo "Log saved to $log_file"
+          trimmed_file="$step1_dir/all_trimmed.fastq.gz"
+          cp "$seqprocessed_file" "$trimmed_file" # Assume processed file is equivalent to trimmed for further steps
       else
           echo "Merging failed for $dir. Skipping to next."
       fi
   done
 
-  echo "Trimming finished......."
   echo "Quality Control in progress......."
   find "$FOLDER" -type f -path "*/step1/*_trimmed.fastq.gz" | while read -r trimmed_file; do
       quality_control_dir="$(dirname "$trimmed_file")/../quality_control"
@@ -92,7 +86,6 @@ for FOLDER in "${FOLDERS[@]}"; do
   echo "BLASTx in-frame check in progress......."
   find "$FOLDER" -type f -path "*/step1/*_trimmed.fastq.gz" | while read -r trimmed_file; do
       dir=$(dirname "$trimmed_file")
-      step1_dir="${dir}/../step1"
       blast_output_dir="${dir}/../blastx_results"
       mkdir -p "$blast_output_dir"
       output_blast="${blast_output_dir}/$(basename "${trimmed_file%.fastq.gz}_blastx.txt")"
@@ -155,7 +148,7 @@ for FOLDER in "${FOLDERS[@]}"; do
       fi
 
       output_counts="${step3_dir}/${r_group}_combined_expression_counts.txt"
-      featureCounts -a "$ANNOTATION" -o "$output_counts" -T 4 "${bam_files[@]}"
+      featureCounts -a "$ANNOTATION" -o "$output_counts" -T 16 "${bam_files[@]}"
       echo "Combined feature counts for $r_group are in: $output_counts"
   done
 
