@@ -417,6 +417,14 @@ Open the linux portal and type:
 # To install R
 sudo apt install r-base
 
+sudo apt-get update
+
+sudo apt-get install libcurl4-openssl-dev libssl-dev zlib1g-dev libbz2-dev
+
+sudo apt-get install build-essential
+
+BiocManager::install(c("Rhtslib", "Rsamtools", "GenomicAlignments", "rtracklayer"))
+
 # To open R
 R
 ```
