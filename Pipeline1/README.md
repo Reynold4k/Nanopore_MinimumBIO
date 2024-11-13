@@ -162,13 +162,13 @@ conda activate myenv
 
 ```bash
 
+apt install g++
 
 #Porechop
 git clone https://github.com/rrwick/Porechop.git
 cd Porechop
 python3 setup.py install
 porechop -h
-
 
 #Nanoplot
 sudo pip install NanoPlot
