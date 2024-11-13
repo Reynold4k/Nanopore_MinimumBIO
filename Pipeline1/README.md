@@ -164,7 +164,11 @@ conda activate myenv
 
 
 #Porechop
-sudo apt install porechop
+git clone https://github.com/rrwick/Porechop.git
+cd Porechop
+python3 setup.py install
+porechop -h
+
 
 #Nanoplot
 sudo pip install NanoPlot
