@@ -22,17 +22,16 @@
 # 1.Change the line 26 and 27 to your exp and control folders
 # 2.Change the line 31 ANNOTATION to your/ANNOTATION/path
 
-
-
 # Define paths
-exp_base_path <- "/mnt/d/241018_exp/"
-control_base_path <- "/mnt/d/241018_control/"
+exp_base_path <- "D:/A_FKBP1B/WDB001/YB/241004"
+control_base_path <- "D:/A_FKBP1B/No_glue/YB/241004"
 
 
 # Read GTF file
-gtf_file <- "/mnt/d/hg38/Homo_sapiens.GRCh38.112.gtf"  # Please replace with the actual path
+gtf_file <- "D:/hg38/Homo_sapiens.GRCh38.112.gtf"  # Please replace with the actual path
 
 
+library(ggrepel)
 
 library(Matrix)
 library(DelayedArray)
@@ -448,24 +447,50 @@ highlight_genes <- results %>%
   filter(color_group %in% c("Red", "Blue"))
 
 
-# Plot the volcano plot
+# Select top 30 genes by log10_CPM
+top_genes_CPM <- highlight_genes %>%
+  arrange(desc(log10_CPM)) %>%
+  slice_head(n = 30)
+
+# Select top 30 genes by -log10(p-value)
+top_genes_pvalue <- highlight_genes %>%
+  arrange(desc(log_pvalue)) %>%  # Sort by log_pvalue to get smallest p-values
+  slice_head(n = 30)
+
+# Combine the two sets of top genes
+top_genes_combined <- bind_rows(top_genes_CPM, top_genes_pvalue) %>%
+  distinct()  # Remove duplicates if any gene appears in both sets
+
+# Adjust the legend settings and ensure plot uses space efficiently
 volcano_plot <- ggplot(results, aes(x = normalized_Growth_Rate, y = log_pvalue)) +
   geom_point(aes(color = color_group, size = abs_log10_CPM), alpha = 0.6) +
-  scale_color_manual(values = c("Red" = "red", "Blue" = "blue", "Not Significant" = "grey"),
-                     labels = c("Significantly Downregulated", "Not Significant", "Significantly Upregulated")) +
+  scale_color_manual(
+    values = c("Red" = "red", "Blue" = "blue", "Not Significant" = "grey"),
+    labels = c("Significantly Downregulated", "Not Significant", "Significantly Upregulated")
+  ) +
   theme_minimal() +
-  labs(x = "Log10 Growth Rate", y = "-log10(p-value)", color = "Gene Regulation", size = "Absolute Log10 CPM") +
-  geom_text(data = highlight_genes, 
-            aes(label = ifelse(!is.na(GeneName) & GeneName != "", GeneName, Gene)), 
-            size = 3, vjust = -0.5, hjust = 0.5, check_overlap = TRUE) +
-  scale_size_continuous(range = c(2, 6)) +
-  theme(plot.title = element_text(size = 14, face = "bold"),
-        legend.position = "right",
-        axis.title = element_text(size = 20),
-        axis.text = element_text(size = 18),
-        legend.title = element_text(size = 18),
-        legend.text = element_text(size = 14))
+  labs(
+    x = "Log10 Growth Rate", y = "-log10(p-value)",
+    color = "Gene Regulation", size = "Absolute Log10 CPM"
+  ) +
+  geom_text_repel(
+    data = top_genes_combined,
+    aes(label = ifelse(!is.na(GeneName) & GeneName != "", GeneName, Gene)),
+    size = 3, box.padding = 0.3, point.padding = 0.5, arrow = arrow(length = unit(0.01, "npc")),
+    max.overlaps = Inf
+  ) +
+  scale_size_continuous(range = c(0, 6)) +
+  theme(
+    plot.title = element_text(size = 14, face = "bold"),
+    legend.position = "right",
+    axis.title = element_text(size = 20),
+    axis.text = element_text(size = 18),
+    legend.title = element_text(size = 18),
+    legend.text = element_text(size = 14),
+    plot.margin = margin(5, 5, 5, 5, "pt")  # Adjust margins if necessary
+  ) 
 
+print(volcano_plot)
 
 # Output paths
 plot_base_dir <- file.path(exp_base_path, "Routput")
@@ -475,9 +500,23 @@ if (!dir.exists(plot_base_dir)) {
   dir.create(plot_base_dir, recursive = TRUE)
 }
 
+# Set row names to values in the "Gene" column
+rownames(differences_df_named) <- differences_df_named$Gene
+
+# Optionally, remove the "Gene" column as it's now redundant
+differences_df_named <- differences_df_named %>%
+  select(-Variance) %>% select(-Gene)
+
+# Save the modified data frame to a CSV file (add row names)
+csv_file_path <- file.path(plot_base_dir, "differences_df_named_no_variance.csv")
+write.csv(differences_df_named, csv_file_path, row.names = TRUE)
+
+
 
 # After creating plots, ensure you save them into the existing directory
 ggsave(file.path(plot_base_dir, "pca_plot.png"), plot = pca_plot, width = 8, height = 6)
 ggsave(file.path(plot_base_dir, "line_plot.png"), plot = line_plot, width = 8, height = 6)
-ggsave(file.path(plot_base_dir, "volcano_plot.png"), plot = volcano_plot, width = 8, height = 6)
+ggsave(file.path(plot_base_dir, "volcano_plot.png"), plot = volcano_plot, width = 12, height = 6)
+
+
 
