@@ -271,7 +271,7 @@ Before running the script, you would be required to fully understand the functio
 https://ioflood.com/blog/nano-linux-command/#:~:text=To%20use%20the%20nano%20command,will%20create%20it%20for%20you.
 
    ```bash
-    Nano Compare.sh
+    nano Compare.sh
    ```
 
 2. **Modify Paths**:
