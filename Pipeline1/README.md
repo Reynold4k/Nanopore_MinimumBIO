@@ -486,7 +486,9 @@ q()
 
      - Ensure all necessary packages are installed. Install any missing packages using:
        ```r
-       install.packages(c("Matrix", "MASS", "mgcv", "ggplot2", "dplyr", "tidyr"))
+       install.packages(c("Matrix", "MASS", "mgcv", "ggplot2", "dplyr", "tidyr","ggrepel"))
+       
+       devtools::install_version("ggrepel", version = "0.8.2")
 
        # Bioconductor packages
        BiocManager::install(c("DelayedArray", "SummarizedExperiment", "DESeq2", "rtracklayer"))
