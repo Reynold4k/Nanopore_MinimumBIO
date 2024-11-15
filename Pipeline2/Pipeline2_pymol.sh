@@ -21,16 +21,16 @@
 
 
 # Define the output directory
-VISUAL_DIR="/srv/scratch/z3546698/true/exp/potential_hit/visualization"  # Directory for visualizations
+VISUAL_DIR="/mnt/d/A_FKBP1B/WDB001/YB/241004/potential_hit/visualization"  # Directory for visualizations
 
 # Define key file paths and directories
-GENOME_FASTA="/srv/scratch/z3546698/true/reference/hg38.fa"
-BED_FILE="/srv/scratch/z3546698/true/exp/potential_hit/BEX4_Hit_all_trimmed_sorted_merged.bed"  # BED file
+GENOME_FASTA="/mnt/d/hg38/hg38.fa"  # Path to the reference genome FASTA file
+BED_FILE="/mnt/d/A_FKBP1B/WDB001/YB/241004/potential_hit/BEX4_Hit_all_trimmed_sorted_merged.bed"  # BED file
 
 
 # PDB and sequence paths
-UNIPROT_ID="Q9NWD9"
-PDB_PATH="/srv/scratch/z3546698/true/alphafold/database/UP000005640_9606_HUMAN_v4/AF-${UNIPROT_ID}-F1-model_v4.pdb"
+UNIPROT_ID="Q8IWS0"
+PDB_PATH="/mnt/d/hg38/alphafold/AF-${UNIPROT_ID}-F1-model_v4.pdb"
 
 FILENAME=$(basename "$BED_FILE")
 
