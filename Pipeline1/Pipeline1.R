@@ -231,13 +231,13 @@ variance_values <- calculate_variance(as.matrix(differences_df_named[, -ncol(dif
 # Add variance to data frame
 differences_df_named$Variance <- variance_values
 
-# Select the top 20 genes with the largest variance
+# Select the top 10 genes with the largest variance
 top_genes <- differences_df_named %>%
   arrange(desc(Variance)) %>%
-  head(20) %>%
+  head(10) %>%
   pull(GeneName)
 
-# Filter data for top 20 genes
+# Filter data for top 10 genes
 filtered_long_df <- long_df %>%
   filter(GeneName %in% top_genes)
 
@@ -245,7 +245,7 @@ filtered_long_df$Difference <- filtered_long_df$Difference / 1000
 
 topgenes <- differences_df_named %>%
   arrange(desc(Variance)) %>%
-  head(20) %>%
+  head(10) %>%
   pull(Gene)
 
 # Calculate averages and create labels
