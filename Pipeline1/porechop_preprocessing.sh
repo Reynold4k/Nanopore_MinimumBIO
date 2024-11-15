@@ -114,6 +114,10 @@ for FOLDER in "${FOLDERS[@]}"; do
       output_bam="$step1_dir/${basename}.bam"
       bwa mem -t 24 "$REFERENCE" "$filtered_file" | samtools view -Sb - > "$output_bam"
       echo "BAM file generated in step1 directory: $output_bam"
+
+      # Index the BAM file to create BAI file
+      samtools index "$output_bam"
+      echo "BAI index file created for $output_bam"
   done
 
   echo "Sorting and marking duplicates......."
