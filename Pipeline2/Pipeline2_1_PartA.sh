@@ -55,7 +55,7 @@ for gene_name in "${GENES[@]}"; do
 
   # Navigate to the directory containing trimmed and sorted BAM files
   cd "$PARENT_DIR"
-  for bam_file in *_trimmed_sorted.bam; do
+  for bam_file in *_sequences_sorted.bam; do
     # Ensure the BAM file has an index; create it if missing
     if [ ! -f "$bam_file.bai" ]; then
       echo "Indexing $bam_file..."
