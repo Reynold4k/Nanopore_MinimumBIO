@@ -21,15 +21,17 @@
 
 
 # Define the output directory
-VISUAL_DIR="/mnt/d/A_FKBP1B/WDB001/YB/241004/potential_hit/visualization"  # Directory for visualizations
+VISUAL_DIR="/mnt/d/A_FKBP1B/WDB001/TON/241004/potential_hit/visualization"  # Directory for visualizations
+# Ensure the directory exists
+mkdir -p "$VISUAL_DIR"
 
 # Define key file paths and directories
-GENOME_FASTA="/mnt/d/hg38/hg38.fa"  # Path to the reference genome FASTA file
-BED_FILE="/mnt/d/A_FKBP1B/WDB001/YB/241004/potential_hit/BEX4_Hit_all_trimmed_sorted_merged.bed"  # BED file
+GENOME_FASTA="/mnt/d/hg38/Ton.fa" # Reference FASTA file
+BED_FILE="/mnt/d/A_FKBP1B/WDB001/TON/241004/R1/step2/visualization/RBM39_4.bed"  # BED file
 
 
 # PDB and sequence paths
-UNIPROT_ID="Q8IWS0"
+UNIPROT_ID="Q14498"
 PDB_PATH="/mnt/d/hg38/alphafold/AF-${UNIPROT_ID}-F1-model_v4.pdb"
 
 FILENAME=$(basename "$BED_FILE")
