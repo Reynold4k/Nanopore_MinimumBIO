@@ -53,24 +53,44 @@ for gene_name in "${GENES[@]}"; do
     continue
   fi
 
-  # Navigate to the directory containing trimmed and sorted BAM files
-  cd "$PARENT_DIR"
-  for bam_file in *_sequences_sorted.bam; do
-    # Ensure the BAM file has an index; create it if missing
-    if [ ! -f "$bam_file.bai" ]; then
-      echo "Indexing $bam_file..."
-      samtools index "$bam_file"
-    fi
+# Change to the PARENT_DIR directory
+cd "$PARENT_DIR" || { echo "Failed to access directory: $PARENT_DIR"; exit 1; }
 
-    OUTPUT_BAM="${OUTPUT_DIR}/${gene_name}_Hit_${bam_file}"
-    echo "Extracting potential hits for $gene_name from $bam_file to $OUTPUT_BAM..."
+# Define the BAM file to process
+bam_file="all_filtered_sequences_sorted.bam"
 
-    # Extract reads for the specified locations using Samtools, saving to a new BAM file
-    samtools view -b "$bam_file" $Hit_LOCATIONS > "$OUTPUT_BAM"
-  done
+# Check if the BAM file exists
+if [ ! -f "$bam_file" ]; then
+  echo "Error: $bam_file does not exist in $PARENT_DIR."
+  exit 1
+fi
+
+# Ensure the BAM file has an index; create it if missing
+if [ ! -f "$bam_file.bai" ]; then
+  echo "Indexing $bam_file..."
+  samtools index "$bam_file"
+fi
+
+# Loop through the specified genes
+for gene_name in "${GENES[@]}"; do
+  # Use awk to extract the genomic locations for the gene's exons
+  Hit_LOCATIONS=$(awk -v gene="$gene_name" '$3 == "exon" && $0 ~ gene {print "chr"$1":"$4"-"$5}' "$ANN_FILE")
+
+  # Skip if no location data is found for the specified gene in the annotation file
+  if [ -z "$Hit_LOCATIONS" ]; then
+    echo "No potential hit locations found for $gene_name in the annotation file."
+    continue
+  fi
+
+  OUTPUT_BAM="${OUTPUT_DIR}/${gene_name}_Hit_${bam_file}"
+  echo "Extracting potential hits for $gene_name from $bam_file to $OUTPUT_BAM..."
+
+  # Extract reads for the specified locations using Samtools, saving to a new BAM file
+  samtools view -b "$bam_file" $Hit_LOCATIONS > "$OUTPUT_BAM"
+  echo "Extracted hits saved to $OUTPUT_BAM."
 done
 
-echo "Extraction complete."
+echo "Extraction for $bam_file complete."
 
 # Convert BAM files to FASTQ and run Canu individually per gene
 cd "$OUTPUT_DIR"
