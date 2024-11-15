@@ -20,38 +20,25 @@
 
 
 
-# Paths to directories and files
-# Base directory path; modify this line to change the directory structure
-PARENT_DIR="/srv/scratch/z3546698/true/Small_Molecule/FK506/T7MB-2/231119/R3/step2"
+#!/bin/bash
 
-# Derive the output and visualization directories from PARENT_DIR
+# This script automates the analysis and visualization of potential genomic hits from RNA sequencing data focused on specific genes.
+# It is structured to process BAM files to extract regions of interest, convert these into FASTQ files, and perform a genome assembly
+# using Canu for possible error correction. The process includes extracting hit regions from annotation files, converting data formats,
+# and visualizing coverage.
+
+# Paths to directories and files
+PARENT_DIR="/srv/scratch/z3546698/true/Small_Molecule/FK506/T7MB-2/231119/R3/step2"
 OUTPUT_DIR="${PARENT_DIR%/*/*}/potential_hit"  # Remove the last two path segments (R3/step2)
 VISUAL_DIR="${OUTPUT_DIR}/visualization"
-
 ANN_FILE="/srv/scratch/z3546698/true/reference/Homo_sapiens.GRCh38.110.gtf"
-GENOME_FASTA="/srv/scratch/z3546698/true/reference/hg38.fa"  # Reference FASTA file
-
-
 FASTQ_DIR="${OUTPUT_DIR}/FASTQ"
 
-# Ensure visualization directory exists
-mkdir -p "$VISUAL_DIR"
-mkdir -p "$FASTQ_DIR"
-mkdir -p "$OUTPUT_DIR"
+# Ensure necessary directories exist
+mkdir -p "$VISUAL_DIR" "$FASTQ_DIR" "$OUTPUT_DIR"
 
 # Specify a list of target genes to analyze
 GENES=("FKBP1A" "FKBP1C") # Gene names to search for and analyze within sequences
-
-# Loop through each specified gene to extract data based on locations found in the GTF file
-for gene_name in "${GENES[@]}"; do
-  # Use awk to extract genomic locations for the gene's exons, prefixing with 'chr'
-  Hit_LOCATIONS=$(awk -v gene="$gene_name" '$3 == "exon" && $0 ~ gene {print "chr"$1":"$4"-"$5}' "$ANN_FILE")
-
-  # Skip if no location data is found for the specified gene in the annotation file
-  if [ -z "$Hit_LOCATIONS" ]; then
-    echo "No potential hit locations found for $gene_name in the annotation file."
-    continue
-  fi
 
 # Change to the PARENT_DIR directory
 cd "$PARENT_DIR" || { echo "Failed to access directory: $PARENT_DIR"; exit 1; }
@@ -71,9 +58,9 @@ if [ ! -f "$bam_file.bai" ]; then
   samtools index "$bam_file"
 fi
 
-# Loop through the specified genes
+# Loop through each specified gene to extract data based on locations found in the GTF file
 for gene_name in "${GENES[@]}"; do
-  # Use awk to extract the genomic locations for the gene's exons
+  # Extract genomic locations for the gene's exons, prefixing with 'chr'
   Hit_LOCATIONS=$(awk -v gene="$gene_name" '$3 == "exon" && $0 ~ gene {print "chr"$1":"$4"-"$5}' "$ANN_FILE")
 
   # Skip if no location data is found for the specified gene in the annotation file
@@ -88,45 +75,37 @@ for gene_name in "${GENES[@]}"; do
   # Extract reads for the specified locations using Samtools, saving to a new BAM file
   samtools view -b "$bam_file" $Hit_LOCATIONS > "$OUTPUT_BAM"
   echo "Extracted hits saved to $OUTPUT_BAM."
+  
+  # Convert the extracted BAM file to FASTQ format for Canu input
+  fastq_file="${FASTQ_DIR}/${gene_name}.fastq"
+  echo "Converting $OUTPUT_BAM to $fastq_file..."
+  samtools fastq "$OUTPUT_BAM" > "$fastq_file"
+
+  # Prepare an output directory for each gene's Canu assembly output
+  canu_output_dir="${FASTQ_DIR}/canu_out_${gene_name}"
+  mkdir -p "$canu_output_dir"
+  
+  # Run Canu for error correction or assembly of nanopore data
+  echo "Running Canu assembly for $gene_name from $fastq_file..."
+  canu \
+      -p "${gene_name}_corrected" -d "$canu_output_dir" \
+      genomeSize=0.038m \  # Estimated genome size for the assembly
+      -nanopore-raw "$fastq_file" \  # Specify the FASTQ data format
+      corOutCoverage=100           # Output coverage for correction
 done
 
-echo "Extraction for $bam_file complete."
-
-# Convert BAM files to FASTQ and run Canu individually per gene
-cd "$OUTPUT_DIR"
-for bam_file in *_Hit_*.bam; do
-    # Extract the gene name from the BAM file name for further processing
-    gene_name=$(basename "${bam_file}" | cut -d'_' -f1)
-    
-    # Convert the extracted BAM files containing potential hits to FASTQ format for Canu input
-    fastq_file="${FASTQ_DIR}/${gene_name}.fastq"
-    echo "Converting $bam_file to $fastq_file..."
-    samtools fastq "$bam_file" > "$fastq_file"
-    
-    # Prepare an output directory for each gene's Canu assembly output
-    canu_output_dir="${FASTQ_DIR}/canu_out_${gene_name}"
-    mkdir -p "$canu_output_dir"
-    
-    # Run Canu for error correction or assembly of nanopore data
-    echo "Running Canu assembly for $gene_name from $fastq_file..."
-    canu \
-        -p "${gene_name}_corrected" -d "$canu_output_dir" \
-        genomeSize=0.038m \  # Estimated genome size for the assembly
-        -nanopore-raw "$fastq_file" \  # Specify the FASTQ data format
-        corOutCoverage=100           # Output coverage for correction
-done
 
 echo "Canu assembly for all genes complete."
 
+# Change to the OUTPUT_DIR to perform further analysis
+cd "$OUTPUT_DIR" || { echo "Failed to access directory: $OUTPUT_DIR"; exit 1; }
 
-# Use Bedtools to convert BAM to BED, sort, merge, and visualize coverage
-cd "$OUTPUT_DIR"
+# Iterate over the generated BAM files containing potential hits
 for bam_file in *_Hit_*.bam; do
-
   # Convert BAM to BED format for downstream processing
   bed_file="${bam_file%.bam}.bed"
   bedtools bamtobed -i "$bam_file" > "$bed_file"
-  
+
   # Sort the BED file by chromosome and start position
   sorted_bed_file="${bed_file%.bed}_sorted.bed"
   sort -k1,1 -k2,2n "$bed_file" > "$sorted_bed_file"
@@ -167,8 +146,6 @@ for bam_file in *_Hit_*.bam; do
   else
     echo "Rscript is not available, skipping visualization for $bam_file"
   fi
-
 done
 
 echo "Analysis and visualization complete."
-
