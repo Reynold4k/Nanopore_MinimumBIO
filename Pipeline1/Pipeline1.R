@@ -23,16 +23,16 @@
 # 2.Change the line 31 ANNOTATION to your/ANNOTATION/path
 
 # Define paths
-exp_base_path <- "D:/A_FKBP1B/WDB001/YB/241004"
-control_base_path <- "D:/A_FKBP1B/No_glue/YB/241004"
+exp_base_path <- "/mnt/d/A_FKBP1B/MB022/CoT/241018"
+control_base_path <- "/mnt/d/A_FKBP1B/No_glue/CoT/241018"
 
 
 # Read GTF file
-gtf_file <- "D:/hg38/Homo_sapiens.GRCh38.112.gtf"  # Please replace with the actual path
+gtf_file <- "/mnt/d/hg38/Homo_sapiens.GRCh38.112.gtf"  # Please replace with the actual path
 
 
 library(ggrepel)
-
+library(limma)
 library(Matrix)
 library(DelayedArray)
 library(MASS)
@@ -231,13 +231,13 @@ variance_values <- calculate_variance(as.matrix(differences_df_named[, -ncol(dif
 # Add variance to data frame
 differences_df_named$Variance <- variance_values
 
-# Select the top 10 genes with the largest variance
+# Select the top 20 genes with the largest variance
 top_genes <- differences_df_named %>%
   arrange(desc(Variance)) %>%
-  head(10) %>%
+  head(20) %>%
   pull(GeneName)
 
-# Filter data for top 10 genes
+# Filter data for top 20 genes
 filtered_long_df <- long_df %>%
   filter(GeneName %in% top_genes)
 
@@ -245,7 +245,7 @@ filtered_long_df$Difference <- filtered_long_df$Difference / 1000
 
 topgenes <- differences_df_named %>%
   arrange(desc(Variance)) %>%
-  head(10) %>%
+  head(20) %>%
   pull(Gene)
 
 # Calculate averages and create labels
@@ -362,21 +362,33 @@ line_plot <- ggplot(filtered_long_df, aes(x = Timepoint, y = Difference, color =
 # List all time points
 timepoints <- names(exp_cpm_normalized)  # Get a list of all time points from exp_cpm_normalized
 
-# Create a result data frame to store p-values
-results <- data.frame(Gene = rownames(exp_cpm_normalized[[1]]), pvalue = NA)
+# 假设 timepoints 是你已知的时间点数量，比如 0, 1, 2, 3 等等
+time_points <- length(timepoints)  # 读取时间点的数量
+
+# 创建结果存储p值和斜率
+results <- data.frame(Gene = rownames(exp_cpm_normalized[[1]]), pvalue = NA, slope = NA)
 
 # Loop through each gene
 for (gene_index in 1:nrow(exp_cpm_normalized[[1]])) {
-  # Extract the expression values for this gene at all time points
-  exp_values <- sapply(exp_cpm_normalized, function(x) x[gene_index, ])  # Extract from experimental data
-  control_values <- sapply(control_cpm_normalized, function(x) x[gene_index, ])  # Extract from control data
+  # 提取实验组和对照组的表达值
+  exp_values <- sapply(exp_cpm_normalized, function(x) x[gene_index, ])
+  control_values <- sapply(control_cpm_normalized, function(x) x[gene_index, ])
   
-  # Perform unpaired t-test
-  t_test_result <- t.test(exp_values, control_values, paired = FALSE)
+  # 计算差值
+  true_values <- exp_values - control_values
   
-  # Extract and save p-value
-  results$pvalue[gene_index] <- t_test_result$p.value
+  # 创建适当的时间向量
+  time_vector <- 1:time_points  # 定义时间序列
+  
+  # 执行线性模型拟合
+  fit <- lm(true_values[1,] ~ poly(time_vector, 3))  # 2次多项式回归
+  
+  # 提取p值和斜率
+  results$pvalue[gene_index] <- summary(fit)$coefficients[2, 4]  # 提取斜率的p-value
+  results$slope[gene_index] <- summary(fit)$coefficients[2, 1]   # 提取斜率值
 }
+
+
 
 # Combine the results with the original gene list
 results$Gene <- rownames(exp_cpm_normalized[[1]])
@@ -400,7 +412,7 @@ results$log_pvalue <- -log10(results$pvalue)
 
 # Create a color_group variable to indicate significantly upregulated and downregulated genes
 results$color_group <- ifelse(
-  results$pvalue < 0.05,
+  results$pvalue < 0.5,
   ifelse(
     results$Growth_Rate > 0,   # Upregulated gene
     "Red",                    # Upregulated
@@ -466,7 +478,7 @@ volcano_plot <- ggplot(results, aes(x = normalized_Growth_Rate, y = log_pvalue))
   geom_point(aes(color = color_group, size = abs_log10_CPM), alpha = 0.6) +
   scale_color_manual(
     values = c("Red" = "red", "Blue" = "blue", "Not Significant" = "grey"),
-    labels = c("Significantly Downregulated", "Not Significant", "Significantly Upregulated")
+    labels = c("Not Significant", "Significantly Upregulated", "Significantly Downregulated")
   ) +
   theme_minimal() +
   labs(
@@ -490,7 +502,6 @@ volcano_plot <- ggplot(results, aes(x = normalized_Growth_Rate, y = log_pvalue))
     plot.margin = margin(5, 5, 5, 5, "pt")  # Adjust margins if necessary
   ) 
 
-print(volcano_plot)
 
 # Output paths
 plot_base_dir <- file.path(exp_base_path, "Routput")
