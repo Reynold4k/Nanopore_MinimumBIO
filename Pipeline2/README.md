@@ -65,11 +65,8 @@ jq --version
 #biopython
 pip install biopython
 
-#Canu for the error correction
-apt install canu
-
 #Bedtools2
-apt-get install bedtools
+sudo apt-get install bedtools
 
 
 ```
