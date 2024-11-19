@@ -359,33 +359,25 @@ line_plot <- ggplot(filtered_long_df, aes(x = Timepoint, y = Difference, color =
     legend.text = element_text(size = 14)  # Legend text size
   )
 
-# List all time points
 timepoints <- names(exp_cpm_normalized)  # Get a list of all time points from exp_cpm_normalized
 
-# 假设 timepoints 是你已知的时间点数量，比如 0, 1, 2, 3 等等
-time_points <- length(timepoints)  # 读取时间点的数量
+time_points <- length(timepoints)  
 
-# 创建结果存储p值和斜率
 results <- data.frame(Gene = rownames(exp_cpm_normalized[[1]]), pvalue = NA, slope = NA)
 
 # Loop through each gene
 for (gene_index in 1:nrow(exp_cpm_normalized[[1]])) {
-  # 提取实验组和对照组的表达值
   exp_values <- sapply(exp_cpm_normalized, function(x) x[gene_index, ])
   control_values <- sapply(control_cpm_normalized, function(x) x[gene_index, ])
   
-  # 计算差值
   true_values <- exp_values - control_values
   
-  # 创建适当的时间向量
-  time_vector <- 1:time_points  # 定义时间序列
+  time_vector <- 1:time_points 
   
-  # 执行线性模型拟合
-  fit <- lm(true_values[1,] ~ poly(time_vector, 3))  # 2次多项式回归
+  fit <- lm(true_values[1,] ~ poly(time_vector, 2))  
   
-  # 提取p值和斜率
-  results$pvalue[gene_index] <- summary(fit)$coefficients[2, 4]  # 提取斜率的p-value
-  results$slope[gene_index] <- summary(fit)$coefficients[2, 1]   # 提取斜率值
+  results$pvalue[gene_index] <- summary(fit)$coefficients[2, 4]  
+  results$slope[gene_index] <- summary(fit)$coefficients[2, 1]   
 }
 
 
@@ -528,6 +520,7 @@ write.csv(differences_df_named, csv_file_path, row.names = TRUE)
 ggsave(file.path(plot_base_dir, "pca_plot.png"), plot = pca_plot, width = 8, height = 6)
 ggsave(file.path(plot_base_dir, "line_plot.png"), plot = line_plot, width = 8, height = 6)
 ggsave(file.path(plot_base_dir, "volcano_plot.png"), plot = volcano_plot, width = 12, height = 6)
+
 
 
 
