@@ -167,11 +167,7 @@ sudo apt update
 sudo apt install build-essential
 sudo apt install libstdc++6
 
-#Porechop
-git clone https://github.com/rrwick/Porechop.git
-cd Porechop
-python3 setup.py install
-porechop -h
+
 
 #Seqtk
 git clone https://github.com/lh3/seqtk.git;
