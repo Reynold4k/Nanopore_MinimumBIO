@@ -163,6 +163,9 @@ conda activate myenv
 ```bash
 
 apt install g++
+sudo apt update
+sudo apt install build-essential
+sudo apt install libstdc++6
 
 #Porechop
 git clone https://github.com/rrwick/Porechop.git
