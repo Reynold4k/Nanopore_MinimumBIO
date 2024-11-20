@@ -22,9 +22,9 @@
 # 1.Change the line 26 and 27 to your exp and control folders
 # 2.Change the line 31 ANNOTATION to your/ANNOTATION/path
 
-# Define paths
-exp_base_path <- "/mnt/d/A_FKBP1B/MB022/CoT/241018"
-control_base_path <- "/mnt/d/A_FKBP1B/No_glue/CoT/241018"
+# Define paths.
+exp_base_path <- "/mnt/d/Control_LuT"
+control_base_path <- "/mnt/d/Exp_LuT"
 
 
 # Read GTF file
@@ -234,7 +234,7 @@ differences_df_named$Variance <- variance_values
 # Select the top 20 genes with the largest variance
 top_genes <- differences_df_named %>%
   arrange(desc(Variance)) %>%
-  head(20) %>%
+  head(10) %>%
   pull(GeneName)
 
 # Filter data for top 20 genes
@@ -245,7 +245,7 @@ filtered_long_df$Difference <- filtered_long_df$Difference / 1000
 
 topgenes <- differences_df_named %>%
   arrange(desc(Variance)) %>%
-  head(20) %>%
+  head(10) %>%
   pull(Gene)
 
 # Calculate averages and create labels
@@ -434,13 +434,6 @@ results$log10_CPM <- log10(average_cpm + 1e-6)  # Add a pseudocount to avoid log
 
 results$abs_log10_CPM <- abs(results$log10_CPM)
 
-# Filter highlight_genes to include only those with corresponding points in results
-results <- results %>%
-  filter(Gene %in% results$Gene & 
-           !is.na(normalized_Growth_Rate) & 
-           !is.na(abs_log10_CPM) & 
-           !is.na(color_group) & 
-           !is.na(log_pvalue))
 
 
 results <- results %>%
@@ -454,12 +447,12 @@ highlight_genes <- results %>%
 # Select top 30 genes by log10_CPM
 top_genes_CPM <- highlight_genes %>%
   arrange(desc(log10_CPM)) %>%
-  slice_head(n = 30)
+  slice_head(n = 40)
 
 # Select top 30 genes by -log10(p-value)
 top_genes_pvalue <- highlight_genes %>%
   arrange(desc(log_pvalue)) %>%  # Sort by log_pvalue to get smallest p-values
-  slice_head(n = 30)
+  slice_head(n = 40)
 
 # Combine the two sets of top genes
 top_genes_combined <- bind_rows(top_genes_CPM, top_genes_pvalue) %>%
@@ -520,6 +513,8 @@ write.csv(differences_df_named, csv_file_path, row.names = TRUE)
 ggsave(file.path(plot_base_dir, "pca_plot.png"), plot = pca_plot, width = 8, height = 6)
 ggsave(file.path(plot_base_dir, "line_plot.png"), plot = line_plot, width = 8, height = 6)
 ggsave(file.path(plot_base_dir, "volcano_plot.png"), plot = volcano_plot, width = 12, height = 6)
+
+
 
 
 
