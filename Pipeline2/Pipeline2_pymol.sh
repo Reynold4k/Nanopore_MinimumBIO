@@ -20,35 +20,37 @@
 
 
 
+#!/bin/bash
+
 # Define the output directory
-VISUAL_DIR="/mnt/d/A_FKBP1B/WDB001/TON/241004/potential_hit/visualization"  # Directory for visualizations
-# Ensure the directory exists
-mkdir -p "$VISUAL_DIR"
+VISUAL_DIR="/mnt/d/A_FKBP1B/WDB001/YB/241004/potential_hit/visualization"  # Directory for visualizations
+mkdir -p "$VISUAL_DIR"  # Ensure the directory exists
 
 # Define key file paths and directories
-GENOME_FASTA="/mnt/d/hg38/Ton.fa" # Reference FASTA file
-BED_FILE="/mnt/d/A_FKBP1B/WDB001/TON/241004/R1/step2/visualization/RBM39_4.bed"  # BED file
-
+GENOME_FASTA="/mnt/d/hg38/hg38.fa" # Reference FASTA file
+BED_FILE="/mnt/d/A_FKBP1B/WDB001/YB/241004/potential_hit/PHF6_Hit_all_filtered_sequences_sorted_sorted.bed"  # BED file
 
 # PDB and sequence paths
-UNIPROT_ID="Q14498"
+UNIPROT_ID="Q8IWS0"
 PDB_PATH="/mnt/d/hg38/alphafold/AF-${UNIPROT_ID}-F1-model_v4.pdb"
 
 FILENAME=$(basename "$BED_FILE")
-
 GENE_NAME=${FILENAME%%_*}
-
 BED_DIR=$(dirname "$BED_FILE")
 
 dna_sequences_output="$BED_DIR/high_coverage_sequences.fa"
 translated_proteins_output="$BED_DIR/translated_proteins.fa"
-
 pdb_fasta_file="$BED_DIR/pdb_sequence_${UNIPROT_ID}.fasta"
 
 # Extract protein sequence from translated_proteins.fa
 protein_sequence=$(awk '/^>/ {if (seqlen) exit} {if (!/^>/) printf $0}' "$translated_proteins_output")
+echo "Extracted Protein Sequence (before cleanup): '$protein_sequence'"
 
-# Prepare the PDB sequence in FASTA format using Biopython
+# Clean protein sequence, allowing 'X'
+protein_sequence=$(echo "$protein_sequence" | tr -d '[:space:]' | tr -d '*')
+echo "Cleaned Protein Sequence: '$protein_sequence'"
+
+# Skip validation and proceed to prepare the PDB sequence in FASTA format using Biopython
 python3 -c "
 from Bio import SeqIO
 from Bio.PDB import PDBParser
