@@ -43,6 +43,8 @@ conda create -n pymol_env python=3.8
 conda activate pymol_env
 conda install -c conda-forge -c schrodinger pymol-bundle
 
+#If that one is not working, try:
+conda install -c conda-forge pymol-open-source
 ```
 
 ## Install JQ
