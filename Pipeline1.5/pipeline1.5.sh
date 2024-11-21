@@ -33,6 +33,8 @@ PROTEIN_DB="/mnt/d/human_proteome_db"
 PATTERN="^((?:.*?\n){3}).*?(GATCCGAATTC[ACGTN].*$)(\n.*)"
 
 for folder in "${FASTQ_FOLDER[@]}"; do
+    LOGFILE="${folder}/script_output.log"  
+    exec > >(tee -a "$LOGFILE") 2>&1 
     find "$folder" -mindepth 1 -maxdepth 1 -type d -name "R*" | while IFS= read -r sample_dir; do
         echo "Processing directory: $sample_dir"
         
