@@ -17,16 +17,12 @@
 
 # Define paths for multiple folder processing
 FOLDERS=(
-    "/mnt/d/A_FKBP1B/No_glue/YB/241004"
-    "/mnt/d/A_FKBP1B/WDB001/YB/241004"
+    "/mnt/d/Exp_LuT"
+    "/mnt/d/Control_LuT"
 )
 
-
 REFERENCE="/mnt/d/hg38/hg38.fa"
-
 ANNOTATION="/mnt/d/hg38/Homo_sapiens.GRCh38.112.gtf"
-
-
 
 # Path to the pre-built human protein BLAST database
 PROTEIN_DB="/mnt/d/human_proteome_db"
@@ -114,10 +110,6 @@ for FOLDER in "${FOLDERS[@]}"; do
       output_bam="$step1_dir/${basename}.bam"
       bwa mem -t 24 "$REFERENCE" "$filtered_file" | samtools view -Sb - > "$output_bam"
       echo "BAM file generated in step1 directory: $output_bam"
-
-      # Index the BAM file to create BAI file
-      samtools index "$output_bam"
-      echo "BAI index file created for $output_bam"
   done
 
   echo "Sorting and marking duplicates......."
@@ -134,6 +126,11 @@ for FOLDER in "${FOLDERS[@]}"; do
 
       samtools markdup "$sorted_bam" "$marked_bam"
       echo "Marked duplicates in BAM file: $marked_bam"
+      # Index the BAM file to create BAI file
+      samtools index "$sorted_bam"
+      samtools index "$marked_bam"
+
+      echo "BAI index file created for $output_bam"
   done
 
   echo "Sorting and marking duplicates finished......."
