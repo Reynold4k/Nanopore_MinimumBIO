@@ -15,10 +15,10 @@
 # 3.Change the line 27 ANNOTATION to your/ANNOTATION/path
 # 4.Change the line 32 PROTEIN_DB to your/makeblastdb/protein/database/path
 
-# Define paths for multiple folder processing
 FOLDERS=(
-    "/mnt/d/Exp_LuT"
-    "/mnt/d/Control_LuT"
+    "/mnt/d/A_FKBP1B/MB022/CoT/241018"
+    "/mnt/d/A_FKBP1B/MB022/LiT/241025"
+
 )
 
 REFERENCE="/mnt/d/hg38/hg38.fa"
@@ -29,6 +29,8 @@ PROTEIN_DB="/mnt/d/human_proteome_db"
 
 for FOLDER in "${FOLDERS[@]}"; do
   echo "Merging and processing files in folder $FOLDER......"
+  LOGFILE="$FOLDER/script_output.log"
+  exec > >(tee -a "$LOGFILE") 2>&1  
 
   find "$FOLDER" -type d -name "R*" | while IFS= read -r dir; do
       echo "Processing directory: $dir"
@@ -152,6 +154,9 @@ for FOLDER in "${FOLDERS[@]}"; do
       featureCounts -a "$ANNOTATION" -o "$output_counts" -T 16 "${bam_files[@]}"
       echo "Combined feature counts for $r_group are in: $output_counts"
   done
+
+  echo "All preprocessing done for folder $FOLDER. Please check the sequencing quality reports and existence of expression counts matrix file!"
+done
 
   echo "All preprocessing done for folder $FOLDER. Please check the sequencing quality reports and existence of expression counts matrix file!"
 done
