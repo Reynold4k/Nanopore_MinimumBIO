@@ -152,14 +152,14 @@ makeblastdb -in human_proteins.fasta -dbtype prot -out human_proteome_db
 ```
 ### Blast-plus memory usage
 ```bash
-On some systems (e.g., those running macOS), the default limit on the number of open files is set in a way that doesn't allow BLAST+ applications to operate. BLAST+ will display an error similar to the following:
+On some systems (e.g., those running macOS), the default limit on the number of open files is set in a way that doesn t allow BLAST+ applications to operate. BLAST+ will display an error similar to the following:
 
 Error memory mapping: /Users/johnny/nr.25.phr openedFilesCount=251 threadID=0
 BLAST Database error: Cannot memory map /Users/johnny/nr.25.phr. Number of files opened: 251
 To address this, try increasing the number of open files, e.g.:
 
 ulimit -n unlimited
-If the command above doesn't work, try specifying a positive integer as its argument, e.g.:
+If the command above doesn t work, try specifying a positive integer as its argument, e.g.:
 
 ulimit -n 65536
 ```
