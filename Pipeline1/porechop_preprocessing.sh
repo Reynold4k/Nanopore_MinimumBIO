@@ -89,7 +89,6 @@ for FOLDER in "${FOLDERS[@]}"; do
   echo "BLASTx in-frame check in progress......."
   find "$FOLDER" -type f -path "*/step1/*_trimmed.fastq.gz" | while read -r trimmed_file; do
       dir=$(dirname "$trimmed_file")
-      dir=$(dirname "$trimmed_file")
       blast_output_dir="${dir}/../blastp_results"
       mkdir -p "$blast_output_dir"
       translated_file="${dir}/all_translated_sequences.faa.gz"
