@@ -15,22 +15,27 @@
 # 3.Change the line 27 ANNOTATION to your/ANNOTATION/path
 # 4.Change the line 32 PROTEIN_DB to your/makeblastdb/protein/database/path
 
-FOLDERS=(
-    "/mnt/d/A_FKBP1B/MB022/CoT/241018"
-    "/mnt/d/A_FKBP1B/MB022/LiT/241025"
 
+FOLDERS=(
+    "/mnt/d/A_FKBP1B/WDB001/BrT/241004"
 )
 
+
+
 REFERENCE="/mnt/d/hg38/hg38.fa"
+
 ANNOTATION="/mnt/d/hg38/Homo_sapiens.GRCh38.112.gtf"
+
+
 
 # Path to the pre-built human protein BLAST database
 PROTEIN_DB="/mnt/d/human_proteome_db"
 
 for FOLDER in "${FOLDERS[@]}"; do
   echo "Merging and processing files in folder $FOLDER......"
+  # Define log file path for the current folder
   LOGFILE="$FOLDER/script_output.log"
-  exec > >(tee -a "$LOGFILE") 2>&1  
+  exec > >(tee -a "$LOGFILE") 2>&1  # Redirect stdout and stderr to the log file
 
   find "$FOLDER" -type d -name "R*" | while IFS= read -r dir; do
       echo "Processing directory: $dir"
@@ -84,15 +89,18 @@ for FOLDER in "${FOLDERS[@]}"; do
   echo "BLASTx in-frame check in progress......."
   find "$FOLDER" -type f -path "*/step1/*_trimmed.fastq.gz" | while read -r trimmed_file; do
       dir=$(dirname "$trimmed_file")
-      blast_output_dir="${dir}/../blastx_results"
+      dir=$(dirname "$trimmed_file")
+      blast_output_dir="${dir}/../blastp_results"
       mkdir -p "$blast_output_dir"
-      output_blast="${blast_output_dir}/$(basename "${trimmed_file%.fastq.gz}_blastx.txt")"
+      translated_file="${dir}/all_translated_sequences.faa.gz"
+      output_blast="${blast_output_dir}/$(basename "${trimmed_file%.fastq.gz}_blastp.txt")"
 
-      # Run BLASTx for in-frame checking
-      zcat "$trimmed_file" | seqtk seq -A - | \
-      blastx -db "$PROTEIN_DB" -out "$output_blast" -outfmt 6 -evalue 1e-3 -num_threads 24
+      # Translate the sequences into proteins
+      zcat "$trimmed_file" | seqtk seq -A - | seqkit translate -o - | gzip > "$translated_file"
 
-      echo "BLASTx output saved to $output_blast"
+      # Run BLASTp
+      zcat "$translated_file" | blastp -db "$PROTEIN_DB" -out "$output_blast" -outfmt 6 -evalue 1e-3 -num_threads 24
+      echo "BLASTp output saved to $output_blast"
 
       # Extract matching sequence IDs and filter the FASTQ file
       awk '{print $1}' "$output_blast" | sort | uniq > "${blast_output_dir}/matched_ids.txt"
@@ -100,7 +108,7 @@ for FOLDER in "${FOLDERS[@]}"; do
       echo "Filtered sequences saved to ${dir}/all_filtered_sequences.fastq.gz"
   done
 
-  echo "BLASTx in-frame check finished......."
+  echo "BLASTp translation and check finished......."
 
   # Continue with further steps, such as alignment, only for filtered files
   echo "Alignment and BAM file generation in progress......."
@@ -154,9 +162,6 @@ for FOLDER in "${FOLDERS[@]}"; do
       featureCounts -a "$ANNOTATION" -o "$output_counts" -T 16 "${bam_files[@]}"
       echo "Combined feature counts for $r_group are in: $output_counts"
   done
-
-  echo "All preprocessing done for folder $FOLDER. Please check the sequencing quality reports and existence of expression counts matrix file!"
-done
 
   echo "All preprocessing done for folder $FOLDER. Please check the sequencing quality reports and existence of expression counts matrix file!"
 done
