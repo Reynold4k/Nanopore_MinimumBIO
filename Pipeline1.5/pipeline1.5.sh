@@ -67,7 +67,7 @@ for folder in "${FASTQ_FOLDER[@]}"; do
             mkdir -p "$quality_control_dir"
             NanoPlot --fastq "$seqprocessed_file" --outdir "${quality_control_dir}/"
 
-            # BLASTx in-frame checking 
+            # BLASTx in-frame checking THIS IS NOT CHECKING IF IT IS IN-FRAME. this needs to be fixed.
             blast_output_dir="${sample_dir}/blastx_results"
             mkdir -p "$blast_output_dir"
             output_blast="${blast_output_dir}/$(basename "${seqprocessed_file%.fastq.gz}_blastx.txt")"
