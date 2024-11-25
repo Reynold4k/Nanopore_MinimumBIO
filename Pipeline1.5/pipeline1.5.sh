@@ -174,6 +174,3 @@ for folder in "${FASTQ_FOLDER[@]}"; do
 done
 
 echo "All directories processed." | tee -a "$logbook"
-done
-
-echo "All directories processed."
