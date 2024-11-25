@@ -54,7 +54,7 @@ sudo apt install python3
 sudo apt install wget
 
 #Install the gunzip decompressor:
-sudo pip install gunzip
+pip install gunzip
 
 #bwa
 sudo apt install bwa
@@ -63,7 +63,7 @@ sudo apt install bwa
 sudo apt install porechop
 
 #Nanoplot
-sudo pip install NanoPlot
+pip install NanoPlot
 
 #Samtools
 sudo apt install samtools
