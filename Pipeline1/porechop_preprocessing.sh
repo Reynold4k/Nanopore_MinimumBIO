@@ -72,6 +72,7 @@ for FOLDER in "${FOLDERS[@]}"; do
           mkdir -p "$step1_dir"
           trimmed_file="$step1_dir/all_trimmed.fastq.gz"
           cp "$seqprocessed_file" "$trimmed_file" # Assume processed file is equivalent to trimmed for further steps
+          rm "$seqprocessed_file"
       else
           echo "Merging failed for $dir. Skipping to next."
       fi
