@@ -492,5 +492,5 @@ write.csv(differences_df_named, csv_file_path, row.names = TRUE)
 # After creating plots, ensure you save them into the existing directory
 ggsave(file.path(plot_base_dir, "pca_plot.png"), plot = pca_plot, width = 8, height = 6)
 ggsave(file.path(plot_base_dir, "line_plot.png"), plot = line_plot, width = 8, height = 6)
-ggsave(file.path(plot_base_dir, "volcano_plot.png"), plot = volcano_plot, width = 12, height = 6)
+ggsave(file.path(plot_base_dir, "ttest_volcano_plot.png"), plot = volcano_plot, width = 12, height = 6)
 
