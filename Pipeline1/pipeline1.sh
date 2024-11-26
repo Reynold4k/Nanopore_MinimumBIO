@@ -87,7 +87,7 @@ for FOLDER in "${FOLDERS[@]}"; do
 
   echo "Quality Control finished........"
 
-  echo "BLASTx in-frame check in progress......."
+  echo "BLASTp in-frame check in progress......."
   find "$FOLDER" -type f -path "*/step1/*_trimmed.fastq.gz" | while read -r trimmed_file; do
       dir=$(dirname "$trimmed_file")
       blast_output_dir="${dir}/../blastp_results"
