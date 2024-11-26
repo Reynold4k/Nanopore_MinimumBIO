@@ -374,7 +374,7 @@ for (gene_index in 1:nrow(exp_cpm_normalized[[1]])) {
   
   time_vector <- 1:time_points 
   
-  fit <- lm(true_values[1,] ~ poly(time_vector, 2))  
+  fit <- lm(true_values[1,] ~ poly(time_vector, 1))  
   
   results$pvalue[gene_index] <- summary(fit)$coefficients[2, 4]  
   results$slope[gene_index] <- summary(fit)$coefficients[2, 1]   
@@ -458,8 +458,12 @@ top_genes_pvalue <- highlight_genes %>%
 top_genes_combined <- bind_rows(top_genes_CPM, top_genes_pvalue) %>%
   distinct()  # Remove duplicates if any gene appears in both sets
 
+top_genes_combined_filtered <- top_genes_combined[top_genes_combined$Gene %in% rownames(differences_df_named),]
+
+filtered_results <- unique(results[results$Gene %in% rownames(differences_df_named), ])
+
 # Adjust the legend settings and ensure plot uses space efficiently
-volcano_plot <- ggplot(results, aes(x = normalized_Growth_Rate, y = log_pvalue)) +
+volcano_plot <- ggplot(filtered_results, aes(x = normalized_Growth_Rate, y = log_pvalue)) +
   geom_point(aes(color = color_group, size = abs_log10_CPM), alpha = 0.6) +
   scale_color_manual(
     values = c("Red" = "red", "Blue" = "blue", "Not Significant" = "grey"),
@@ -471,7 +475,7 @@ volcano_plot <- ggplot(results, aes(x = normalized_Growth_Rate, y = log_pvalue))
     color = "Gene Regulation", size = "Absolute Log10 CPM"
   ) +
   geom_text_repel(
-    data = top_genes_combined,
+    data = top_genes_combined_filtered,
     aes(label = ifelse(!is.na(GeneName) & GeneName != "", GeneName, Gene)),
     size = 3, box.padding = 0.3, point.padding = 0.5, arrow = arrow(length = unit(0.01, "npc")),
     max.overlaps = Inf
@@ -513,6 +517,8 @@ write.csv(differences_df_named, csv_file_path, row.names = TRUE)
 ggsave(file.path(plot_base_dir, "pca_plot.png"), plot = pca_plot, width = 8, height = 6)
 ggsave(file.path(plot_base_dir, "line_plot.png"), plot = line_plot, width = 8, height = 6)
 ggsave(file.path(plot_base_dir, "volcano_plot.png"), plot = volcano_plot, width = 12, height = 6)
+
+
 
 
 
