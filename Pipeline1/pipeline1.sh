@@ -17,64 +17,67 @@
 
 
 FOLDERS=(
-    "/mnt/d/A_FKBP1B/WDB001/BrT/241004"
+    "/mnt/d/A_FKBP1B/No_glue/YB/241004"
 )
 
-
-
 REFERENCE="/mnt/d/hg38/hg38.fa"
-
 ANNOTATION="/mnt/d/hg38/Homo_sapiens.GRCh38.112.gtf"
-
-
-
-# Path to the pre-built human protein BLAST database
 PROTEIN_DB="/mnt/d/human_proteome_db"
 
 for FOLDER in "${FOLDERS[@]}"; do
   echo "Merging and processing files in folder $FOLDER......"
-  # Define log file path for the current folder
   LOGFILE="$FOLDER/script_output.log"
   exec > >(tee -a "$LOGFILE") 2>&1  # Redirect stdout and stderr to the log file
 
   find "$FOLDER" -type d -name "R*" | while IFS= read -r dir; do
       echo "Processing directory: $dir"
-
-      # Define output merged and processed file paths
       merged_file="$dir/all_sequences.fastq.gz"
-      seqprocessed_file="$dir/all_sequences_processed.fastq.gz"
 
-      # Initialize or clear the existing merged file
-      > "$merged_file"
+      if [ ! -e "$merged_file" ]; then
+          echo "Merging files..."
+          temp_merged="${merged_file%.gz}"  # Create temp file without .gz extension
+          > "$temp_merged"  # Clear or initialize the temp file
 
-      # Find and merge all fastq files
-      find "$dir" -type f \( -name "*.fastq" -o -name "*.fastq.gz" \) -print0 | while IFS= read -r -d '' file; do
-          echo "Merging file: $file"
-          if [[ "$file" == *.gz ]]; then
-              zcat "$file" >> "$merged_file"
-          else
-              cat "$file" >> "$merged_file"
-          fi
-      done
-
-      if [ -s "$merged_file" ]; then
+          find "$dir" -type f \( -name "*.fastq" -o -name "*.fastq.gz" \) -print0 | while IFS= read -r -d '' file; do
+              echo "Merging file: $file"
+              if [[ "$file" == *.gz ]]; then
+                  zcat "$file" >> "$temp_merged"
+              else
+                  cat "$file" >> "$temp_merged"
+              fi
+          done
+          echo "Compressing merged file..."
+          gzip "$temp_merged"  # Gzip the merged file
           echo "Files merged into $merged_file."
-
-          # Process with seqkit
-          echo "Processing with seqkit for $merged_file"
-          seqkit replace -p "^((?:.*?\n){3}).*?(GATCCGAATTC[ACGTN].*$)(\n.*)" -r '$1$2$3' -o "$seqprocessed_file" "$merged_file"
-          echo "Sequences processed and saved to $seqprocessed_file"
-
-          find "$dir" -type f \( -name "*.fastq" -o -name "*.fastq.gz" \) ! -name "all_sequences*.fastq.gz" -delete
-
-          # Create step1 directory for the processed file
-          step1_dir="$dir/step1"
-          mkdir -p "$step1_dir"
-          trimmed_file="$step1_dir/all_trimmed.fastq.gz"
-          cp "$seqprocessed_file" "$trimmed_file" # Assume processed file is equivalent to trimmed for further steps
-          rm "$seqprocessed_file"
       else
-          echo "Merging failed for $dir. Skipping to next."
+          echo "Merged file $merged_file already exists. Skipping merging."
+      fi
+
+      seqprocessed_file="$dir/all_sequences_processed.fastq.gz"
+      if [ ! -e "$seqprocessed_file" ]; then
+          if cutadapt -j 16 -g "GATCCGAATTCN" -e 0.01 --times=3 --discard-untrimmed -o "$seqprocessed_file" "$merged_file"; then
+              echo "Sequences processed and saved to $seqprocessed_file"
+          else
+              echo "Error: cutadapt failed to process sequences."
+              continue  # Go to the next directory
+          fi
+      else
+          echo "Processed file $seqprocessed_file already exists. Skipping processing."
+      fi
+
+      step1_dir="$dir/step1"
+      mkdir -p "$step1_dir"
+      trimmed_file="$step1_dir/all_trimmed.fastq.gz"
+
+      if [ ! -e "$trimmed_file" ]; then
+          if cp "$seqprocessed_file" "$trimmed_file"; then
+              rm "$seqprocessed_file"
+              echo "Trimmed file created: $trimmed_file"
+          else
+              echo "Error: Unable to copy processed file $seqprocessed_file."
+          fi
+      else
+          echo "Trimmed file $trimmed_file already exists. Skipping copy."
       fi
   done
 
@@ -82,10 +85,15 @@ for FOLDER in "${FOLDERS[@]}"; do
   find "$FOLDER" -type f -path "*/step1/*_trimmed.fastq.gz" | while read -r trimmed_file; do
       quality_control_dir="$(dirname "$trimmed_file")/../quality_control"
       mkdir -p "$quality_control_dir"
-      NanoPlot --fastq "$trimmed_file" --outdir "$quality_control_dir/$(basename "${trimmed_file%.fastq.gz}_nanop")"
-  done
+      nanop_output_dir="$quality_control_dir/$(basename "${trimmed_file%.fastq.gz}_nanop")"
 
-  echo "Quality Control finished........"
+      if [ ! -d "$nanop_output_dir" ]; then
+          NanoPlot --fastq "$trimmed_file" --outdir "$nanop_output_dir"
+          echo "Quality control data generated in $nanop_output_dir"
+      else
+          echo "Quality control data already exists at $nanop_output_dir. Skipping quality control."
+      fi
+  done
 
   echo "BLASTp in-frame check in progress......."
   find "$FOLDER" -type f -path "*/step1/*_trimmed.fastq.gz" | while read -r trimmed_file; do
@@ -96,7 +104,7 @@ for FOLDER in "${FOLDERS[@]}"; do
       output_blast="${blast_output_dir}/$(basename "${trimmed_file%.fastq.gz}_blastp.txt")"
 
       # Translate the sequences into proteins
-      zcat "$trimmed_file" | seqtk seq -A - | seqkit translate -o - | gzip > "$translated_file"
+      zcat "$trimmed_file" | seqtk seq -A - | seqkit translate -o - | awk 'NR%2==1 {header=$0} NR%2==0 {if (length($0) >= 30) print header; print $0}' | gzip > "$translated_file"
 
       # Run BLASTp
       zcat "$translated_file" | blastp -db "$PROTEIN_DB" -out "$output_blast" -outfmt 6 -evalue 1e-3 -num_threads 24
@@ -163,5 +171,7 @@ for FOLDER in "${FOLDERS[@]}"; do
       echo "Combined feature counts for $r_group are in: $output_counts"
   done
 
+  echo "All preprocessing done for folder $FOLDER. Please check the sequencing quality reports and existence of expression counts matrix file!"
+done
   echo "All preprocessing done for folder $FOLDER. Please check the sequencing quality reports and existence of expression counts matrix file!"
 done
