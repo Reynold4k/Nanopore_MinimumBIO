@@ -274,7 +274,7 @@ porechop -t 16 -i "$merged_file" -o "$output_file" > "$log_file" 2>&1
 
 ```
 
-### Before running, if you're having another known in-frame check sequence different from: GATCCGAATTCN
+### Before running, if you're having another known adapter different from: GATCCGAATTCN
 
 Please replace the cutadapt line in the porechop_preprocessing.sh with:
 
