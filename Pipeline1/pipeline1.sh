@@ -173,5 +173,4 @@ for FOLDER in "${FOLDERS[@]}"; do
 
   echo "All preprocessing done for folder $FOLDER. Please check the sequencing quality reports and existence of expression counts matrix file!"
 done
-  echo "All preprocessing done for folder $FOLDER. Please check the sequencing quality reports and existence of expression counts matrix file!"
-done
+
