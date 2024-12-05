@@ -197,6 +197,11 @@ sudo apt install seqkit
 
 #Nano
 sudo apt install nano
+
+#cutadapt
+
+sudo apt install cutadapt
+
 ```
 
 
