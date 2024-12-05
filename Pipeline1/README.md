@@ -271,14 +271,31 @@ porechop -t 16 -i "$merged_file" -o "$output_file" > "$log_file" 2>&1
 
 ### Before running, if you're having another known in-frame check sequence different from: GATCCGAATTCN
 
-Please replace the seqkit line in the porechop_preprocessing.sh with:
+Please replace the cutadapt line in the porechop_preprocessing.sh with:
 
 ```bash
 
-seqkit replace -p "^((?:.*?\n){3}).*?(your_in_frame_check_sequence)(\n.*)" -r '$1$2$3' -o "$seqprocessed_file" "$merged_file"
+cutadapt -j 16 -g "GATCCGAATTCN" -e 0.01 --times=3 --discard-untrimmed -o "$seqprocessed_file" "$merged_file"
 
-For example:
-seqkit replace -p "^((?:.*?\n){3}).*?(GATCATTACTGAGCTATAGCTCATGCGGCCGC)(\n.*)" -r '$1$2$3' -o "$seqprocessed_file" "$merged_file"
+Usage instruction for different adapters:
+
+  -a ADAPTER, --adapter ADAPTER
+                        Sequence of an adapter ligated to the 3' end (paired data: of the first
+                        read). The adapter and subsequent bases are trimmed. If a '$' character is
+                        appended ('anchoring'), the adapter is only found if it is a suffix of the
+                        read.
+  -g ADAPTER, --front ADAPTER
+                        Sequence of an adapter ligated to the 5' end (paired data: of the first
+                        read). The adapter and any preceding bases are trimmed. Partial matches at
+                        the 5' end are allowed. If a '^' character is prepended ('anchoring'), the
+                        adapter is only found if it is a prefix of the read.
+  -b ADAPTER, --anywhere ADAPTER
+                        Sequence of an adapter that may be ligated to the 5' or 3' end (paired data:
+                        of the first read). Both types of matches as described under -a and -g are
+                        allowed. If the first base of the read is part of the match, the behavior is
+                        as with -g, otherwise as with -a. This option is mostly for rescuing failed
+                        library preparations - do not use if you know which end your adapter was
+                        ligated to!
 
 ```
 
