@@ -1,0 +1,195 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+# Thin CLI dispatcher for Nanopore MinimumBIO v2.
+# Usage: minbio <command> --config <file>
+
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+REPO_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
+# shellcheck source=../scripts/lib/common.sh
+source "$REPO_ROOT/scripts/lib/common.sh"
+
+usage() {
+    cat <<EOF
+Nanopore MinimumBIO v2 — command-line dispatcher
+
+Usage: minbio <command> --config <file>
+
+Commands:
+  check        Verify environment, tools and reference files
+  preprocess   Filter and align reads per round
+  quantify     Count reads (genome) or compare coverage (targeted)
+  analyse      Differential analysis and plots
+  candidates   Extract candidate sequences and translate them
+  structure    Map candidates to a PDB structure
+
+Options:
+  --config     Path to YAML configuration file (required by all commands).
+  --help       Show this message.
+
+Examples:
+  minbio check --config config/my_experiment.yaml
+  minbio preprocess --config config/my_experiment.yaml
+  minbio quantify --config config/my_experiment.yaml
+  minbio analyse --config config/my_experiment.yaml
+  minbio candidates --config config/my_experiment.yaml
+  minbio structure --config config/my_experiment.yaml
+EOF
+}
+
+if [[ $# -eq 0 ]]; then
+    usage
+    exit 1
+fi
+
+command="$1"
+shift
+
+config_file=""
+while [[ $# -gt 0 ]]; do
+    case "$1" in
+        --config)
+            if [[ $# -lt 2 ]]; then
+                die "--config requires a value"
+            fi
+            config_file="$2"
+            shift 2
+            ;;
+        -h|--help)
+            usage
+            exit 0
+            ;;
+        *)
+            die "unknown argument: $1"
+            ;;
+    esac
+done
+
+if [[ -z "$config_file" ]]; then
+    usage >&2
+    die "--config is required"
+fi
+
+# Make relative config paths work from the caller's directory.
+if [[ "$config_file" != /* ]]; then
+    config_file="$(pwd)/$config_file"
+fi
+
+load_config "$config_file"
+
+MODE="${MB_MODE:-genome}"
+INPUT_TYPE="${MB_INPUT_TYPE:-fastq}"
+EXP_FOLDER="${MB_EXPERIMENT_EXP_FOLDER:-}"
+
+run_check() {
+    "$REPO_ROOT/scripts/check_env.sh" --config "$config_file"
+}
+
+run_preprocess() {
+    if [[ "$MODE" == "genome" ]]; then
+        if [[ "$INPUT_TYPE" == "fastq" ]]; then
+            "$REPO_ROOT/workflow/preprocess_fastq.sh" --config "$config_file"
+        elif [[ "$INPUT_TYPE" == "pod5" ]]; then
+            "$REPO_ROOT/workflow/preprocess_pod5.sh" --config "$config_file"
+        else
+            die "unknown input.type: $INPUT_TYPE (expected fastq or pod5)"
+        fi
+    elif [[ "$MODE" == "targeted" ]]; then
+        "$REPO_ROOT/workflow/coverage_workflow.sh" --config "$config_file" --stage preprocess
+    else
+        die "unknown mode: $MODE (expected genome or targeted)"
+    fi
+}
+
+run_quantify() {
+    if [[ "$MODE" == "genome" ]]; then
+        "$REPO_ROOT/workflow/quantify_genome.sh" --config "$config_file"
+    elif [[ "$MODE" == "targeted" ]]; then
+        "$REPO_ROOT/workflow/coverage_workflow.sh" --config "$config_file" --stage compare
+    else
+        die "unknown mode: $MODE (expected genome or targeted)"
+    fi
+}
+
+run_analyse() {
+    if [[ -z "$EXP_FOLDER" ]]; then
+        die "experiment.exp_folder is required for analyse"
+    fi
+    local out_dir="$EXP_FOLDER/Routput"
+    mkdir -p "$out_dir"
+
+    if [[ "$MODE" == "genome" ]]; then
+        local control_folder="${MB_EXPERIMENT_CONTROL_FOLDER:-}"
+        local gtf="${MB_REFERENCE_ANNOTATION:-}"
+        local method="${MB_ANALYSIS_METHOD:-trend}"
+        local pvalue="${MB_ANALYSIS_PVALUE_THRESHOLD:-0.05}"
+        local log10cpm="${MB_ANALYSIS_LOG10CPM_THRESHOLD:-3}"
+        local top_label="${MB_ANALYSIS_TOP_GENES_LABEL:-40}"
+        local top_trajectory="${MB_ANALYSIS_TOP_GENES_TRAJECTORY:-10}"
+        local round_pattern="${MB_EXPERIMENT_ROUND_PATTERN:-R*}"
+
+        : "${control_folder:?\"missing experiment.control_folder\"}"
+        : "${gtf:?\"missing reference.annotation\"}"
+
+        Rscript "$REPO_ROOT/R/differential_genome.R" \
+            --exp "$EXP_FOLDER" \
+            --control "$control_folder" \
+            --gtf "$gtf" \
+            --out "$out_dir" \
+            --method "$method" \
+            --pvalue "$pvalue" \
+            --log10cpm "$log10cpm" \
+            --top-label "$top_label" \
+            --top-trajectory "$top_trajectory" \
+            --round-pattern "$round_pattern"
+    elif [[ "$MODE" == "targeted" ]]; then
+        local id_mapping="${MB_REFERENCE_ID_MAPPING:-}"
+        local r_args=(
+            --exp "$EXP_FOLDER"
+            --out "$out_dir"
+        )
+        if [[ -n "$id_mapping" ]]; then
+            r_args+=(--id-mapping "$id_mapping")
+        fi
+        Rscript "$REPO_ROOT/R/differential_coverage.R" "${r_args[@]}"
+    else
+        die "unknown mode: $MODE (expected genome or targeted)"
+    fi
+}
+
+run_candidates() {
+    "$REPO_ROOT/workflow/candidate_extraction.sh" --config "$config_file"
+}
+
+run_structure() {
+    "$REPO_ROOT/workflow/structure_mapping.sh" --config "$config_file"
+}
+
+case "$command" in
+    check)
+        run_check
+        ;;
+    preprocess)
+        run_preprocess
+        ;;
+    quantify)
+        run_quantify
+        ;;
+    analyse)
+        run_analyse
+        ;;
+    candidates)
+        run_candidates
+        ;;
+    structure)
+        run_structure
+        ;;
+    -h|--help|help)
+        usage
+        exit 0
+        ;;
+    *)
+        usage >&2
+        die "unknown command: $command"
+        ;;
+esac
