@@ -69,12 +69,11 @@ Use this when you only have a small custom reference, such as a synthetic T7-Pep
 
 ## Installation
 
-1. Clone the repository and switch to the `refactor/v2` branch (do not modify `main`):
+1. Clone the repository:
 
    ```bash
-   git clone <repository-url>
+   git clone https://github.com/Reynold4k/Nanopore_MinimumBIO.git
    cd Nanopore_MinimumBIO
-   git checkout refactor/v2
    ```
 
 2. Create the conda environment:
