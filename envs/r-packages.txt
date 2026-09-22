@@ -1,0 +1,20 @@
+# R package list for Nanopore MinimumBIO v2
+#
+# CRAN packages
+ggplot2
+dplyr
+tidyr
+readr
+ggrepel
+
+# Bioconductor packages
+edgeR
+rtracklayer
+
+# Install snippet (run inside R):
+# install.packages(c("ggplot2", "dplyr", "tidyr", "readr", "ggrepel"))
+# if (!requireNamespace("BiocManager", quietly = TRUE))
+#     install.packages("BiocManager")
+# BiocManager::install(c("edgeR", "rtracklayer"))
+#
+# Optional: use renv to pin versions for full reproducibility.

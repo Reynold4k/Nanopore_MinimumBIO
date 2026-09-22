@@ -1,0 +1,23 @@
+name: minbio
+channels:
+  - bioconda
+  - conda-forge
+  - defaults
+dependencies:
+  - python=3.11
+  - cutadapt
+  - seqkit
+  - seqtk
+  - blast
+  - bwa
+  - minimap2
+  - samtools
+  - subread
+  - nanoplot
+  - bedtools
+  - biopython
+  - pod5
+  - pyyaml
+  - pymol-open-source
+  # dorado must be installed separately due to ONT licensing restrictions;
+  # see docs/beginner_setup.md for manual installation instructions.
