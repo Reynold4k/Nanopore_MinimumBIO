@@ -1,0 +1,49 @@
+# Example: genome mode starting from basecalled FASTQ files.
+# Copy this file, update the placeholder paths, and pass it to minbio or the
+# individual workflow scripts with --config.
+
+experiment:
+  name: "my_experiment"
+  exp_folder: "/path/to/experiment"      # contains round dirs R0,R1,...
+  control_folder: "/path/to/control"     # same layout
+  round_pattern: "R*"                    # glob for round directories
+
+mode: genome                             # genome | targeted
+
+input:
+  type: fastq                            # fastq | pod5
+  pod5_dir: ""                           # pod5 mode only
+  dorado_model: ""                       # pod5 mode only, e.g. dna_r10.4.1_e8.2_400bps_sup@v4.3.0
+  dorado_device: "cuda"
+
+reference:
+  fasta: "/path/to/reference.fa"
+  annotation: "/path/to/annotation.gtf"  # genome mode only
+  id_mapping: ""                         # targeted mode, optional UniProt idmapping TSV
+
+filtering:
+  adapter: "GATCCGAATTCN"
+  cutadapt_error_rate: 0.01
+  min_protein_length: 30                 # aa, applied after translation
+  protein_db: "/path/to/human_proteome_db"   # makeblastdb protein db
+  blast_evalue: 0.001
+
+alignment:
+  threads: 16
+  aligner: auto                          # auto: bwa (genome) | minimap2 (targeted)
+  bwa_preset: "ont2d"                    # applied as -x when aligner=bwa
+  mark_duplicates: true
+  remove_duplicates: false               # markdup -r when true
+
+analysis:
+  method: trend                          # trend | ttest   (genome mode)
+  pvalue_threshold: 0.05
+  log10cpm_threshold: 3
+  top_genes_label: 40
+  top_genes_trajectory: 10
+
+structure:
+  genes: ["PHF6"]
+  uniprot_id: "Q8IWS0"
+  pdb_path: "/path/to/AF-Q8IWS0-F1-model_v4.pdb"
+  chr_prefix: auto                       # auto | chr | none — seqname style of the BAM
