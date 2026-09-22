@@ -90,6 +90,9 @@ done
 #------------------------------------------------------------------------------
 log "Checking R packages"
 R_PACKAGES=(edgeR ggplot2 ggrepel dplyr tidyr rtracklayer readr)
+if ! command -v Rscript >/dev/null 2>&1; then
+    log "WARNING: Rscript not found; skipping R package check"
+else
 R_CHECK=$(cat <<EOF
 missing <- c()
 for (pkg in c("edgeR", "ggplot2", "ggrepel", "dplyr", "tidyr", "rtracklayer", "readr")) {
@@ -110,6 +113,7 @@ R_OUTPUT=$(Rscript -e "$R_CHECK" 2>&1) || R_STATUS=$?
 log "$R_OUTPUT"
 if [[ "$R_STATUS" -ne 0 ]]; then
     MISSING+=("R packages")
+fi
 fi
 
 #------------------------------------------------------------------------------
