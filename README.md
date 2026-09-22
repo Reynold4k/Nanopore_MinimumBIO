@@ -1,236 +1,248 @@
-### Comprehensive Pipeline for Nanopore Biopanning data
+# Nanopore MinimumBIO
 
-**Author**: Chen Zhu  
-**Email**: [z3546698@ad.unsw.edu.au]  
-**Date**: 04/Sep/2024
+An end-to-end, config-driven workflow for analysing Nanopore-sequenced biopanning experiments, from raw FASTQ or POD5 to differential enrichment statistics and protein-structure highlights.
 
+## Overview
 
-### If you don't have a personalized or targeted reference genome file, please go through:
+Nanopore MinimumBIO processes T7 phage-display peptide libraries that have been selected against a bait of interest. It takes paired experimental and control sequencing reads, organised by panning round (`R0`, `R1`, ... `Rn`), and produces:
 
-## <span style="color: red;">Pipeline1 & 2</span>
+- per-round QC reports and filtered FASTQ/BAM files,
+- gene-level counts or per-reference coverage,
+- differential-enrichment statistics and plots,
+- candidate DNA/protein sequences, and
+- PyMOL structure highlights on an AlphaFold PDB model.
 
-### If you actually have a personalized or targeted reference genome file, please go through:
+The workflow is controlled by a single YAML configuration file and a small dispatcher, `bin/minbio`.
 
-## <span style="color: green;">Pipeline1.5 & 2</span>
+## Key capabilities
 
-## Please note, it would be different procedures between <span style="color: red;">Pipeline1</span> and <span style="color: green;">Pipeline1.5</span>, please carefully check your settings.
+- **End-to-end Nanopore biopanning analysis**: raw signal or FASTQ → candidate prioritisation → protein structural interpretation, implemented in `workflow/preprocess_fastq.sh`, `workflow/preprocess_pod5.sh`, `workflow/candidate_extraction.sh` and `workflow/structure_mapping.sh`.
+- **Protein-aware read filtering**: reads are translated in frame 1 and filtered with BLASTp against a protein database before alignment, implemented in `workflow/preprocess_fastq.sh` and `workflow/coverage_workflow.sh`.
+- **Two-reference strategy**: genome-wide mode (`bwa` + `featureCounts`) for annotated genomes, and targeted mode (`minimap2` + `samtools depth`) for personalised or amplicon references, implemented in `workflow/quantify_genome.sh` and `workflow/coverage_workflow.sh`.
+- **Round-resolved enrichment statistics**: CPM normalisation, growth-rate computation, and polynomial-trend or t-test differential analysis across panning rounds, implemented in `R/differential_genome.R` and `R/differential_coverage.R`.
+- **Sequence-to-structure integration**: candidate regions are extracted from BAM/GTF, translated to peptide, locally aligned to a PDB sequence, and highlighted in PyMOL, implemented in `workflow/candidate_extraction.sh` and `workflow/structure_mapping.sh`.
+- **Config-driven reproducible CLI**: all paths and parameters live in one YAML file; `bin/minbio` dispatches stages and `scripts/check_env.sh` validates dependencies.
 
-## Prerequisites
+## Workflow
 
-Ensure your system meets the following requirements before running the pipeline:
-
-- **Operating System**: Linux or compatible environment.
-
-# For Windows Users Ubuntu from microsoft store is highly recommended:
-- You could also obtain this software via: https://ubuntu.com/
-
-![image](https://github.com/user-attachments/assets/9b400296-fc30-4dbd-929c-7c9bdafaf438)
-
-## If you didn't install python ever on your PC, install NOW after you read the Linux instructions below!!
-Type the command below in your linux portal
-```bash
-sudo apt install python3
-
-#Together with a bonus R installation command:
-sudo apt install r-base
+```mermaid
+flowchart TD
+    A[Raw Nanopore] -->|POD5| B[dorado basecaller]
+    A -->|FASTQ| C[FASTQ per round]
+    B --> C
+    C --> D[cutadapt motif filter GATCCGAATTCN]
+    D --> E[NanoPlot QC]
+    E --> F[translate frame 1 + BLASTp filter]
+    F --> G{reference type}
+    G -->|genome| H[bwa mem → markdup → featureCounts]
+    G -->|targeted| I[minimap2 → samtools depth]
+    H --> J[R differential genome]
+    I --> K[Compare coverage]
+    K --> L[R differential coverage]
+    J --> M[Candidate ranking]
+    L --> M
+    M --> N[candidate_extraction.sh]
+    N --> O[DNA → translation]
+    O --> P[local alignment to PDB]
+    P --> Q[PyMOL highlight figure]
 ```
 
-## Guide for Windows Users Transitioning to Ubuntu
+## Workflow modes
 
-## Understanding File Paths
-- **Path Delimiters:**  
-  Unlike Windows, which uses backslashes (`\`) for file paths, Ubuntu utilizes forward slashes (`/`).  
-  Example: `C:\Users\YourName\Documents` becomes `/home/YourName/Documents` in Ubuntu.
+### Genome mode (`mode: genome`)
 
-- **Case Sensitivity:**  
-  File and directory names in Ubuntu are case-sensitive.  
-  `Documents`, `documents`, and `DOCUMENTS` are considered different directories.
+Use this when you have a genome-wide reference and a gene annotation GTF.
 
-## Home Directory
-- On Ubuntu, your personal files are stored in the home directory, typically located at `/home/YourName`. 
-  This is similar to `C:\Users\YourName` on Windows.
+- **Input**: FASTQ or POD5 per round.
+- **Aligner**: `bwa mem` with the ONT preset configured in `alignment.bwa_preset`.
+- **Quantification**: `featureCounts` on the final marked/sorted BAM.
+- **Differential analysis**: `R/differential_genome.R` (trend regression or t-test).
 
-## Accessing Drives
-- Windows drives (C:, D:, etc.) are mounted in the `/mnt` or `/media` directory in Ubuntu.  
-  For example, your C: drive might be accessible under `/mnt/c`.
+### Targeted mode (`mode: targeted`)
 
-## Hidden Files and Directories
-- Files and folders prefixed with a dot (`.`) in Ubuntu are hidden by default.  
-  To view them in the file manager, press `Ctrl + H`.
+Use this when you only have a small custom reference, such as a synthetic T7-Pep library or amplicon, without a full annotation.
 
-## Permissions
-- Ubuntu enforces file permissions more strictly than Windows.  
-  You might need to modify permissions using commands like `chmod` or change the owner with `chown` for certain tasks.
+- **Input**: FASTQ per round.
+- **Aligner**: `minimap2 -ax map-ont`.
+- **Quantification**: `samtools depth` → top-1000 coverage loci.
+- **Differential analysis**: `R/differential_coverage.R` with optional UniProt id-mapping.
 
-## Using the Terminal
-- The terminal is a powerful tool in Ubuntu, used for a variety of tasks.  
-  Get familiar with basic commands like `ls` (list), `cd` (change directory), and `cp` (copy).
+## Installation
 
-## Installing Software
-- Unlike Windows, software in Ubuntu is often installed via package managers like `apt` (Advanced Package Tool).  
-  You might also use software repositories like the Ubuntu Software Center.
+1. Clone the repository and switch to the `refactor/v2` branch (do not modify `main`):
 
-## File Extensions
-- Ubuntu does not rely on file extensions to identify file types as strictly as Windows.  
-  It often determines the file type by its content.
+   ```bash
+   git clone <repository-url>
+   cd Nanopore_MinimumBIO
+   git checkout refactor/v2
+   ```
 
-## Backup Your Data
-- Before making any major changes, always ensure your data is backed up.  
-  Tools like `rsync` can be invaluable for maintaining backups in Ubuntu.
+2. Create the conda environment:
 
+   ```bash
+   conda env create -f envs/environment.yml
+   conda activate minbio
+   ```
 
-# For Mac Users Click the Launchpad icon in the Dock, type Terminal in the search field, then click Terminal.
-# In the Finder , open the /Applications/Utilities folder, then double-click Terminal.
+3. Install the required R packages:
 
-    
-## Beginner's Guide to Using Terminal and Command Line on macOS
+   ```r
+   install.packages(c("ggplot2", "dplyr", "tidyr", "readr", "ggrepel"))
+   if (!requireNamespace("BiocManager", quietly = TRUE))
+       install.packages("BiocManager")
+   BiocManager::install(c("edgeR", "rtracklayer"))
+   ```
 
-## Introduction to Terminal
-- **Accessing Terminal:**  
-  Terminal is a built-in application in macOS, found under `Applications > Utilities > Terminal`.
+   See `envs/r-packages.txt` for the full list.
 
-- **Basic Interface:**  
-  Terminal provides a command line interface where you can type commands to perform various tasks.
+4. Install Dorado manually. Dorado is Oxford Nanopore Technologies software and is not redistributed in the conda environment. Download it from the ONT documentation and ensure `dorado` is on your `PATH` before running POD5 workflows.
 
-## Navigating the File System
-- **Current Directory:**
-  - Use `pwd` to print the current working directory.
+5. (Optional) Install PyMOL for automated structure rendering. The workflow will still write `.pml` scripts if PyMOL is missing.
 
-- **Listing Files and Directories:**  
-  - Use `ls` to list files and directories.  
-  - Use `ls -la` to include hidden files and detailed information.
+## Quick start
 
-- **Changing Directory:**  
-  - Use `cd [directory_name]` to navigate to a different directory.  
-  - Use `cd ..` to go up one directory level.
+```bash
+# 1. Validate the environment
+./bin/minbio check --config config/config.example.yaml
 
-## Managing Files and Directories
-- **Creating Directories:**  
-  - Use `mkdir [directory_name]` to create a new directory.
+# 2. Copy and edit the example config for your data
+cp examples/config.fastq.yaml config/my_experiment.yaml
+# edit config/my_experiment.yaml
 
-- **Creating Files:**  
-  - Use `touch [file_name]` to create a new, empty file.
+# 3. Run the pipeline stages in order
+./bin/minbio preprocess --config config/my_experiment.yaml
+./bin/minbio quantify   --config config/my_experiment.yaml
+./bin/minbio analyse    --config config/my_experiment.yaml
+./bin/minbio candidates --config config/my_experiment.yaml
+./bin/minbio structure  --config config/my_experiment.yaml
+```
 
-- **Copying Files:**  
-  - Use `cp [source] [destination]` to copy files or directories.
+For POD5 input use `examples/config.pod5.yaml`; for a targeted reference use `examples/config.targeted.yaml`.
 
-- **Moving/Renaming Files:**  
-  - Use `mv [source] [destination]` to move or rename files.
+## Input
 
-- **Deleting Files and Directories:**  
-  - Use `rm [file_name]` to delete files.  
-  - Use `rm -r [directory_name]` to delete directories and their contents.
+The experiment and control folders must share the same round-based layout. Round directories are matched by name (default pattern `R*`):
 
-## Editing Files
-- **Using Nano Editor:**  
-  - Use `nano [file_name]` to edit files directly in Terminal.
+```
+/path/to/experiment/
+├── R0/
+│   └── round0.fastq.gz
+├── R1/
+│   └── round1.fastq.gz
+└── ...
 
-## Permissions
-- **Changing Permissions:**  
-  - Use `chmod [permissions] [file_name]` to change file or directory permissions.
+/path/to/control/
+├── R0/
+│   └── control_round0.fastq.gz
+├── R1/
+│   └── control_round1.fastq.gz
+└── ...
+```
 
-- **Changing Ownership:**  
-  - Use `chown [user] [file_name]` to change file ownership.
+See `examples/example_tree.md` for the complete layout and POD5 variants.
 
-## Searching and Finding Files
-- **Search with grep:**  
-  - Use `grep [search_term] [file_name]` to search for a term within a file.
+## Output
 
-- **Finding Files:**  
-  - Use `find [directory] -name [file_name]` to search for files by name.
+Per round, under each round directory:
 
-## Useful Tips
-- **Auto-Completion:**  
-  - Use the `Tab` key to auto-complete file and directory names.
+- `all_sequences.fastq.gz` — merged input,
+- `step1/all_trimmed.fastq.gz` — adapter-filtered reads,
+- `step1/all_filtered_sequences.fastq.gz` — BLASTp-filtered reads,
+- `step2/*_sorted.bam` / `*_marked.bam` — aligned reads,
+- `quality_control/all_trimmed_nanop/` — NanoPlot QC report,
+- `step3/*_combined_expression_counts.txt` — gene counts (genome mode),
+- `step2/coverage.txt` / `top_1000_positions.txt` — coverage summaries (targeted mode).
 
-- **Command History:**  
-  - Use the `Up` and `Down` arrow keys to cycle through command history.
+Per experiment:
 
-- **Canceling Commands:**  
-  - Use `Ctrl + C` to cancel an ongoing command or process.
+- `<exp_folder>/Routput/` — differential-analysis plots and tables,
+- `<exp_folder>/potential_hit/<round>/` — candidate DNA and translated proteins,
+- `<exp_folder>/potential_hit/<round>/visualization/` — PyMOL `.pml`, `.pse` and PNG renders.
 
+## Configuration
 
-**Reference and Annotation Files**:
-- Reference genome in FASTA format (e.g., `hg38.fa`).
-- Gene annotation file in GTF format (e.g., `hg38.ensGene.gtf`).
+All paths and parameters are set in a YAML file. Copy one of the examples and edit the values:
 
-# Beginner's Guide to Essential Linux Commands
+- `experiment.name`, `experiment.exp_folder`, `experiment.control_folder`, `experiment.round_pattern`
+- `mode`: `genome` or `targeted`
+- `input.type`: `fastq` or `pod5`; POD5-specific Dorado settings
+- `reference.fasta`, `reference.annotation` (genome), `reference.id_mapping` (targeted, optional)
+- `filtering.adapter`, `filtering.min_protein_length`, `filtering.protein_db`, `filtering.blast_evalue`
+- `alignment.threads`, `alignment.bwa_preset`, `alignment.mark_duplicates`
+- `analysis.method`, `analysis.pvalue_threshold`, `analysis.log10cpm_threshold`
+- `structure.genes`, `structure.uniprot_id`, `structure.pdb_path`, `structure.chr_prefix`
 
+See `config/config.example.yaml` for a fully annotated template.
 
-## Introduction to the Terminal
-- **Accessing the Terminal:**  
-  The terminal is a command line interface to interact with your Linux system. You can open it from your system's applications menu or by using a keyboard shortcut (usually `Ctrl + Alt + T`).
+## Differential analysis
 
-## Navigating the File System
-- **Current Directory:**
-  - Use `pwd` (print working directory) to display your current directory path.
+### Genome mode
 
-- **Listing Files and Directories:**  
-  - Use `ls` to list directory contents.  
-  - Use `ls -la` for detailed information, including hidden files.
+`R/differential_genome.R` reads per-round `featureCounts` output, computes CPM, and compares experiment vs control. It supports two methods:
 
-- **Changing Directory:**  
-  - Use `cd [directory_name]` to navigate between directories.  
-  - Use `cd ..` to move up one level.
+- `trend` — first-degree polynomial trend regression across rounds on the mean experiment–control difference.
+- `ttest` — unpaired t-test of experiment vs control per gene across rounds.
 
-## Managing Files and Directories
-- **Creating Directories:**  
-  - Use `mkdir [directory_name]` to create a new directory.
+Outputs include a volcano plot, PCA plot, trajectory line plot, and a table of differential values.
 
-- **Creating Files:**  
-  - Use `touch [file_name]` to create an empty file.
+### Targeted mode
 
-- **Copying Files:**  
-  - Use `cp [source] [destination]` to copy files or directories.
+`R/differential_coverage.R` reads the per-round `differential_coverage.txt` files produced by `workflow/coverage_workflow.sh --stage compare`, normalises coverage to CPM, and produces a volcano plot and (when ≥2 rounds are available) a trajectory line plot. If a UniProt id-mapping TSV is supplied, gene names are added to the coverage tables.
 
-- **Moving/Renaming Files:**  
-  - Use `mv [source] [destination]` to move or rename files.
+## Candidate discovery
 
-- **Deleting Files and Directories:**  
-  - Use `rm [file_name]` to delete files.  
-  - Use `rm -r [directory_name]` to delete directories and their contents.
+`workflow/candidate_extraction.sh` extracts reads overlapping the genes configured in `structure.genes` (genome mode) or the top coverage BEDs (targeted mode), converts them to BED coordinates, pulls the corresponding DNA from the reference with `bedtools getfasta`, and translates the DNA in frame 1 using `scripts/translate_dna.py`. Outputs are written to `<folder>/potential_hit/<round>/` to keep multi-round results separate.
 
-## Editing Files
-- **Using Nano Editor:**  
-  - Use `nano [file_name]` to edit files within the terminal.
+## Structural interpretation
 
-## Permissions and Ownership
-- **Changing Permissions:**  
-  - Use `chmod [permissions] [file_name]` to modify file permissions.
+`workflow/structure_mapping.sh` aligns the translated candidate peptides against the AlphaFold PDB sequence with `scripts/pdb_align.py`, then writes a PyMOL script that highlights the matched residue range on the structure. If PyMOL is installed it runs headlessly; otherwise the `.pml` script is saved for manual execution.
 
-- **Changing Ownership:**  
-  - Use `chown [user] [file_name]` to change file ownership.
+## Repository structure
 
-## Searching and Finding Files
-- **Search with grep:**  
-  - Use `grep [search_term] [file_name]` to search for a term within files.
+```
+Nanopore_MinimumBIO/
+├── bin/minbio                       # CLI dispatcher
+├── config/config.example.yaml       # annotated config template
+├── docs/                            # user and methodology docs
+│   ├── beginner_setup.md
+│   ├── workflow.md
+│   ├── methodology.md
+│   ├── project_history.md
+│   ├── legacy_workflows.md
+│   └── troubleshooting.md
+├── envs/
+│   ├── environment.yml              # conda environment
+│   └── r-packages.txt               # R package list
+├── examples/                        # example configs and directory layout
+├── R/                               # differential analysis scripts
+├── scripts/                         # helpers (common.sh, check_env.sh, python)
+├── tests/smoke_test.sh              # syntax/config validation
+├── workflow/                        # modular workflow scripts
+└── legacy/                          # original pipelines preserved verbatim
+```
 
-- **Finding Files:**  
-  - Use `find [directory] -name [file_name]` to locate files by name.
+## Reproducibility
 
-## System Information
-- **Check Disk Usage:**  
-  - Use `df -h` to display disk space usage.
+- All workflow scripts use `set -euo pipefail` and a shared logging/config loader (`scripts/lib/common.sh`).
+- Tool versions are captured in `envs/environment.yml`; R packages are listed in `envs/r-packages.txt`.
+- `scripts/check_env.sh` reports missing tools, R packages, and FASTA/GTF chromosome-naming consistency.
+- `tests/smoke_test.sh` validates shell/R syntax and YAML parsing without requiring the heavy bioinformatics tools.
+- Every behavioural change from the legacy pipelines is documented in `docs/legacy_workflows.md`; nothing is silently altered.
 
-- **Check Memory Usage:**  
-  - Use `free -h` to display memory usage.
+## Limitations
 
-- **View Running Processes:**  
-  - Use `top` or `htop` to view active processes.
+Please interpret results as exploratory rather than definitive:
 
-## Useful Tips
-- **Auto-Completion:**  
-  - Use the `Tab` key for auto-completing commands and file/directory names.
+- **No replicates assumed**: panning rounds are treated as ordered time points, not independent biological replicates. P-values are for ranking, not formal hypothesis testing.
+- **Translation frame assumption**: candidate sequences are translated in reading frame 1. Peptides that are genuinely enriched in another frame may be missed.
+- **Chromosome naming**: the FASTA and GTF must use the same chromosome style (e.g. both `chr1` or both `1`). `scripts/check_env.sh` catches mismatches.
+- **Dorado licensing**: basecalling requires a separate manual install of ONT Dorado; it is not included in the conda environment.
+- **Legacy naming**: the original genome script was called `Pipeline1_limma.R`, but no limma modelling is performed (`lmFit`/`eBayes` are not used). The v2 script is `R/differential_genome.R` and uses edgeR CPM plus trend regression or t-test.
 
-- **Command History:**  
-  - Use the `Up` and `Down` arrow keys to scroll through previously used commands.
+## Citation
 
-- **Canceling Commands:**  
-  - Use `Ctrl + C` to stop an ongoing command or process.
+If you use this workflow, please cite the repository and acknowledge the underlying tools (Dorado, cutadapt, BWA, minimap2, featureCounts, samtools, BLAST+, edgeR, etc.).
 
+## Author
 
-
-### Please follow the instructions and check the results after each step.
-## Good Luck
-![image](https://github.com/user-attachments/assets/33e84a7b-7fde-481b-a0ee-999fbe9a18d2)
-
+Chen Zhu
