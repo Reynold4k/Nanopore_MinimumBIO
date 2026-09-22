@@ -108,13 +108,15 @@ generate_file_paths <- function(base_dir, common_dirs) {
       warning("File does not exist: ", file_path)
     }
   }
+  # Drop rounds whose count file is missing (setNames(nm=...) defaults entries to the name)
+  paths <- paths[vapply(paths, function(p) file.exists(p), logical(1))]
   paths
 }
 
 control_paths <- generate_file_paths(control_base_path, common_dirs)
 exp_paths     <- generate_file_paths(exp_base_path, common_dirs)
 
-available <- common_dirs[!is.null(control_paths[common_dirs]) & !is.null(exp_paths[common_dirs])]
+available <- intersect(names(control_paths), names(exp_paths))
 if (length(available) == 0) stop("No round with count files present in both experiment and control.")
 control_paths <- control_paths[available]
 exp_paths     <- exp_paths[available]

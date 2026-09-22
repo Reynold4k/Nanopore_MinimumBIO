@@ -5,12 +5,9 @@
 # with documented v2 behaviour changes (C8, C17, C18, C20).
 
 suppressPackageStartupMessages({
-  library(edgeR)
   library(ggplot2)
-  library(ggrepel)
   library(dplyr)
   library(tidyr)
-  library(rtracklayer)
   library(readr)
 })
 
